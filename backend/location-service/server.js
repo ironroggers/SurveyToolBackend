@@ -19,6 +19,9 @@ app.use(helmet());
 app.use(morgan("dev"));
 
 // Routes
+app.get("/health", (req, res) => {
+  res.send(`Location Server is up and running!`);
+});
 app.use("/api/locations", locationRoutes);
 
 // Error handling

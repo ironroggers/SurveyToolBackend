@@ -19,6 +19,9 @@ app.use(helmet());
 app.use(morgan("dev"));
 
 // Routes
+app.get("/health", (req, res) => {
+  res.send(`Survey Server is up and Running!`);
+});
 app.use("/api/surveys", surveyRoutes);
 
 // Error handling
