@@ -1,13 +1,10 @@
 import Survey from '../models/survey.model.js';
-import { BadRequestError, NotFoundError, ForbiddenError } from '../utils/errors.js';
+import { BadRequestError, NotFoundError } from '../utils/errors.js';
 
 // Create a new survey
 export const createSurvey = async (req, res, next) => {
   try {
-    const survey = await Survey.create({
-      ...req.body,
-      assignedBy: req.user.id
-    });
+    const survey = await Survey.create(req.body);
 
     res.status(201).json({
       success: true,
@@ -26,10 +23,10 @@ export const getSurveys = async (req, res, next) => {
       limit = 10,
       status,
       terrainType,
-      assignedTo,
-      assignedBy,
       sortBy = 'createdAt',
-      sortOrder = 'desc'
+      sortOrder = 'desc',
+      search,
+      ...filters
     } = req.query;
 
     const query = {};
@@ -37,22 +34,44 @@ export const getSurveys = async (req, res, next) => {
     // Build query based on filters
     if (status) query.status = status;
     if (terrainType) query['terrainData.terrainType'] = terrainType;
-    if (assignedTo) query.assignedTo = assignedTo;
-    if (assignedBy) query.assignedBy = assignedBy;
 
-    // Handle role-based access
-    if (req.user.role === 'SURVEYOR') {
-      query.assignedTo = req.user.id;
-    } else if (req.user.role === 'SUPERVISOR') {
-      query.assignedBy = req.user.id;
+    // Process advanced filters
+    Object.keys(filters).forEach(key => {
+      if (key.includes('_gt')) {
+        const field = key.split('_gt')[0];
+        query[field] = { ...query[field], $gt: filters[key] };
+      } else if (key.includes('_gte')) {
+        const field = key.split('_gte')[0];
+        query[field] = { ...query[field], $gte: filters[key] };
+      } else if (key.includes('_lt')) {
+        const field = key.split('_lt')[0];
+        query[field] = { ...query[field], $lt: filters[key] };
+      } else if (key.includes('_lte')) {
+        const field = key.split('_lte')[0];
+        query[field] = { ...query[field], $lte: filters[key] };
+      } else if (key.includes('_ne')) {
+        const field = key.split('_ne')[0];
+        query[field] = { ...query[field], $ne: filters[key] };
+      } else if (key.includes('_in')) {
+        const field = key.split('_in')[0];
+        query[field] = { $in: filters[key].split(',') };
+      } else {
+        query[key] = filters[key];
+      }
+    });
+
+    // Add text search if provided
+    if (search) {
+      query.$or = [
+        { title: { $regex: search, $options: 'i' } },
+        { description: { $regex: search, $options: 'i' } }
+      ];
     }
 
     const sortOptions = {};
     sortOptions[sortBy] = sortOrder === 'desc' ? -1 : 1;
 
     const surveys = await Survey.find(query)
-      .populate('assignedTo', 'username email')
-      .populate('assignedBy', 'username email')
       .sort(sortOptions)
       .limit(limit * 1)
       .skip((page - 1) * limit);
@@ -77,10 +96,7 @@ export const getSurveys = async (req, res, next) => {
 // Get survey by ID
 export const getSurveyById = async (req, res, next) => {
   try {
-    const survey = await Survey.findById(req.params.id)
-      .populate('assignedTo', 'username email')
-      .populate('assignedBy', 'username email')
-      .populate('comments.user', 'username email');
+    const survey = await Survey.findById(req.params.id);
 
     if (!survey) {
       throw new NotFoundError('Survey not found');
@@ -102,20 +118,6 @@ export const updateSurvey = async (req, res, next) => {
 
     if (!survey) {
       throw new NotFoundError('Survey not found');
-    }
-
-    // Check if survey is editable
-    if (!survey.isEditable()) {
-      throw new ForbiddenError('Survey cannot be edited in its current status');
-    }
-
-    // Check permission based on role
-    if (req.user.role === 'SURVEYOR' && survey.assignedTo.toString() !== req.user.id) {
-      throw new ForbiddenError('You can only update surveys assigned to you');
-    }
-
-    if (req.user.role === 'SUPERVISOR' && survey.assignedBy.toString() !== req.user.id) {
-      throw new ForbiddenError('You can only update surveys you assigned');
     }
 
     const updatedSurvey = await Survey.findByIdAndUpdate(
@@ -142,12 +144,7 @@ export const deleteSurvey = async (req, res, next) => {
       throw new NotFoundError('Survey not found');
     }
 
-    // Only ADMIN can delete surveys
-    if (req.user.role !== 'ADMIN') {
-      throw new ForbiddenError('Only administrators can delete surveys');
-    }
-
-    await survey.remove();
+    await survey.deleteOne();
 
     res.status(200).json({
       success: true,
@@ -168,19 +165,16 @@ export const addComment = async (req, res, next) => {
     }
 
     const comment = {
-      user: req.user.id,
-      text: req.body.text
+      text: req.body.text,
+      timestamp: new Date()
     };
 
     survey.comments.push(comment);
     await survey.save();
 
-    const updatedSurvey = await Survey.findById(req.params.id)
-      .populate('comments.user', 'username email');
-
     res.status(200).json({
       success: true,
-      data: updatedSurvey
+      data: survey
     });
   } catch (error) {
     next(error);
@@ -210,24 +204,8 @@ export const updateStatus = async (req, res, next) => {
       throw new BadRequestError(`Invalid status transition from ${survey.status} to ${status}`);
     }
 
-    // Check permissions
-    if (req.user.role === 'SURVEYOR') {
-      if (!['IN_PROGRESS', 'SUBMITTED'].includes(status)) {
-        throw new ForbiddenError('Surveyors can only update status to IN_PROGRESS or SUBMITTED');
-      }
-    }
-
-    if (req.user.role === 'SUPERVISOR') {
-      if (!['APPROVED', 'REJECTED'].includes(status)) {
-        throw new ForbiddenError('Supervisors can only approve or reject surveys');
-      }
-    }
-
     survey.status = status;
-    if (status === 'REJECTED') {
-      if (!rejectionReason) {
-        throw new BadRequestError('Rejection reason is required');
-      }
+    if (status === 'REJECTED' && rejectionReason) {
       survey.rejectionReason = rejectionReason;
     }
 

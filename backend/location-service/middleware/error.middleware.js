@@ -1,59 +1,61 @@
-import { AppError } from "../utils/errors.js";
+import { AppError } from "../utils/error.js";
 
 export const errorHandler = (err, req, res, next) => {
-  err.statusCode = err.statusCode || 500;
-  err.status = err.status || "error";
+  console.error('Error:', err);
+
+  // Mongoose validation error
+  if (err.name === 'ValidationError') {
+    const messages = Object.values(err.errors).map(val => val.message);
+    return res.status(400).json({
+      status: 'error',
+      message: messages.join(', '),
+      errors: messages
+    });
+  }
 
   // Mongoose duplicate key error
   if (err.code === 11000) {
-    const field = Object.keys(err.keyValue)[0];
-    err = new AppError(
-      `Duplicate field value: ${field}. Please use another value`,
-      400
-    );
-  }
-
-  // Mongoose validation error
-  if (err.name === "ValidationError") {
-    const errors = Object.values(err.errors).map((el) => el.message);
-    err = new AppError(errors[0], 400);
+    return res.status(400).json({
+      status: 'error',
+      message: `Duplicate field value entered: ${Object.keys(err.keyValue).join(', ')}`
+    });
   }
 
   // Mongoose cast error (invalid ID)
-  if (err.name === "CastError") {
-    err = new AppError(`Invalid ${err.path}: ${err.value}`, 400);
+  if (err.name === 'CastError') {
+    return res.status(400).json({
+      status: 'error',
+      message: `Invalid ${err.path}: ${err.value}`
+    });
   }
 
   // JWT errors
-  if (err.name === "JsonWebTokenError") {
-    err = new AppError("Invalid token. Please log in again", 401);
-  }
-  if (err.name === "TokenExpiredError") {
-    err = new AppError("Your token has expired. Please log in again", 401);
+  if (err.name === 'JsonWebTokenError') {
+    return res.status(401).json({
+      status: 'error',
+      message: 'Invalid token. Please log in again.'
+    });
   }
 
-  if (process.env.NODE_ENV === "development") {
-    res.status(err.statusCode).json({
-      success: false,
-      error: err,
-      message: err.message,
-      stack: err.stack,
+  if (err.name === 'TokenExpiredError') {
+    return res.status(401).json({
+      status: 'error',
+      message: 'Your token has expired. Please log in again.'
     });
-  } else {
-    // Production mode: don't leak error details
-    if (err instanceof AppError) {
-      // Operational, trusted error: send message to client
-      res.status(err.statusCode).json({
-        success: false,
-        message: err.message,
-      });
-    } else {
-      // Programming or other unknown error: don't leak error details
-      console.error("ERROR 💥", err);
-      res.status(500).json({
-        success: false,
-        message: "Something went wrong!",
-      });
-    }
   }
+
+  // Custom error classes
+  if (err instanceof AppError) {
+    return res.status(err.statusCode).json({
+      status: err.status,
+      message: err.message
+    });
+  }
+
+  // Default error
+  res.status(500).json({
+    status: 'error',
+    message: err.message || 'Internal server error',
+    ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
+  });
 };

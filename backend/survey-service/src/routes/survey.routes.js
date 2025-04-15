@@ -9,7 +9,6 @@ import {
   updateStatus,
   findNearbySurveys,
 } from "../controllers/survey.controller.js";
-import { protect, authorize } from "../middleware/auth.middleware.js";
 import {
   validateSurvey,
   validateComment,
@@ -18,45 +17,14 @@ import {
 
 const router = express.Router();
 
-// Protect all routes
-router.use(protect);
-
-// Public routes (for authenticated users)
+// Survey routes
 router.get("/nearby", findNearbySurveys);
-
-// Routes for all authenticated users
 router.get("/", getSurveys);
 router.get("/:id", getSurveyById);
-
-// Routes for SURVEYOR and above
-router.post(
-  "/:id/comments",
-  authorize("SURVEYOR", "SUPERVISOR", "ADMIN"),
-  validateComment,
-  addComment
-);
-
-// Routes for SUPERVISOR and ADMIN
-router.post(
-  "/",
-  authorize("SUPERVISOR", "ADMIN"),
-  validateSurvey,
-  createSurvey
-);
-router.put(
-  "/:id",
-  authorize("SUPERVISOR", "ADMIN"),
-  validateSurvey,
-  updateSurvey
-);
-router.patch(
-  "/:id/status",
-  authorize("SUPERVISOR", "ADMIN"),
-  validateStatusUpdate,
-  updateStatus
-);
-
-// Routes for ADMIN only
-router.delete("/:id", authorize("ADMIN"), deleteSurvey);
+router.post("/:id/comments", validateComment, addComment);
+router.post("/", validateSurvey, createSurvey);
+router.put("/:id", validateSurvey, updateSurvey);
+router.patch("/:id/status", validateStatusUpdate, updateStatus);
+router.delete("/:id", deleteSurvey);
 
 export default router;

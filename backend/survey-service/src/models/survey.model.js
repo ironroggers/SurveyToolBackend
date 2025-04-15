@@ -13,16 +13,9 @@ const surveySchema = new mongoose.Schema(
       trim: true,
     },
     location: {
-      type: {
-        type: String,
-        enum: ["Point"],
-        required: true,
-        default: "Point",
-      },
-      coordinates: {
-        type: [Number],
-        required: [true, "Coordinates are required"],
-      },
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Location",
+      required: [true, "Location is required"],
     },
     terrainData: {
       terrainType: {
@@ -34,6 +27,26 @@ const surveySchema = new mongoose.Schema(
         type: Number,
         required: [true, "Elevation is required"],
         min: [0, "Elevation cannot be negative"],
+      },
+      centerPoint: {
+        type: {
+          type: String,
+          enum: ["Point"],
+          required: true,
+          default: "Point"
+        },
+        coordinates: {
+          type: [Number],
+          required: true,
+          validate: {
+            validator: function(coords) {
+              return coords.length === 2 &&
+                     coords[0] >= -180 && coords[0] <= 180 &&
+                     coords[1] >= -90 && coords[1] <= 90;
+            },
+            message: "Invalid coordinates. Longitude must be between -180 and 180, Latitude between -90 and 90"
+          }
+        }
       },
       existingInfrastructure: [
         {
@@ -106,11 +119,11 @@ const surveySchema = new mongoose.Schema(
   }
 );
 
-surveySchema.index({ location: "2dsphere" });
 surveySchema.index({ status: 1 });
 surveySchema.index({ assignedTo: 1 });
 surveySchema.index({ assignedBy: 1 });
 surveySchema.index({ "terrainData.terrainType": 1 });
+surveySchema.index({ location: 1 });
 
 surveySchema.pre("save", function (next) {
   if (this.isModified("status") && this.status === "APPROVED") {
@@ -123,18 +136,33 @@ surveySchema.methods.isEditable = function () {
   return ["PENDING", "IN_PROGRESS", "REJECTED"].includes(this.status);
 };
 
-surveySchema.statics.findNearby = function (coordinates, maxDistance) {
-  return this.find({
-    location: {
-      $near: {
-        $geometry: {
-          type: "Point",
-          coordinates: coordinates,
-        },
-        $maxDistance: maxDistance,
-      },
+surveySchema.statics.findNearby = async function (coordinates, maxDistance) {
+  return this.aggregate([
+    {
+      $lookup: {
+        from: "Location",
+        localField: "location",
+        foreignField: "_id",
+        as: "locationData"
+      }
     },
-  });
+    {
+      $unwind: "$locationData"
+    },
+    {
+      $match: {
+        "locationData.centerPoint": {
+          $near: {
+            $geometry: {
+              type: "Point",
+              coordinates: coordinates
+            },
+            $maxDistance: maxDistance
+          }
+        }
+      }
+    }
+  ]);
 };
 
 export default mongoose.model("Survey", surveySchema, "Survey");

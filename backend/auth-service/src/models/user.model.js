@@ -27,6 +27,14 @@ const userSchema = new mongoose.Schema(
       enum: ["SURVEYOR", "SUPERVISOR", "ADMIN"],
       required: true,
     },
+    reportingTo: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: function() {
+        // Make reportingTo required for all roles except ADMIN
+        return this.role !== 'ADMIN';
+      }
+    },
     lastLogin: Date,
     status: {
       type: Number,

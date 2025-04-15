@@ -6,9 +6,17 @@ import helmet from "helmet";
 import morgan from "morgan";
 
 import locationRoutes from "./routes/location.routes.js";
+import sublocationRoutes from "./routes/sublocation.routes.js";
 import { errorHandler } from "./middleware/error.middleware.js";
 
 dotenv.config();
+
+// Log environment variables (without exposing sensitive values)
+console.log('Environment Variables Check:', {
+  JWT_SECRET: process.env.JWT_SECRET ? 'Set' : 'Missing',
+  MONGODB_URI: process.env.MONGODB_URI ? 'Set' : 'Missing',
+  PORT: process.env.PORT || 3002
+});
 
 const app = express();
 
@@ -23,6 +31,7 @@ app.get("/health", (req, res) => {
   res.send(`Location Server is up and running!`);
 });
 app.use("/api/locations", locationRoutes);
+app.use("/api/sublocations", sublocationRoutes);
 
 // Error handling
 app.use(errorHandler);

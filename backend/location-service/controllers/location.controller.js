@@ -4,12 +4,18 @@ import { BadRequestError, NotFoundError } from "../utils/errors.js";
 // Create a new location
 export const createLocation = async (req, res, next) => {
   try {
-    const location = await Location.create(req.body);
+    // Add createdBy field from authenticated user
+    const locationData = {
+      ...req.body
+    };
+    
+    const location = await Location.create(locationData);
     res.status(201).json({
       success: true,
       data: location,
     });
   } catch (error) {
+    console.error("Create Location Error:", error);
     next(error);
   }
 };
@@ -17,28 +23,48 @@ export const createLocation = async (req, res, next) => {
 // Get all locations with filtering and pagination
 export const getLocations = async (req, res, next) => {
   try {
-    const { page = 1, limit = 10, surveyId, assignedTo, status } = req.query;
+    console.log("Query params:", req.query);
+    const { page = 1, limit = 10, assignedTo, status, search, createdBy } = req.query;
     const query = {};
 
-    if (surveyId) query.surveyId = surveyId;
+    // Basic filters
     if (assignedTo) query.assignedTo = assignedTo;
-    if (status) query.status = status;
+    if (createdBy) query.createdBy = createdBy;
+    
+    // Handle comma-separated status values
+    if (status) {
+      const statusArray = status.split(',').map(s => s.trim());
+      query.status = { $in: statusArray };
+    }
+
+    // Search functionality
+    if (search) {
+      query.$or = [
+        { title: { $regex: search, $options: 'i' } }, // Case-insensitive search in title
+      ];
+    }
+
+    console.log("MongoDB query:", query);
 
     const locations = await Location.find(query)
-      .populate("assignedTo", "username email")
-      .limit(limit * 1)
-      .skip((page - 1) * limit)
+      .limit(parseInt(limit))
+      .skip((parseInt(page) - 1) * parseInt(limit))
       .sort({ createdAt: -1 });
 
     const count = await Location.countDocuments(query);
+
+    console.log("Found locations:", locations.length);
+    console.log("Total count:", count);
 
     res.status(200).json({
       success: true,
       data: locations,
       totalPages: Math.ceil(count / limit),
-      currentPage: page,
+      currentPage: parseInt(page),
+      total: count
     });
   } catch (error) {
+    console.error("Get Locations Error:", error);
     next(error);
   }
 };
@@ -46,10 +72,7 @@ export const getLocations = async (req, res, next) => {
 // Get location by ID
 export const getLocationById = async (req, res, next) => {
   try {
-    const location = await Location.findById(req.params.id).populate(
-      "assignedTo",
-      "username email"
-    );
+    const location = await Location.findById(req.params.id);
 
     if (!location) {
       throw new NotFoundError("Location not found");
@@ -60,6 +83,7 @@ export const getLocationById = async (req, res, next) => {
       data: location,
     });
   } catch (error) {
+    console.error("Get Location By ID Error:", error);
     next(error);
   }
 };
@@ -81,6 +105,7 @@ export const updateLocation = async (req, res, next) => {
       data: location,
     });
   } catch (error) {
+    console.error("Update Location Error:", error);
     next(error);
   }
 };
@@ -99,6 +124,7 @@ export const deleteLocation = async (req, res, next) => {
       message: "Location deleted successfully",
     });
   } catch (error) {
+    console.error("Delete Location Error:", error);
     next(error);
   }
 };
@@ -129,6 +155,7 @@ export const findNearbyLocations = async (req, res, next) => {
       data: locations,
     });
   } catch (error) {
+    console.error("Find Nearby Locations Error:", error);
     next(error);
   }
 };

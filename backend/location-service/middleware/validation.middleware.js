@@ -9,12 +9,6 @@ export const validateLocation = [
     .isLength({ min: 3 })
     .withMessage("Title must be at least 3 characters long"),
 
-  body("surveyId")
-    .notEmpty()
-    .withMessage("Survey ID is required")
-    .isMongoId()
-    .withMessage("Invalid Survey ID format"),
-
   body("geofence")
     .notEmpty()
     .withMessage("Geofence is required"),
@@ -78,7 +72,7 @@ export const validateLocation = [
 
   body("status")
     .optional()
-    .isIn(["ACTIVE", "INACTIVE", "COMPLETED"])
+    .isIn(["ACTIVE", "INACTIVE", "COMPLETED", "APPROVED", "REJECTED"])
     .withMessage("Invalid status value"),
 
   body("assignedTo")

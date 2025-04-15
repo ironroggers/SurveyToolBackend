@@ -13,7 +13,27 @@ export const validateSurvey = [
     .optional()
     .trim(),
 
-  body('location.coordinates')
+  body('location')
+    .notEmpty()
+    .withMessage('Location is required')
+    .isMongoId()
+    .withMessage('Invalid location ID'),
+
+  body('terrainData.terrainType')
+    .notEmpty()
+    .withMessage('Terrain type is required')
+    .isIn(['URBAN', 'RURAL', 'FOREST', 'MOUNTAIN', 'WETLAND', 'COASTAL'])
+    .withMessage('Invalid terrain type'),
+
+  body('terrainData.elevation')
+    .notEmpty()
+    .withMessage('Elevation is required')
+    .isFloat({ min: 0 })
+    .withMessage('Elevation must be a positive number'),
+
+  body('terrainData.centerPoint.coordinates')
+    .notEmpty()
+    .withMessage('Terrain center point coordinates are required')
     .isArray()
     .withMessage('Coordinates must be an array')
     .custom((coords) => {
@@ -29,18 +49,6 @@ export const validateSurvey = [
       }
       return true;
     }),
-
-  body('terrainData.terrainType')
-    .notEmpty()
-    .withMessage('Terrain type is required')
-    .isIn(['URBAN', 'RURAL', 'FOREST', 'MOUNTAIN', 'WETLAND', 'COASTAL'])
-    .withMessage('Invalid terrain type'),
-
-  body('terrainData.elevation')
-    .notEmpty()
-    .withMessage('Elevation is required')
-    .isFloat({ min: 0 })
-    .withMessage('Elevation must be a positive number'),
 
   body('terrainData.existingInfrastructure')
     .optional()
