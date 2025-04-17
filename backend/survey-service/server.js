@@ -6,6 +6,7 @@ import helmet from "helmet";
 import morgan from "morgan";
 
 import surveyRoutes from "./src/routes/survey.routes.js";
+import uploadRoutes from "./src/routes/upload.routes.js";
 import { errorHandler } from "./src/middleware/error.middleware.js";
 
 dotenv.config();
@@ -23,18 +24,20 @@ app.get("/health", (req, res) => {
   res.send(`Survey Server is up and Running!`);
 });
 app.use("/api/surveys", surveyRoutes);
+app.use("/api/upload", uploadRoutes);
 
 // Error handling
 app.use(errorHandler);
 
-// Database connection
+// Database connection - using local MongoDB
+const MONGODB_URI = process.env.MONGODB_URI;
 mongoose
-  .connect(process.env.MONGODB_URI)
+  .connect(MONGODB_URI)
   .then(() => console.log("Connected to MongoDB"))
   .catch((err) => console.error("MongoDB connection error:", err));
 
 // Start server
-const PORT = process.env.PORT || 3003;
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`Survey service running on port ${PORT}`);
+  console.log(`Server is running on port ${PORT}`);
 });
