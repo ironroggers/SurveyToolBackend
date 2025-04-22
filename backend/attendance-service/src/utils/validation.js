@@ -14,6 +14,10 @@ export const validate = (req, res, next) => {
 
 // Attendance check-in validation
 export const checkInValidation = [
+  body('userId')
+    .isString()
+    .notEmpty()
+    .withMessage('User ID is required'),
   body('location')
     .optional()
     .isObject()
@@ -35,6 +39,10 @@ export const checkInValidation = [
 
 // Justification validation
 export const justificationValidation = [
+  body('userId')
+    .isString()
+    .notEmpty()
+    .withMessage('User ID is required'),
   body('date')
     .isISO8601()
     .withMessage('Date must be a valid date in ISO format'),
@@ -55,11 +63,19 @@ export const processJustificationValidation = [
   body('status')
     .isIn(['approved', 'rejected'])
     .withMessage('Status must be either "approved" or "rejected"'),
+  body('adminId')
+    .optional()
+    .isString()
+    .withMessage('Admin ID must be a string'),
   validate
 ];
 
 // Attendance history query validation
 export const historyQueryValidation = [
+  query('userId')
+    .isString()
+    .notEmpty()
+    .withMessage('User ID is required'),
   query('startDate')
     .optional()
     .isISO8601()
@@ -101,5 +117,14 @@ export const adminQueryValidation = [
     .optional()
     .isInt({ min: 1, max: 100 })
     .withMessage('Limit must be between 1 and 100'),
+  validate
+];
+
+// Today's attendance query validation
+export const todayAttendanceValidation = [
+  query('userId')
+    .isString()
+    .notEmpty()
+    .withMessage('User ID is required'),
   validate
 ]; 

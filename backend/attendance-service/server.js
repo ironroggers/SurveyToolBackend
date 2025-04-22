@@ -23,7 +23,7 @@ app.use(morgan("dev"));
 app.get("/health", (req, res) => {
   res.send(`Attendance Service is up and running!`);
 });
-app.use("/api/attendance", authMiddleware, attendanceRoutes);
+app.use("/api/attendance", attendanceRoutes);
 
 // Error handling
 app.use(errorHandler);

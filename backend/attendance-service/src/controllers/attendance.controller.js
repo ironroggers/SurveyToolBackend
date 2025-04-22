@@ -3,8 +3,14 @@ import Attendance from '../models/attendance.model.js';
 // Mark attendance (check-in)
 export const markAttendance = async (req, res, next) => {
   try {
-    const { location } = req.body;
-    const userId = req.user.id;
+    const { location, userId } = req.body;
+    
+    if (!userId) {
+      return res.status(400).json({
+        success: false,
+        message: 'userId is required'
+      });
+    }
     
     // Create a date object for today with time set to 00:00:00
     const today = new Date();
@@ -74,8 +80,14 @@ export const markAttendance = async (req, res, next) => {
 // Check out (end of day)
 export const checkOut = async (req, res, next) => {
   try {
-    const { location } = req.body;
-    const userId = req.user.id;
+    const { location, userId } = req.body;
+    
+    if (!userId) {
+      return res.status(400).json({
+        success: false,
+        message: 'userId is required'
+      });
+    }
     
     // Create a date object for today with time set to 00:00:00
     const today = new Date();
@@ -130,8 +142,14 @@ export const checkOut = async (req, res, next) => {
 // Get attendance history for the logged-in user
 export const getMyAttendanceHistory = async (req, res, next) => {
   try {
-    const { startDate, endDate, status } = req.query;
-    const userId = req.user.id;
+    const { startDate, endDate, status, userId } = req.query;
+    
+    if (!userId) {
+      return res.status(400).json({
+        success: false,
+        message: 'userId is required'
+      });
+    }
     
     const query = { userId };
     
@@ -171,7 +189,14 @@ export const getMyAttendanceHistory = async (req, res, next) => {
 // Get today's attendance status
 export const getTodayAttendance = async (req, res, next) => {
   try {
-    const userId = req.user.id;
+    const { userId } = req.query;
+    
+    if (!userId) {
+      return res.status(400).json({
+        success: false,
+        message: 'userId is required'
+      });
+    }
     
     // Create a date object for today with time set to 00:00:00
     const today = new Date();
@@ -206,13 +231,12 @@ export const getTodayAttendance = async (req, res, next) => {
 // Submit justification for absence
 export const submitJustification = async (req, res, next) => {
   try {
-    const { date, justification } = req.body;
-    const userId = req.user.id;
+    const { date, justification, userId } = req.body;
     
-    if (!date || !justification) {
+    if (!date || !justification || !userId) {
       return res.status(400).json({
         success: false,
-        message: 'Please provide date and justification'
+        message: 'Please provide date, justification, and userId'
       });
     }
     
@@ -260,18 +284,12 @@ export const submitJustification = async (req, res, next) => {
   }
 };
 
-// Admin: Get attendance records of all users (requires admin role)
+// Admin: Get attendance records of all users
 export const getAllAttendance = async (req, res, next) => {
   try {
     const { startDate, endDate, status, userId } = req.query;
     
-    // Check if user has admin role
-    if (!req.user.roles.includes('admin')) {
-      return res.status(403).json({
-        success: false,
-        message: 'Access denied. Admin privileges required.'
-      });
-    }
+    // Admin check removed temporarily
     
     const query = {};
     
@@ -332,15 +350,9 @@ export const getAllAttendance = async (req, res, next) => {
 export const processJustification = async (req, res, next) => {
   try {
     const { attendanceId } = req.params;
-    const { status } = req.body;
+    const { status, adminId } = req.body;
     
-    // Verify admin role
-    if (!req.user.roles.includes('admin')) {
-      return res.status(403).json({
-        success: false,
-        message: 'Access denied. Admin privileges required.'
-      });
-    }
+    // Verify admin role check removed temporarily
     
     if (!['approved', 'rejected'].includes(status)) {
       return res.status(400).json({
@@ -366,7 +378,7 @@ export const processJustification = async (req, res, next) => {
     }
     
     attendance.justificationStatus = status;
-    attendance.approvedBy = req.user.id;
+    attendance.approvedBy = adminId || 'system';
     
     await attendance.save();
     

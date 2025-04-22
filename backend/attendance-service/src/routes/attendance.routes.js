@@ -13,7 +13,8 @@ import {
   justificationValidation,
   processJustificationValidation,
   historyQueryValidation,
-  adminQueryValidation
+  adminQueryValidation,
+  todayAttendanceValidation
 } from '../utils/validation.js';
 
 const router = express.Router();
@@ -22,7 +23,7 @@ const router = express.Router();
 router.post('/check-in', checkInValidation, markAttendance);
 router.post('/check-out', checkInValidation, checkOut);
 router.get('/history', historyQueryValidation, getMyAttendanceHistory);
-router.get('/today', getTodayAttendance);
+router.get('/today', todayAttendanceValidation, getTodayAttendance);
 router.post('/justify', justificationValidation, submitJustification);
 
 // Admin routes
