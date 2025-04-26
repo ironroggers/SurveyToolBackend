@@ -16,7 +16,7 @@ export const markAttendance = async (req, res, next) => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     
-    // Check if attendance already exists for the user today
+    // Find today's attendance record
     let attendance = await Attendance.findOne({
       userId,
       date: {
@@ -25,52 +25,33 @@ export const markAttendance = async (req, res, next) => {
       }
     });
     
-    if (attendance) {
-      // If already checked in but not checked out
-      if (attendance.checkInTime && !attendance.checkOutTime) {
-        return res.status(400).json({
-          success: false,
-          message: 'You have already checked in. Please check out first.'
-        });
-      }
-      
-      // If already checked out, don't allow another check-in on same day
-      if (attendance.checkInTime && attendance.checkOutTime) {
-        return res.status(400).json({
-          success: false,
-          message: 'You have already completed attendance for today.'
-        });
-      }
-    }
-    
-    // Create new attendance record if it doesn't exist
+    // Initialize attendance record for today
     if (!attendance) {
       attendance = new Attendance({
         userId,
         date: today,
         status: 'present',
-        checkInTime: new Date(),
         location
       });
-    } else {
-      // Update existing record if it exists (e.g., if marked absent by default)
-      attendance.status = 'present';
-      attendance.checkInTime = new Date();
-      attendance.location = location;
-      
-      // Reset justification if previously absent
-      if (attendance.justificationStatus !== 'not_required') {
-        attendance.justificationStatus = 'not_required';
-        attendance.justification = '';
-      }
     }
-    
+    // Prevent new check-in if the last session is still open
+    const lastSession = attendance.sessions.length
+      ? attendance.sessions[attendance.sessions.length - 1]
+      : null;
+    if (lastSession && !lastSession.checkOutTime) {
+      return res.status(400).json({
+        success: false,
+        message: 'You must check out before checking in again.'
+      });
+    }
+    // Start a new session
+    attendance.sessions.push({ checkInTime: new Date() });
+    attendance.location = location || attendance.location;
     await attendance.save();
-    
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       data: attendance,
-      message: 'Attendance marked successfully'
+      message: 'Checked in successfully'
     });
   } catch (error) {
     next(error);
@@ -102,34 +83,39 @@ export const checkOut = async (req, res, next) => {
       }
     });
     
-    if (!attendance || !attendance.checkInTime) {
+    if (!attendance || !attendance.sessions.length) {
       return res.status(400).json({
         success: false,
         message: 'You need to check in first before checking out'
       });
     }
     
-    if (attendance.checkOutTime) {
+    // Determine now and the 11:59 PM boundary of the check-in day
+    const now = new Date();
+    const endOfDay = new Date(attendance.date);
+    endOfDay.setHours(23, 59, 0, 0);
+    // Close the last open session
+    const sessionToClose = attendance.sessions.length
+      ? attendance.sessions[attendance.sessions.length - 1]
+      : null;
+    if (!sessionToClose || sessionToClose.checkOutTime) {
       return res.status(400).json({
         success: false,
-        message: 'You have already checked out today'
+        message: 'No active session to check out from'
       });
     }
-    
-    // Set checkout time
-    attendance.checkOutTime = new Date();
-    
-    // Calculate work hours
-    const checkInTime = new Date(attendance.checkInTime);
-    const checkOutTime = new Date(attendance.checkOutTime);
-    const workHours = (checkOutTime - checkInTime) / (1000 * 60 * 60); // Convert ms to hours
-    
-    attendance.workHours = parseFloat(workHours.toFixed(2));
+    sessionToClose.checkOutTime = now > endOfDay ? endOfDay : now;
+    // Recalculate total work hours
+    let totalMs = 0;
+    attendance.sessions.forEach(s => {
+      if (s.checkInTime && s.checkOutTime) {
+        totalMs += new Date(s.checkOutTime) - new Date(s.checkInTime);
+      }
+    });
+    attendance.workHours = parseFloat((totalMs / (1000 * 60 * 60)).toFixed(2));
     attendance.location = location || attendance.location;
-    
     await attendance.save();
-    
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       data: attendance,
       message: 'Checked out successfully'
@@ -158,7 +144,9 @@ export const getMyAttendanceHistory = async (req, res, next) => {
       query.date = {};
       
       if (startDate) {
-        query.date.$gte = new Date(startDate);
+        const startDateObj = new Date(startDate);
+        startDateObj.setHours(0, 0, 0, 0);
+        query.date.$gte = startDateObj;
       }
       
       if (endDate) {
@@ -170,15 +158,30 @@ export const getMyAttendanceHistory = async (req, res, next) => {
     }
     
     // Add status filter if provided
-    if (status) {
+    if (status && ['present', 'absent', 'late'].includes(status)) {
       query.status = status;
     }
     
-    const attendanceRecords = await Attendance.find(query).sort({ date: -1 });
+    // Pagination
+    const page = parseInt(req.query.page, 10) || 1;
+    const limit = parseInt(req.query.limit, 10) || 20;
+    const skip = (page - 1) * limit;
+    
+    const attendanceRecords = await Attendance.find(query)
+      .sort({ date: -1 })
+      .skip(skip)
+      .limit(limit);
+    
+    const total = await Attendance.countDocuments(query);
     
     res.status(200).json({
       success: true,
       count: attendanceRecords.length,
+      total,
+      pagination: {
+        current: page,
+        pages: Math.ceil(total / limit)
+      },
       data: attendanceRecords
     });
   } catch (error) {
@@ -267,7 +270,7 @@ export const submitJustification = async (req, res, next) => {
       attendance.justificationStatus = 'pending';
       
       // If checking in was missed, mark as absent
-      if (!attendance.checkInTime) {
+      if (!attendance.sessions.length) {
         attendance.status = 'absent';
       }
     }
@@ -287,7 +290,7 @@ export const submitJustification = async (req, res, next) => {
 // Admin: Get attendance records of all users
 export const getAllAttendance = async (req, res, next) => {
   try {
-    const { startDate, endDate, status, userId } = req.query;
+    const { startDate, endDate, status, userId, page, limit } = req.query;
     
     // Admin check removed temporarily
     
@@ -303,7 +306,9 @@ export const getAllAttendance = async (req, res, next) => {
       query.date = {};
       
       if (startDate) {
-        query.date.$gte = new Date(startDate);
+        const startDateObj = new Date(startDate);
+        startDateObj.setHours(0, 0, 0, 0);
+        query.date.$gte = startDateObj;
       }
       
       if (endDate) {
@@ -315,19 +320,19 @@ export const getAllAttendance = async (req, res, next) => {
     }
     
     // Add status filter if provided
-    if (status) {
+    if (status && ['present', 'absent', 'late'].includes(status)) {
       query.status = status;
     }
     
     // Pagination
-    const page = parseInt(req.query.page, 10) || 1;
-    const limit = parseInt(req.query.limit, 10) || 20;
-    const skip = (page - 1) * limit;
+    const currentPage = parseInt(page, 10) || 1;
+    const recordsPerPage = parseInt(limit, 10) || 20;
+    const skip = (currentPage - 1) * recordsPerPage;
     
     const attendanceRecords = await Attendance.find(query)
       .sort({ date: -1 })
       .skip(skip)
-      .limit(limit);
+      .limit(recordsPerPage);
     
     const total = await Attendance.countDocuments(query);
     
@@ -336,8 +341,8 @@ export const getAllAttendance = async (req, res, next) => {
       count: attendanceRecords.length,
       total,
       pagination: {
-        current: page,
-        pages: Math.ceil(total / limit)
+        current: currentPage,
+        pages: Math.ceil(total / recordsPerPage)
       },
       data: attendanceRecords
     });

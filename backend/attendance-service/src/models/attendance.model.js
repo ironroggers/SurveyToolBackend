@@ -17,11 +17,15 @@ const attendanceSchema = new mongoose.Schema(
       enum: ['present', 'absent', 'late'],
       default: 'present'
     },
-    checkInTime: {
-      type: Date
-    },
-    checkOutTime: {
-      type: Date
+    // Track multiple check-in/check-out sessions for the day
+    sessions: {
+      type: [
+        {
+          checkInTime: { type: Date, required: true },
+          checkOutTime: { type: Date }
+        }
+      ],
+      default: []
     },
     workHours: {
       type: Number

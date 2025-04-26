@@ -74,13 +74,7 @@ export const login = async (req, res, next) => {
     res.status(200).json({
       success: true,
       data: {
-        user: {
-          id: user._id,
-          username: user.username,
-          email: user.email,
-          role: user.role,
-          reportingTo: user.reportingTo,
-        },
+        user: user,
         token,
       },
     });
@@ -143,7 +137,12 @@ export const getPotentialManagers = async (req, res, next) => {
 
 export const getAllUsers = async (req, res, next) => {
   try {
-    const users = await User.find({ status: 1 })
+    const { reportingTo } = req.query;
+    const filter = { status: 1 };
+    if (reportingTo) {
+      filter.reportingTo = reportingTo;
+    }
+    const users = await User.find(filter)
       .select('-password')
       .populate('reportingTo', 'username email role');
 
