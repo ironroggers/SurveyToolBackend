@@ -175,10 +175,14 @@ export const deleteLocation = async (req, res, next) => {
 // Assign location to a user
 export const assignLocation = async (req, res, next) => {
   try {
-    const { userId } = req.body;
+    const { userId, due_date } = req.body;
     
     if (!userId) {
       throw new BadRequestError("User ID is required");
+    }
+
+    if (!due_date) {
+      throw new BadRequestError("Due date is required");
     }
     
     const location = await Location.findByIdAndUpdate(
@@ -186,6 +190,7 @@ export const assignLocation = async (req, res, next) => {
       {
         assigned_to: userId,
         status: 2, // Assigned status
+        due_date: new Date(due_date),
         updated_on: new Date()
       },
       {
