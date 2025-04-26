@@ -19,36 +19,31 @@ export const validateSurvey = [
     .isMongoId()
     .withMessage('Invalid location ID'),
 
-  body('terrainData.terrainType')
+  body('latlong')
     .notEmpty()
-    .withMessage('Terrain type is required')
-    .isIn(['URBAN', 'RURAL', 'FOREST', 'MOUNTAIN', 'WETLAND', 'COASTAL'])
-    .withMessage('Invalid terrain type'),
-
-  body('terrainData.elevation')
-    .notEmpty()
-    .withMessage('Elevation is required')
-    .isFloat({ min: 0 })
-    .withMessage('Elevation must be a positive number'),
-
-  body('terrainData.centerPoint.coordinates')
-    .notEmpty()
-    .withMessage('Terrain center point coordinates are required')
+    .withMessage('Latlong is required')
     .isArray()
-    .withMessage('Coordinates must be an array')
+    .withMessage('Latlong must be an array')
     .custom((coords) => {
       if (!coords || coords.length !== 2) {
-        throw new Error('Coordinates must contain exactly 2 values [longitude, latitude]');
+        throw new Error('Latlong must contain exactly 2 values [latitude, longitude]');
       }
-      const [longitude, latitude] = coords;
-      if (longitude < -180 || longitude > 180) {
-        throw new Error('Invalid longitude (must be between -180 and 180)');
-      }
+      const [latitude, longitude] = coords;
       if (latitude < -90 || latitude > 90) {
         throw new Error('Invalid latitude (must be between -90 and 90)');
       }
+      if (longitude < -180 || longitude > 180) {
+        throw new Error('Invalid longitude (must be between -180 and 180)');
+      }
       return true;
     }),
+
+  body('created_by')
+    .notEmpty()
+    .withMessage('Creator is required')
+    .isMongoId()
+    .withMessage('Invalid user ID'),
+
 
   body('terrainData.existingInfrastructure')
     .optional()
@@ -72,11 +67,25 @@ export const validateSurvey = [
     .isIn(['IMAGE', 'VIDEO', 'DOCUMENT'])
     .withMessage('Invalid file type'),
 
-  body('assignedTo')
+  validateRequest
+];
+
+export const validateMediaFile = [
+  body('url')
     .notEmpty()
-    .withMessage('Assigned surveyor is required')
-    .isMongoId()
-    .withMessage('Invalid surveyor ID'),
+    .withMessage('URL is required')
+    .isURL()
+    .withMessage('Invalid URL format'),
+
+  body('fileType')
+    .notEmpty()
+    .withMessage('File type is required')
+    .isIn(['IMAGE', 'VIDEO', 'DOCUMENT'])
+    .withMessage('Invalid file type'),
+
+  body('description')
+    .optional()
+    .trim(),
 
   validateRequest
 ];
@@ -96,8 +105,8 @@ export const validateStatusUpdate = [
   body('status')
     .notEmpty()
     .withMessage('Status is required')
-    .isIn(['PENDING', 'IN_PROGRESS', 'SUBMITTED', 'APPROVED', 'REJECTED'])
-    .withMessage('Invalid status'),
+    .isNumeric()
+    .withMessage('Status must be a number'),
 
   body('rejectionReason')
     .if(body('status').equals('REJECTED'))

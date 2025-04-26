@@ -2,84 +2,74 @@ import { body } from "express-validator";
 import { validateRequest } from "../utils/validator.js";
 
 export const validateLocation = [
-  body("title")
+  body("district")
     .trim()
     .notEmpty()
-    .withMessage("Title is required")
-    .isLength({ min: 3 })
-    .withMessage("Title must be at least 3 characters long"),
+    .withMessage("District is required"),
 
-  body("geofence")
+  body("block")
+    .trim()
     .notEmpty()
-    .withMessage("Geofence is required"),
+    .withMessage("Block is required"),
 
-  body("geofence.type")
-    .equals("Polygon")
-    .withMessage("Geofence type must be Polygon"),
-
-  body("geofence.coordinates")
+  body("route")
+    .optional()
     .isArray()
-    .withMessage("Geofence coordinates must be an array")
-    .custom((coords) => {
-      if (!coords || !coords.length || !coords[0] || coords[0].length < 3) {
-        throw new Error("Polygon must have at least 3 points");
-      }
-      // Check if first and last points are the same (closed polygon)
-      const firstPoint = coords[0][0];
-      const lastPoint = coords[0][coords[0].length - 1];
-      if (firstPoint[0] !== lastPoint[0] || firstPoint[1] !== lastPoint[1]) {
-        throw new Error("Polygon must be closed (first and last points must be the same)");
-      }
-      return true;
-    }),
+    .withMessage("Route must be an array"),
 
-  body("centerPoint")
+  body("route.*.to_place")
+    .if(body("route").exists())
     .notEmpty()
-    .withMessage("Center point is required"),
-
-  body("centerPoint.type")
-    .equals("Point")
-    .withMessage("Center point type must be Point"),
-
-  body("centerPoint.coordinates")
-    .isArray()
-    .withMessage("Center point coordinates must be an array")
-    .custom((coords) => {
-      if (!coords || coords.length !== 2) {
-        throw new Error("Center point must have exactly 2 coordinates [longitude, latitude]");
-      }
-      const [longitude, latitude] = coords;
-      if (longitude < -180 || longitude > 180) {
-        throw new Error("Invalid longitude (must be between -180 and 180)");
-      }
-      if (latitude < -90 || latitude > 90) {
-        throw new Error("Invalid latitude (must be between -90 and 90)");
-      }
-      return true;
-    }),
-
-  body("radius")
-    .notEmpty()
-    .withMessage("Radius is required")
-    .isFloat({ min: 0 })
-    .withMessage("Radius must be a positive number")
-    .custom((value) => {
-      if (value > 100000) { // 100km max radius
-        throw new Error("Radius cannot exceed 100km");
-      }
-      return true;
-    }),
+    .withMessage("To place is required for each route item"),
 
   body("status")
-    .optional()
-    .isIn(["ACTIVE", "INACTIVE", "COMPLETED", "APPROVED", "REJECTED"])
-    .withMessage("Invalid status value"),
+    .isInt({ min: 1, max: 5 })
+    .withMessage("Status must be a number between 1-5 (1: Released, 2: Assigned, 3: Active, 4: Accepted, 5: Reverted)"),
 
-  body("assignedTo")
-    .notEmpty()
-    .withMessage("Assigned user is required")
+  body("assigned_to")
+    .optional()
     .isMongoId()
-    .withMessage("Invalid user ID format"),
+    .withMessage("Invalid assigned_to ID format"),
+
+  body("surveyor")
+    .optional()
+    .isMongoId()
+    .withMessage("Invalid surveyor ID format"),
+
+  body("supervisor")
+    .optional()
+    .isMongoId()
+    .withMessage("Invalid supervisor ID format"),
+
+  body("start_date")
+    .optional()
+    .isISO8601()
+    .withMessage("Start date must be a valid date-time"),
+
+  body("end_date")
+    .optional()
+    .isISO8601()
+    .withMessage("End date must be a valid date-time"),
+
+  body("due_date")
+    .optional()
+    .isISO8601()
+    .withMessage("Due date must be a valid date"),
+
+  body("updated_on")
+    .optional()
+    .isISO8601()
+    .withMessage("Updated on must be a valid date-time"),
+
+  body("time_taken")
+    .optional()
+    .isInt({ min: 0 })
+    .withMessage("Time taken must be a positive number in minutes"),
+
+  body("comments")
+    .optional()
+    .isString()
+    .withMessage("Comments must be a string"),
 
   validateRequest,
 ];

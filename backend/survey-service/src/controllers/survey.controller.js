@@ -4,7 +4,13 @@ import { BadRequestError, NotFoundError } from '../utils/errors.js';
 // Create a new survey
 export const createSurvey = async (req, res, next) => {
   try {
-    const survey = await Survey.create(req.body);
+    const surveyData = {
+      ...req.body,
+      created_on: new Date(),
+      updated_on: new Date()
+    };
+    
+    const survey = await Survey.create(surveyData);
 
     res.status(201).json({
       success: true,
@@ -23,17 +29,17 @@ export const getSurveys = async (req, res, next) => {
       limit = 10,
       status,
       terrainType,
-      sortBy = 'createdAt',
+      sortBy = 'created_on',
       sortOrder = 'desc',
       search,
       ...filters
     } = req.query;
 
-    const query = {};
+    const query = { status: { $ne: 0 } };
     
     // Build query based on filters
     if (status) query.status = status;
-    if (terrainType) query['terrainData.terrainType'] = terrainType;
+    if (terrainType) query['terrainData.type'] = terrainType;
 
     // Process advanced filters
     Object.keys(filters).forEach(key => {
@@ -72,6 +78,9 @@ export const getSurveys = async (req, res, next) => {
     sortOptions[sortBy] = sortOrder === 'desc' ? -1 : 1;
 
     const surveys = await Survey.find(query)
+      .populate('location')
+      .populate('created_by', 'name email')
+      .populate('updated_by', 'name email')
       .sort(sortOptions)
       .limit(limit * 1)
       .skip((page - 1) * limit);
@@ -96,9 +105,12 @@ export const getSurveys = async (req, res, next) => {
 // Get survey by ID
 export const getSurveyById = async (req, res, next) => {
   try {
-    const survey = await Survey.findById(req.params.id);
+    const survey = await Survey.findById(req.params.id)
+      .populate('location')
+      .populate('created_by', 'name email')
+      .populate('updated_by', 'name email');
 
-    if (!survey) {
+    if (!survey || survey.status === 0) {
       throw new NotFoundError('Survey not found');
     }
 
@@ -116,15 +128,23 @@ export const updateSurvey = async (req, res, next) => {
   try {
     const survey = await Survey.findById(req.params.id);
 
-    if (!survey) {
+    if (!survey || survey.status === 0) {
       throw new NotFoundError('Survey not found');
     }
 
+    const updateData = {
+      ...req.body,
+      updated_on: new Date()
+    };
+
     const updatedSurvey = await Survey.findByIdAndUpdate(
       req.params.id,
-      req.body,
+      updateData,
       { new: true, runValidators: true }
-    );
+    )
+      .populate('location')
+      .populate('created_by', 'name email')
+      .populate('updated_by', 'name email');
 
     res.status(200).json({
       success: true,
@@ -135,16 +155,16 @@ export const updateSurvey = async (req, res, next) => {
   }
 };
 
-// Delete survey
+// Soft delete survey (update status to 0)
 export const deleteSurvey = async (req, res, next) => {
   try {
     const survey = await Survey.findById(req.params.id);
 
-    if (!survey) {
+    if (!survey || survey.status === 0) {
       throw new NotFoundError('Survey not found');
     }
 
-    await survey.deleteOne();
+    await Survey.findByIdAndUpdate(req.params.id, { status: 0, updated_on: new Date() });
 
     res.status(200).json({
       success: true,
@@ -155,21 +175,51 @@ export const deleteSurvey = async (req, res, next) => {
   }
 };
 
-// Add comment to survey
-export const addComment = async (req, res, next) => {
+// Add or update media file
+export const addMediaFile = async (req, res, next) => {
   try {
     const survey = await Survey.findById(req.params.id);
 
-    if (!survey) {
+    if (!survey || survey.status === 0) {
       throw new NotFoundError('Survey not found');
     }
 
-    const comment = {
-      text: req.body.text,
-      timestamp: new Date()
+    const mediaFile = {
+      url: req.body.url,
+      fileType: req.body.fileType,
+      description: req.body.description || '',
+      uploaded_at: new Date()
     };
 
-    survey.comments.push(comment);
+    survey.mediaFiles.push(mediaFile);
+    survey.updated_on = new Date();
+    await survey.save();
+
+    res.status(200).json({
+      success: true,
+      data: survey
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Remove media file
+export const removeMediaFile = async (req, res, next) => {
+  try {
+    const survey = await Survey.findById(req.params.id);
+
+    if (!survey || survey.status === 0) {
+      throw new NotFoundError('Survey not found');
+    }
+
+    const mediaFileId = req.params.mediaId;
+    
+    survey.mediaFiles = survey.mediaFiles.filter(
+      file => file._id.toString() !== mediaFileId
+    );
+    
+    survey.updated_on = new Date();
     await survey.save();
 
     res.status(200).json({
@@ -184,30 +234,16 @@ export const addComment = async (req, res, next) => {
 // Update survey status
 export const updateStatus = async (req, res, next) => {
   try {
-    const { status, rejectionReason } = req.body;
+    const { status } = req.body;
     const survey = await Survey.findById(req.params.id);
 
-    if (!survey) {
+    if (!survey || survey.status === 0) {
       throw new NotFoundError('Survey not found');
     }
 
-    // Validate status transition
-    const validTransitions = {
-      PENDING: ['IN_PROGRESS'],
-      IN_PROGRESS: ['SUBMITTED'],
-      SUBMITTED: ['APPROVED', 'REJECTED'],
-      REJECTED: ['IN_PROGRESS'],
-      APPROVED: []
-    };
-
-    if (!validTransitions[survey.status].includes(status)) {
-      throw new BadRequestError(`Invalid status transition from ${survey.status} to ${status}`);
-    }
-
     survey.status = status;
-    if (status === 'REJECTED' && rejectionReason) {
-      survey.rejectionReason = rejectionReason;
-    }
+    survey.updated_on = new Date();
+    survey.updated_by = req.user.id;
 
     await survey.save();
 
@@ -232,7 +268,10 @@ export const findNearbySurveys = async (req, res, next) => {
     const surveys = await Survey.findNearby(
       [parseFloat(longitude), parseFloat(latitude)],
       parseFloat(distance)
-    );
+    )
+      .populate('location')
+      .populate('created_by', 'name email')
+      .populate('updated_by', 'name email');
 
     res.status(200).json({
       success: true,

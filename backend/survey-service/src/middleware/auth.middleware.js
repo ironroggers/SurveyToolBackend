@@ -6,7 +6,7 @@ import {
 } from "../utils/errors.js";
 import Survey from "../models/survey.model.js";
 
-export const protect = async (req, res, next) => {
+export const authenticate = async (req, res, next) => {
   try {
     // 1) Get token from header
     const authHeader = req.headers.authorization;
@@ -70,17 +70,12 @@ export const checkSurveyAccess = async (req, res, next) => {
     }
 
     const survey = await Survey.findById(id);
-    if (!survey) {
+    if (!survey || survey.status === 0) {
       throw new NotFoundError("Survey not found");
     }
 
-    // Surveyor can only access assigned surveys
-    if (role === "SURVEYOR" && survey.assignedTo.toString() !== userId) {
-      throw new ForbiddenError("You can only access surveys assigned to you");
-    }
-
-    // Supervisor can only access surveys they created
-    if (role === "SUPERVISOR" && survey.assignedBy.toString() !== userId) {
+    // Users can only access surveys they created
+    if (survey.created_by.toString() !== userId && !["ADMIN", "SUPERVISOR"].includes(role)) {
       throw new ForbiddenError("You can only access surveys you created");
     }
 

@@ -2,6 +2,33 @@ import mongoose from "mongoose";
 
 const surveySchema = new mongoose.Schema(
   {
+    location: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Location",
+      required: [true, "Location is required"],
+    },
+    latlong: {
+      type: [Number],
+      required: true,
+      validate: {
+        validator: function(coords) {
+          return coords.length === 2 &&
+                 coords[0] >= -90 && coords[0] <= 90 &&
+                 coords[1] >= -180 && coords[1] <= 180;
+        },
+        message: "Invalid coordinates. Latitude must be between -90 and 90, Longitude between -180 and 180"
+      }
+    },
+    created_on: {
+      type: Date,
+      default: Date.now,
+      required: true
+    },
+    created_by: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: [true, "Creator is required"],
+    },
     title: {
       type: String,
       required: [true, "Survey title is required"],
@@ -11,49 +38,6 @@ const surveySchema = new mongoose.Schema(
     description: {
       type: String,
       trim: true,
-    },
-    location: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Location",
-      required: [true, "Location is required"],
-    },
-    terrainData: {
-      terrainType: {
-        type: String,
-        required: [true, "Terrain type is required"],
-        enum: ["URBAN", "RURAL", "FOREST", "MOUNTAIN", "WETLAND", "COASTAL"],
-      },
-      elevation: {
-        type: Number,
-        required: [true, "Elevation is required"],
-        min: [0, "Elevation cannot be negative"],
-      },
-      centerPoint: {
-        type: {
-          type: String,
-          enum: ["Point"],
-          required: true,
-          default: "Point"
-        },
-        coordinates: {
-          type: [Number],
-          required: true,
-          validate: {
-            validator: function(coords) {
-              return coords.length === 2 &&
-                     coords[0] >= -180 && coords[0] <= 180 &&
-                     coords[1] >= -90 && coords[1] <= 90;
-            },
-            message: "Invalid coordinates. Longitude must be between -180 and 180, Latitude between -90 and 90"
-          }
-        }
-      },
-      existingInfrastructure: [
-        {
-          type: String,
-          enum: ["POLES", "DUCTS", "MANHOLES", "FIBER_CABLES", "NONE"],
-        },
-      ],
     },
     mediaFiles: [
       {
@@ -67,47 +51,29 @@ const surveySchema = new mongoose.Schema(
           enum: ["IMAGE", "VIDEO", "DOCUMENT"],
         },
         description: String,
-        uploadedAt: {
+        uploaded_at: {
           type: Date,
           default: Date.now,
         },
       },
     ],
-    assignedTo: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: [true, "Survey must be assigned to a surveyor"],
-    },
-    assignedBy: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: [true, "Survey must have an assigner"],
-    },
-    status: {
-      type: String,
-      enum: ["PENDING", "IN_PROGRESS", "SUBMITTED", "APPROVED", "REJECTED"],
-      default: "PENDING",
-    },
-    comments: [
-      {
-        user: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: "User",
-          required: true,
-        },
-        text: {
-          type: String,
-          required: [true, "Comment text is required"],
-        },
-        timestamp: {
-          type: Date,
-          default: Date.now,
-        },
+    terrainData: {
+      type: {
+        type: String,
+        enum: ["URBAN", "RURAL", "FOREST", "MOUNTAIN", "WETLAND", "COASTAL"],
       },
-    ],
-    completedAt: Date,
-    rejectionReason: {
-      type: String,
+      elevation: {
+        type: Number,
+        min: [0, "Elevation cannot be negative"],
+      },
+    },
+    updated_on: {
+      type: Date,
+      default: Date.now,
+    },
+    updated_by: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
     },
     status: {
       type: Number,
@@ -120,49 +86,18 @@ const surveySchema = new mongoose.Schema(
 );
 
 surveySchema.index({ status: 1 });
-surveySchema.index({ assignedTo: 1 });
-surveySchema.index({ assignedBy: 1 });
-surveySchema.index({ "terrainData.terrainType": 1 });
+surveySchema.index({ created_by: 1 });
+surveySchema.index({ "terrainData.type": 1 });
 surveySchema.index({ location: 1 });
-
-surveySchema.pre("save", function (next) {
-  if (this.isModified("status") && this.status === "APPROVED") {
-    this.completedAt = new Date();
-  }
-  next();
-});
-
-surveySchema.methods.isEditable = function () {
-  return ["PENDING", "IN_PROGRESS", "REJECTED"].includes(this.status);
-};
+surveySchema.index({ latlong: "2d" });
 
 surveySchema.statics.findNearby = async function (coordinates, maxDistance) {
-  return this.aggregate([
-    {
-      $lookup: {
-        from: "Location",
-        localField: "location",
-        foreignField: "_id",
-        as: "locationData"
-      }
-    },
-    {
-      $unwind: "$locationData"
-    },
-    {
-      $match: {
-        "locationData.centerPoint": {
-          $near: {
-            $geometry: {
-              type: "Point",
-              coordinates: coordinates
-            },
-            $maxDistance: maxDistance
-          }
-        }
-      }
+  return this.find({
+    latlong: {
+      $near: coordinates,
+      $maxDistance: maxDistance
     }
-  ]);
+  });
 };
 
 export default mongoose.model("Survey", surveySchema, "Survey");

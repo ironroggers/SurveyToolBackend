@@ -1,86 +1,110 @@
 import mongoose from "mongoose";
 
+const routeItemSchema = new mongoose.Schema({
+  gram_panchayat: {
+    type: String,
+    trim: true
+  },
+  from_place: {
+    type: String,
+    trim: true
+  },
+  from_lat_long: {
+    type: [Number],
+    validate: {
+      validator: function(coords) {
+        return coords.length === 2 &&
+               coords[0] >= -90 && coords[0] <= 90 &&
+               coords[1] >= -180 && coords[1] <= 180;
+      },
+      message: "Invalid coordinates. Latitude must be between -90 and 90, Longitude between -180 and 180"
+    }
+  },
+  to_place: {
+    type: String,
+    trim: true,
+    required: [true, "To place is required"]
+  },
+  to_lat_long: {
+    type: [Number],
+    validate: {
+      validator: function(coords) {
+        return coords.length === 2 &&
+               coords[0] >= -90 && coords[0] <= 90 &&
+               coords[1] >= -180 && coords[1] <= 180;
+      },
+      message: "Invalid coordinates. Latitude must be between -90 and 90, Longitude between -180 and 180"
+    }
+  },
+  distance: {
+    type: Number
+  }
+}, { _id: false });
+
 const locationSchema = new mongoose.Schema(
   {
-    title: {
+    district: {
       type: String,
       trim: true,
+      required: [true, "District is required"]
+    },
+    block: {
+      type: String,
+      trim: true,
+      required: [true, "Block is required"]
+    },
+    route: {
+      type: [routeItemSchema],
+      default: []
+    },
+    assigned_to: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User"
+    },
+    status: {
+      type: Number,
+      enum: [1, 2, 3, 4, 5], // 1: Released, 2: Assigned, 3: Active, 4: Accepted, 5: Reverted
+      required: [true, "Status is required"],
+      default: 1 // Default to Released
+    },
+    surveyor: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User"
+    },
+    supervisor: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User"
+    },
+    start_date: {
+      type: Date
+    },
+    end_date: {
+      type: Date
+    },
+    due_date: {
+      type: Date
+    },
+    updated_on: {
+      type: Date
+    },
+    time_taken: {
+      type: Number // in minutes
     },
     comments: {
       type: String,
-      trim: true,
-      required: false
-    },
-    createdBy: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
-    },
-    geofence: {
-      type: {
-        type: String,
-        enum: ["Polygon"],
-        required: true
-      },
-      coordinates: {
-        type: [[[Number]]],
-        required: true,
-        validate: {
-          validator: function(coords) {
-            // Check if it's a valid polygon (closed shape)
-            if (coords.length > 0 && coords[0].length >= 4) {
-              const firstPoint = coords[0][0];
-              const lastPoint = coords[0][coords[0].length - 1];
-              return firstPoint[0] === lastPoint[0] && firstPoint[1] === lastPoint[1];
-            }
-            return false;
-          },
-          message: "Polygon must be closed and have at least 4 points"
-        }
-      }
-    },
-    centerPoint: {
-      type: {
-        type: String,
-        enum: ["Point"],
-        required: true
-      },
-      coordinates: {
-        type: [Number],
-        required: true,
-        validate: {
-          validator: function(coords) {
-            return coords.length === 2 &&
-                   coords[0] >= -180 && coords[0] <= 180 &&
-                   coords[1] >= -90 && coords[1] <= 90;
-          },
-          message: "Invalid coordinates. Longitude must be between -180 and 180, Latitude between -90 and 90"
-        }
-      }
-    },
-    radius: {
-      type: Number,
-      min: [0, "Radius cannot be negative"],
-    },
-    status: {
-      type: String,
-      enum: ["ACTIVE", "INACTIVE", "COMPLETED", "APPROVED", "REJECTED"],
-      default: "INACTIVE",
-    },
-    assignedTo: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
-    },
+      trim: true
+    }
   },
   {
-    timestamps: true,
+    timestamps: true
   }
 );
 
-// Indexes for geospatial queries
-locationSchema.index({ geofence: "2dsphere" });
-locationSchema.index({ centerPoint: "2dsphere" });
-locationSchema.index({ assignedTo: 1 });
+// Add indexes for frequently queried fields
+locationSchema.index({ district: 1, block: 1 });
+locationSchema.index({ status: 1 });
+locationSchema.index({ assigned_to: 1 });
+locationSchema.index({ surveyor: 1 });
+locationSchema.index({ supervisor: 1 });
 
 export default mongoose.model("Location", locationSchema, "Location");
