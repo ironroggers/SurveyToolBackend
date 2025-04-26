@@ -5,6 +5,10 @@ import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
 
+// Import models first to ensure schemas are registered
+import "./src/models/user.model.js";
+import "./src/models/location.model.js";
+
 import surveyRoutes from "./src/routes/survey.routes.js";
 import uploadRoutes from "./src/routes/upload.routes.js";
 import { errorHandler } from "./src/middleware/error.middleware.js";
