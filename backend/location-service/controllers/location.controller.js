@@ -1,4 +1,5 @@
 import Location from "../models/location.model.js";
+import User from "../models/user.model.js";
 import { BadRequestError, NotFoundError } from "../utils/errors.js";
 
 // Create a new location
