@@ -63,7 +63,7 @@ const locationSchema = new mongoose.Schema(
     },
     status: {
       type: Number,
-      enum: [1, 2, 3, 4, 5], // 1: Released, 2: Assigned, 3: Active, 4: Accepted, 5: Reverted
+      enum: [1, 2, 3, 4, 5, 6], // 1: Released, 2: Assigned, 3: Active, 4: Completed, 5: Accepted, 6: Reverted
       required: [true, "Status is required"],
       default: 1 // Default to Released
     },
