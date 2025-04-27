@@ -11,8 +11,19 @@ import {
   addRouteToLocation
 } from "../controllers/location.controller.js";
 import { validateLocation } from "../middleware/validation.middleware.js";
+import { body } from "express-validator";
+import { validateRequest } from "../utils/validator.js";
 
 const router = express.Router();
+
+// Validation middleware for location status updates
+const validateLocationStatusUpdate = [
+  body("status")
+    .isInt({ min: 1, max: 6 })
+    .withMessage("Status must be a number between 1-6 (1: Released, 2: Assigned, 3: Active, 4: Completed, 5: Accepted ,6: Reverted)"),
+  
+  validateRequest,
+];
 
 // Get locations by status
 router.get("/status/:status", getLocationsByStatus);
@@ -27,7 +38,7 @@ router.get("/", getLocations);
 router.post("/", validateLocation, createLocation);
 
 // Update location
-router.put("/:id", validateLocation, updateLocation);
+router.put("/:id", validateLocationStatusUpdate, updateLocation);
 
 // Delete location
 router.delete("/:id", deleteLocation);
