@@ -23,8 +23,8 @@ export const validateLocation = [
     .withMessage("To place is required for each route item"),
 
   body("status")
-    .isInt({ min: 1, max: 5 })
-    .withMessage("Status must be a number between 1-5 (1: Released, 2: Assigned, 3: Active, 4: Accepted, 5: Reverted)"),
+    .isInt({ min: 1, max: 6 })
+    .withMessage("Status must be a number between 1-6 (1: Released, 2: Assigned, 3: Active, 4: Completed, 5: Accepted ,6: Reverted)"),
 
   body("assigned_to")
     .optional()

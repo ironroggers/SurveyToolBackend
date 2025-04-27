@@ -220,8 +220,8 @@ export const changeLocationStatus = async (req, res, next) => {
   try {
     const { status } = req.body;
     
-    if (status === undefined || ![1, 2, 3, 4, 5].includes(parseInt(status))) {
-      throw new BadRequestError("Valid status is required (1-5)");
+    if (status === undefined || ![1, 2, 3, 4, 5, 6].includes(parseInt(status))) {
+      throw new BadRequestError("Valid status is required (1-6)");
     }
     
     const updateData = {
@@ -274,8 +274,8 @@ export const getLocationsByStatus = async (req, res, next) => {
   try {
     const { status } = req.params;
     
-    if (!status || ![1, 2, 3, 4, 5].includes(parseInt(status))) {
-      throw new BadRequestError("Valid status is required (1-5)");
+    if (!status || ![1, 2, 3, 4, 5, 6].includes(parseInt(status))) {
+      throw new BadRequestError("Valid status is required (1-6)");
     }
     
     const locations = await Location.find({ status: parseInt(status) })
