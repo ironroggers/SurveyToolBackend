@@ -137,11 +137,17 @@ export const getPotentialManagers = async (req, res, next) => {
 
 export const getAllUsers = async (req, res, next) => {
   try {
-    const { reportingTo } = req.query;
+    const { reportingTo, role } = req.query;
     const filter = { status: 1 };
+    
     if (reportingTo) {
       filter.reportingTo = reportingTo;
     }
+    
+    if (role) {
+      filter.role = role;
+    }
+    
     const users = await User.find(filter)
       .select('-password')
       .populate('reportingTo', 'username email role');
