@@ -138,4 +138,13 @@ export const todayAttendanceValidation = [
     .notEmpty()
     .withMessage('User ID is required'),
   validate
+];
+
+// Is user present now validation
+export const isUserPresentValidation = [
+  query('userId')
+    .isString()
+    .notEmpty()
+    .withMessage('User ID is required'),
+  validate
 ]; 

@@ -395,4 +395,57 @@ export const processJustification = async (req, res, next) => {
   } catch (error) {
     next(error);
   }
+};
+
+// Check if user is currently present
+export const isUserPresentNow = async (req, res, next) => {
+  try {
+    const { userId } = req.query;
+    
+    if (!userId) {
+      return res.status(400).json({
+        success: false,
+        message: 'userId is required'
+      });
+    }
+    
+    // Create a date object for today with time set to 00:00:00
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    // Find today's attendance record
+    const attendance = await Attendance.findOne({
+      userId,
+      date: {
+        $gte: today,
+        $lt: new Date(today.getTime() + 24 * 60 * 60 * 1000)
+      }
+    });
+    
+    // Check if user has an active session (checked in but not checked out)
+    let isPresent = false;
+    let currentSession = null;
+    
+    if (attendance && attendance.sessions.length > 0) {
+      const lastSession = attendance.sessions[attendance.sessions.length - 1];
+      if (lastSession.checkInTime && !lastSession.checkOutTime) {
+        isPresent = true;
+        currentSession = {
+          checkInTime: lastSession.checkInTime,
+          duration: Math.round((new Date() - new Date(lastSession.checkInTime)) / (1000 * 60)) // Duration in minutes
+        };
+      }
+    }
+    
+    return res.status(200).json({
+      success: true,
+      data: {
+        isPresent,
+        currentSession,
+        attendanceId: attendance ? attendance._id : null
+      }
+    });
+  } catch (error) {
+    next(error);
+  }
 }; 
