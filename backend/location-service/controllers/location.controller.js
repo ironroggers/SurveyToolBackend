@@ -127,8 +127,14 @@ export const getLocationById = async (req, res, next) => {
 // Update location
 export const updateLocation = async (req, res, next) => {
   try {
+    const { status } = req.body;
+    
+    if (status === undefined) {
+      throw new BadRequestError("Status is required");
+    }
+    
     const updateData = {
-      ...req.body,
+      status: parseInt(status),
       updated_on: new Date()
     };
     
