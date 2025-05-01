@@ -5,17 +5,28 @@ import { BadRequestError, NotFoundError } from "../utils/errors.js";
 // Create a new location
 export const createLocation = async (req, res, next) => {
   try {
+    console.log("Create Location - Request Body:", JSON.stringify(req.body));
+    
     const locationData = {
       ...req.body,
       status: req.body.status || 1, // Default to "Released" if not provided
       updated_on: new Date()
     };
     
-    const location = await Location.create(locationData);
-    res.status(201).json({
-      success: true,
-      data: location,
-    });
+    console.log("Create Location - Processed Data:", JSON.stringify(locationData));
+    
+    try {
+      const location = await Location.create(locationData);
+      console.log("Location created successfully:", location._id);
+      res.status(201).json({
+        success: true,
+        data: location,
+      });
+    } catch (dbError) {
+      console.error("Database Error in Create Location:", dbError);
+      // Re-throw the error for the main error handler
+      throw dbError;
+    }
   } catch (error) {
     console.error("Create Location Error:", error);
     next(error);
