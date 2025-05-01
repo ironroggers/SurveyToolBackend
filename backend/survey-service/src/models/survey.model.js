@@ -62,10 +62,13 @@ const surveySchema = new mongoose.Schema(
         type: String,
         enum: ["URBAN", "RURAL", "FOREST", "MOUNTAIN", "WETLAND", "COASTAL"],
       },
-      elevation: {
-        type: Number,
-        min: [0, "Elevation cannot be negative"],
-      },
+    },
+    rowAuthority: {
+      type: String,
+      enum: ["NHAI", "NH", "State Highway", "Forest", "Municipal Coorporation", "Municipality", "Gram Panchayat", "Railway", "Private Road", "Others"],
+    },
+    others: {
+      type: mongoose.Schema.Types.Mixed,
     },
     updated_on: {
       type: Date,
@@ -90,6 +93,7 @@ surveySchema.index({ created_by: 1 });
 surveySchema.index({ "terrainData.type": 1 });
 surveySchema.index({ location: 1 });
 surveySchema.index({ latlong: "2d" });
+surveySchema.index({ rowAuthority: 1 });
 
 surveySchema.statics.findNearby = async function (coordinates, maxDistance) {
   return this.find({

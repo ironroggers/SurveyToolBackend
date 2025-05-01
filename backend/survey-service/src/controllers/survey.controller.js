@@ -29,6 +29,7 @@ export const getSurveys = async (req, res, next) => {
       limit = 10,
       status,
       terrainType,
+      rowAuthority,
       sortBy = 'created_on',
       sortOrder = 'desc',
       search,
@@ -40,6 +41,7 @@ export const getSurveys = async (req, res, next) => {
     // Build query based on filters
     if (status) query.status = status;
     if (terrainType) query['terrainData.type'] = terrainType;
+    if (rowAuthority) query.rowAuthority = rowAuthority;
 
     // Process advanced filters
     Object.keys(filters).forEach(key => {

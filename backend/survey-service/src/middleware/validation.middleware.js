@@ -44,6 +44,13 @@ export const validateSurvey = [
     .isMongoId()
     .withMessage('Invalid user ID'),
 
+  body('rowAuthority')
+    .optional()
+    .isIn(['NHAI', 'NH', 'State Highway', 'Forest', 'Municipal Coorporation', 'Municipality', 'Gram Panchayat', 'Railway', 'Private Road', 'Others'])
+    .withMessage('Invalid row authority type'),
+
+  body('others')
+    .optional(),
 
   body('terrainData.existingInfrastructure')
     .optional()
