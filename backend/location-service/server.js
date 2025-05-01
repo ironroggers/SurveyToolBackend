@@ -12,7 +12,6 @@ dotenv.config();
 
 // Log environment variables (without exposing sensitive values)
 console.log('Environment Variables Check:', {
-  JWT_SECRET: process.env.JWT_SECRET ? 'Set' : 'Missing',
   MONGODB_URI: process.env.MONGODB_URI ? 'Set' : 'Missing',
   PORT: process.env.PORT || 3002
 });
