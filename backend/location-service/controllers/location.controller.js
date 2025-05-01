@@ -72,9 +72,8 @@ export const getLocations = async (req, res, next) => {
       query.$or = [
         { district: { $regex: search, $options: 'i' } },
         { block: { $regex: search, $options: 'i' } },
-        { 'route.gram_panchayat': { $regex: search, $options: 'i' } },
-        { 'route.from_place': { $regex: search, $options: 'i' } },
-        { 'route.to_place': { $regex: search, $options: 'i' } },
+        { 'route.place': { $regex: search, $options: 'i' } },
+        { 'route.type': { $regex: search, $options: 'i' } },
         { comments: { $regex: search, $options: 'i' } }
       ];
     }
@@ -323,8 +322,8 @@ export const addRouteToLocation = async (req, res, next) => {
   try {
     const { routeData } = req.body;
     
-    if (!routeData || !routeData.to_place) {
-      throw new BadRequestError("Route data with to_place is required");
+    if (!routeData || !routeData.place || !routeData.latitude || !routeData.longitude || !routeData.type) {
+      throw new BadRequestError("Route data with place, latitude, longitude, and type is required");
     }
     
     const location = await Location.findById(req.params.id);

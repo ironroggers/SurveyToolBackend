@@ -17,10 +17,25 @@ export const validateLocation = [
     .isArray()
     .withMessage("Route must be an array"),
 
-  body("route.*.to_place")
+  body("route.*.place")
     .if(body("route").exists())
     .notEmpty()
-    .withMessage("To place is required for each route item"),
+    .withMessage("Place is required for each route item"),
+
+  body("route.*.latitude")
+    .if(body("route").exists())
+    .isFloat({ min: -90, max: 90 })
+    .withMessage("Latitude must be a number between -90 and 90"),
+
+  body("route.*.longitude")
+    .if(body("route").exists())
+    .isFloat({ min: -180, max: 180 })
+    .withMessage("Longitude must be a number between -180 and 180"),
+
+  body("route.*.type")
+    .if(body("route").exists())
+    .notEmpty()
+    .withMessage("Type is required for each route item"),
 
   body("status")
     .isInt({ min: 1, max: 6 })

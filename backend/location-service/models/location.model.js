@@ -1,43 +1,35 @@
 import mongoose from "mongoose";
 
 const routeItemSchema = new mongoose.Schema({
-  gram_panchayat: {
-    type: String,
-    trim: true
-  },
-  from_place: {
-    type: String,
-    trim: true
-  },
-  from_lat_long: {
-    type: [Number],
-    validate: {
-      validator: function(coords) {
-        return coords.length === 2 &&
-               coords[0] >= -90 && coords[0] <= 90 &&
-               coords[1] >= -180 && coords[1] <= 180;
-      },
-      message: "Invalid coordinates. Latitude must be between -90 and 90, Longitude between -180 and 180"
-    }
-  },
-  to_place: {
+  place: {
     type: String,
     trim: true,
-    required: [true, "To place is required"]
+    required: [true, "Place is required"]
   },
-  to_lat_long: {
-    type: [Number],
+  latitude: {
+    type: Number,
+    required: [true, "Latitude is required"],
     validate: {
-      validator: function(coords) {
-        return coords.length === 2 &&
-               coords[0] >= -90 && coords[0] <= 90 &&
-               coords[1] >= -180 && coords[1] <= 180;
+      validator: function(value) {
+        return value >= -90 && value <= 90;
       },
-      message: "Invalid coordinates. Latitude must be between -90 and 90, Longitude between -180 and 180"
+      message: "Invalid latitude. Must be between -90 and 90"
     }
   },
-  distance: {
-    type: Number
+  longitude: {
+    type: Number,
+    required: [true, "Longitude is required"],
+    validate: {
+      validator: function(value) {
+        return value >= -180 && value <= 180;
+      },
+      message: "Invalid longitude. Must be between -180 and 180"
+    }
+  },
+  type: {
+    type: String,
+    trim: true,
+    required: [true, "Type is required"]
   }
 }, { _id: false });
 
