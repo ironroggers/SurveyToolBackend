@@ -1,0 +1,213 @@
+pipeline {
+    agent { label 'built-in' }
+    
+    environment {
+        
+        
+        MONITORED_FOLDER = 'AlertService/'
+        SVC_NAME = 'test'
+    }
+
+    stages {
+        stage('Parameter stage') {
+            steps {
+                script {
+                    properties([
+                        parameters([
+                            booleanParam(name: 'ForceBuild', defaultValue: false, description: 'Forcebuild'),
+                            editableChoice(
+                                name: 'BRANCHNAME',
+                                choices: ['development', '2404.HF09'],
+                            ),
+                            editableChoice(
+                                name: 'RELEASENUMBER',
+                                choices: ['2408'],
+                            ),
+                            editableChoice(
+                                name: 'NAMESPACE',
+                                choices: ['development'],
+                            ),
+                            editableChoice(
+                                    name: 'REPONAME',
+                                    choices: ['race', 'fit']
+                            ),
+                            editableChoice(
+                                    name: 'credentails_name',
+                                    choices: ['pi-eks-cluster-in'],
+                            ),
+                            string(name: 'BUILD_NU', defaultValue: '${BUILD_NUMBER}', trim: true, description: 'Build number'),
+                        ])
+                    ])
+                }
+            }
+        }
+
+        stage('ECR login') {
+            steps {
+                sh 'aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 980911658296.dkr.ecr.us-east-1.amazonaws.com'
+                sh 'docker images'
+            }
+        }
+
+        stage('Schema download') {
+            steps {
+                script {
+                    cleanWs()
+                    
+                    }
+                }
+            }
+        }
+
+        stage('Check for Changes') {
+            steps {
+                script {
+                    def changes = sh(script: "git diff --name-only HEAD~1 HEAD", returnStdout: true).trim()
+
+                    if (changes.contains(env.MONITORED_FOLDER)) {
+                        echo "Changes detected in ${env.MONITORED_FOLDER}, proceeding with pipeline..."
+                    } else if (params.ForceBuild == true) {
+                        echo "Forcing build despite no changes in ${env.MONITORED_FOLDER}."
+                    } else {
+                        echo "No changes detected in ${env.MONITORED_FOLDER}, skipping build."
+                        currentBuild.result = 'skipped'
+                        error("No changes in monitored folder")
+                    }
+                }
+            }
+        }
+
+        stage('AlertService build') {
+            when {
+                expression {
+                    return sh(script: "git diff --name-only HEAD~1 HEAD", returnStatus: true) == 0 || params.ForceBuild == true
+                }
+            }
+            steps {
+                script {
+                    echo 'Building AlertService...'
+                    sh 'docker build --build-arg ENV=${RELEASENUMBER} -t ${SVC_NAME}/${NAMESPACE}:${RELEASENUMBER} -f ${env.MONITORED_FOLDER}/Dockerfile ${env.MONITORED_FOLDER}/'
+                    def ${SVC_NAME}_id = sh(script: 'docker images -q ${SVC_NAME}/${NAMESPACE}:${RELEASENUMBER}', returnStdout: true).trim()
+                    def imageTag = "${SVC_NAME}.${RELEASENUMBER}.${BUILD_NU}"
+                    sh "docker tag ${SVC_NAME}_id 980911658296.dkr.ecr.us-east-1.amazonaws.com/${REPONAME}/${SVC_NAME}-api:${imageTag}"
+                    sh "docker tag ${SVC_NAME}_id 980911658296.dkr.ecr.us-east-1.amazonaws.com/${REPONAME}/${SVC_NAME}-api:latest"
+                    sh "docker push 980911658296.dkr.ecr.us-east-1.amazonaws.com/${REPONAME}/${SVC_NAME}-api:${imageTag}"
+                    sh "docker push 980911658296.dkr.ecr.us-east-1.amazonaws.com/${REPONAME}/${SVC_NAME}-api:latest"
+                }
+            }
+        }
+
+        stage('List images') {
+            steps {
+                sh 'docker ps'
+                sh 'docker images'
+            }
+        }
+
+        stage('Deploy image') {
+            agent { label 'built-in' }
+            steps {
+                script {
+                    cleanWs()
+
+                    
+                    withCredentials([file(credentialsId: "${credentails_name}", variable: 'SECRET_FILE_PATH')]) {
+                        sh """
+                            cp ${SECRET_FILE_PATH} ${WORKSPACE}/kubeconfig
+                        """
+                    }
+
+                    sh """
+                        git init 
+                        git remote add origin http://git.innovapptive.com/it-devops/jenkins_shared.git
+                        git config core.sparseCheckout true
+                        echo "kubernetes/RACE_2.0/Kubernetes/" >> .git/info/sparse-checkout
+                        ls -la
+                    """
+                    withCredentials([gitUsernamePassword(credentialsId: '9b08294b-1b61-4d6c-91df-883582bc189e', gitToolName: 'git-tool')]) {
+                        sh "git pull origin master"  
+                    }
+
+                    sh """
+                    
+                    """
+                    sh "rm -rf ${WORKSPACE}/kubeconfig"
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            sh 'echo "Cleaning up... this always runs!"'
+        }
+
+        success {
+            updateGitlabCommitStatus name: 'AlertService', state: 'success'
+            emailext (
+                subject: "Jenkins Build ${currentBuild.currentResult}: Job ${env.JOB_NAME}",
+                body: """<html>
+                            <head>
+                                <style>
+                                    table {
+                                        border-collapse: collapse;
+                                    }
+                                    th, td {
+                                        border: 1px solid black;
+                                        padding: 8px;
+                                        text-align: left;
+                                    }
+                                </style>
+                            </head>
+                            <body>
+                                <h2>Pipeline Execution Status:${currentBuild.currentResult}</h2>
+                                <table>
+                                    <tr>
+                                        <th>Parameters</th>
+                                        <th>Value</th>
+                                    </tr>
+                                    <tr>
+                                        <td>Release Number</td>
+                                        <td>${params.RELEASENUMBER}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Branch Name</td>
+                                        <td>${params.BRANCHNAME}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Namespace</td>
+                                        <td>${params.NAMESPACE}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Job Name</td>
+                                        <td>${env.JOB_NAME}</td>
+                                    </tr>
+                                </table>
+                            </body>
+                        </html>""",
+                recipientProviders: [[$class: 'CulpritsRecipientProvider']],
+                to: 'pavan.addepalli@innovapptive.com'
+            )
+            slackSend (
+                color: "#1ab02e",
+                channel: "cwp2-internal-deployments",
+                message: "Name ${env.JOB_NAME} \n Build Status:${currentBuild.currentResult} \n Build Number:${env.BUILD_NUMBER}\n Build URL:${env.BUILD_URL} \n Release Number:${params.RELEASENUMBER}"
+            )
+        }
+
+        failure {
+            updateGitlabCommitStatus name: 'AlertService', state: 'failed'
+            emailext (
+                body: "Current build status :${currentBuild.currentResult} <br>Job Name ${env.JOB_NAME} <br> Stage :${env.STAGE_NAME} <br>Build Number:${env.BUILD_NUMBER}\n Build Status:${currentBuild.currentResult} <br> More Build info at: ${env.BUILD_URL}",
+                recipientProviders: [[$class: 'DevelopersRecipientProvider'], [$class: 'RequesterRecipientProvider']],
+                to: 'pavan.addepalli@innovapptive.com',
+                subject: "Jenkins Build ${currentBuild.currentResult}: Job ${env.JOB_NAME} : ${env.BUILD_NUMBER}"
+            )
+            slackSend(
+                color: "#b01f1a",
+                channel: "cwp2-internal-deployments",
+                message: "Current build status: ${currentBuild.currentResult} \n Job Name ${env.JOB_NAME} \n Stage: ${env.STAGE_NAME} \n Build Number: ${env.BUILD_NUMBER}\n Build Status:${currentBuild.currentResult} \n More Build info at: ${env.BUILD_URL} "
+            )
+        }
+    }
+}
