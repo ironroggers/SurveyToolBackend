@@ -27,7 +27,7 @@ console.log('✅ AWS Credentials Validation Passed');
 
 // Initialize S3 Client
 const s3Client = new S3Client({
-  region: process.env.AWS_REGION || 'us-west-2',
+  region: process.env.AWS_REGION,
   credentials: {
     accessKeyId: process.env.AWS_ACCESS_KEY_ID,
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
