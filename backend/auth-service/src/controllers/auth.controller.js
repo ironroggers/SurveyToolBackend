@@ -160,3 +160,32 @@ export const getAllUsers = async (req, res, next) => {
     next(error);
   }
 };
+
+export const deleteUser = async (req, res, next) => {
+  try {
+    const { userId } = req.params;
+
+    // Check if user exists
+    const user = await User.findById(userId);
+    if (!user) {
+      throw new NotFoundError("User not found");
+    }
+
+    // Check if user has subordinates
+    const hasSubordinates = await User.exists({ reportingTo: userId, status: 1 });
+    if (hasSubordinates) {
+      throw new BadRequestError("Cannot delete user with active subordinates. Reassign them first.");
+    }
+
+    // Soft delete the user by setting status to 0
+    user.status = 0;
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: "User deleted successfully",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
