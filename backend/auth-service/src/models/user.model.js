@@ -27,6 +27,10 @@ const userSchema = new mongoose.Schema(
       enum: ["SURVEYOR", "SUPERVISOR", "ADMIN"],
       required: true,
     },
+    designation: {
+      type: String,
+      trim: true,
+    },
     reportingTo: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',

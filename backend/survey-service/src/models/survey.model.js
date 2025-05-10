@@ -55,6 +55,30 @@ const surveySchema = new mongoose.Schema(
           type: Date,
           default: Date.now,
         },
+        latitude: {
+          type: Number,
+          required: true,
+          min: -90,
+          max: 90
+        },
+        longitude: {
+          type: Number,
+          required: true,
+          min: -180,
+          max: 180
+        },
+        deviceName: {
+          type: String,
+          required: true
+        },
+        accuracy: {
+          type: Number,
+          required: true
+        },
+        place: {
+          type: String,
+          trim: true,
+        },
       },
     ],
     terrainData: {

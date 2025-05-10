@@ -93,6 +93,37 @@ export const validateMediaFile = [
   body('description')
     .optional()
     .trim(),
+    
+  body('latitude')
+    .if(body('fileType').isIn(['IMAGE', 'VIDEO']))
+    .notEmpty()
+    .withMessage('Latitude is required for image and video files')
+    .isFloat({ min: -90, max: 90 })
+    .withMessage('Invalid latitude (must be between -90 and 90)'),
+    
+  body('longitude')
+    .if(body('fileType').isIn(['IMAGE', 'VIDEO']))
+    .notEmpty()
+    .withMessage('Longitude is required for image and video files')
+    .isFloat({ min: -180, max: 180 })
+    .withMessage('Invalid longitude (must be between -180 and 180)'),
+    
+  body('deviceName')
+    .if(body('fileType').isIn(['IMAGE', 'VIDEO']))
+    .notEmpty()
+    .withMessage('Device name is required for image and video files')
+    .trim(),
+    
+  body('accuracy')
+    .if(body('fileType').isIn(['IMAGE', 'VIDEO']))
+    .notEmpty()
+    .withMessage('Accuracy is required for image and video files')
+    .isFloat({ min: 0 })
+    .withMessage('Accuracy must be a positive number'),
+    
+  body('place')
+    .optional()
+    .trim(),
 
   validateRequest
 ];

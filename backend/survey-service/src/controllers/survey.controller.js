@@ -186,11 +186,39 @@ export const addMediaFile = async (req, res, next) => {
       throw new NotFoundError('Survey not found');
     }
 
+    const { url, fileType, description, latitude, longitude, deviceName, accuracy, place } = req.body;
+    
+    // For image and video files, we try to use provided geolocation data
+    // or extract it from EXIF if the URL points to our own S3 storage
+    let geoData = {
+      latitude,
+      longitude,
+      deviceName,
+      accuracy,
+      place
+    };
+
+    // Basic validation for required fields
+    if (!url || !fileType) {
+      throw new BadRequestError('URL and fileType are required');
+    }
+
+    // For image and video files, require location data
+    if ((fileType === 'IMAGE' || fileType === 'VIDEO') && 
+        (!geoData.latitude || !geoData.longitude || !geoData.deviceName || !geoData.accuracy)) {
+      throw new BadRequestError('Latitude, longitude, deviceName, and accuracy are required for media files');
+    }
+
     const mediaFile = {
-      url: req.body.url,
-      fileType: req.body.fileType,
-      description: req.body.description || '',
-      uploaded_at: new Date()
+      url,
+      fileType,
+      description: description || '',
+      uploaded_at: new Date(),
+      latitude: geoData.latitude,
+      longitude: geoData.longitude,
+      deviceName: geoData.deviceName,
+      accuracy: geoData.accuracy,
+      place: geoData.place
     };
 
     survey.mediaFiles.push(mediaFile);

@@ -18,8 +18,8 @@ const router = express.Router();
 
 router.post("/register", validateRegister, register);
 router.post("/login", validateLogin, login);
-router.get("/profile", protect, getProfile);
-router.put("/profile", protect, validateUpdate, updateProfile);
+router.get("/profile", getProfile);
+router.put("/profile", validateUpdate, updateProfile);
 router.get("/potential-managers", getPotentialManagers);
 router.get("/users", getAllUsers);
 

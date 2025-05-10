@@ -10,7 +10,7 @@ const generateToken = (user) => {
 
 export const register = async (req, res, next) => {
   try {
-    const { username, email, password, role, reportingTo } = req.body;
+    const { username, email, password, role, reportingTo, designation } = req.body;
 
     const userExists = await User.findOne({ $or: [{ email }, { username }] });
     if (userExists) {
@@ -33,6 +33,7 @@ export const register = async (req, res, next) => {
       email,
       password,
       role,
+      designation,
       reportingTo: role === 'ADMIN' ? null : reportingTo,
     });
 
@@ -46,6 +47,7 @@ export const register = async (req, res, next) => {
           username: user.username,
           email: user.email,
           role: user.role,
+          designation: user.designation,
           reportingTo: user.reportingTo,
         },
         token,
@@ -101,11 +103,11 @@ export const getProfile = async (req, res, next) => {
 
 export const updateProfile = async (req, res, next) => {
   try {
-    const { username, email, phone } = req.body;
+    const { username, email, phone, designation } = req.body;
 
     const user = await User.findByIdAndUpdate(
       req.user._id,
-      { username, email, phone },
+      { username, email, phone, designation },
       { new: true, runValidators: true }
     ).select("-password");
 

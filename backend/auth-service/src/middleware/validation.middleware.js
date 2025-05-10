@@ -13,6 +13,11 @@ export const validateRegister = [
   body("role")
     .isIn(["SURVEYOR", "SUPERVISOR", "ADMIN"])
     .withMessage("Invalid role"),
+  body("designation")
+    .optional()
+    .trim()
+    .isString()
+    .withMessage("Designation must be a string"),
   validateRequest,
 ];
 
@@ -32,5 +37,10 @@ export const validateUpdate = [
     .optional()
     .isEmail()
     .withMessage("Please provide a valid email"),
+  body("designation")
+    .optional()
+    .trim()
+    .isString()
+    .withMessage("Designation must be a string"),
   validateRequest,
 ];
