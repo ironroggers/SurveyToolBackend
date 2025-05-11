@@ -137,7 +137,7 @@ export const getLocationById = async (req, res, next) => {
 // Update location
 export const updateLocation = async (req, res, next) => {
   try {
-    const { status, surveyor, assigned_to, supervisor, due_date } = req.body;
+    const { status, surveyor, assigned_to, supervisor, due_date, comments } = req.body;
     
     if (status === undefined) {
       throw new BadRequestError("Status is required");
@@ -153,6 +153,7 @@ export const updateLocation = async (req, res, next) => {
     if (assigned_to) updateData.assigned_to = assigned_to;
     if (supervisor) updateData.supervisor = supervisor;
     if (due_date) updateData.due_date = new Date(due_date);
+    if (comments !== undefined) updateData.comments = comments;
     
     const location = await Location.findByIdAndUpdate(req.params.id, updateData, {
       new: true,
