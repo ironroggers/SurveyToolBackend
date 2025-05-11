@@ -167,7 +167,7 @@ export const getAllUsers = async (req, res, next) => {
 export const deleteUser = async (req, res, next) => {
   try {
     // Only ADMIN can delete users
-    if (req.user.role !== 'ADMIN') {
+    if (req.user?.role !== 'ADMIN') {
       throw new BadRequestError('Only administrators can delete users');
     }
 
@@ -180,7 +180,7 @@ export const deleteUser = async (req, res, next) => {
     }
 
     // Check if trying to delete an admin
-    if (user.role === 'ADMIN') {
+    if (user?.role === 'ADMIN') {
       throw new BadRequestError('Cannot delete administrator accounts');
     }
 
