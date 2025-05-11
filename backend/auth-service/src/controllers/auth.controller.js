@@ -162,3 +162,41 @@ export const getAllUsers = async (req, res, next) => {
     next(error);
   }
 };
+
+export const deleteUser = async (req, res, next) => {
+  try {
+    // Only ADMIN can delete users
+    if (req.user.role !== 'ADMIN') {
+      throw new BadRequestError('Only administrators can delete users');
+    }
+
+    const userId = req.params.id;
+    
+    // Check if user exists
+    const user = await User.findById(userId);
+    if (!user) {
+      throw new NotFoundError('User not found');
+    }
+
+    // Check if trying to delete an admin
+    if (user.role === 'ADMIN') {
+      throw new BadRequestError('Cannot delete administrator accounts');
+    }
+
+    // Find users reporting to this user
+    const subordinates = await User.find({ reportingTo: userId });
+    if (subordinates.length > 0) {
+      throw new BadRequestError('Cannot delete user with subordinates. Please reassign subordinates first.');
+    }
+
+    // Soft delete by setting status to 0
+    await User.findByIdAndUpdate(userId, { status: 0 });
+
+    res.status(200).json({
+      success: true,
+      message: 'User deleted successfully',
+    });
+  } catch (error) {
+    next(error);
+  }
+};

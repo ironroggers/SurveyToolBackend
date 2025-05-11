@@ -6,8 +6,8 @@ import {
   updateProfile,
   getPotentialManagers,
   getAllUsers,
+  deleteUser,
 } from "../controllers/auth.controller.js";
-import { protect } from "../middleware/auth.middleware.js";
 import {
   validateRegister,
   validateLogin,
@@ -22,5 +22,6 @@ router.get("/profile", getProfile);
 router.put("/profile", validateUpdate, updateProfile);
 router.get("/potential-managers", getPotentialManagers);
 router.get("/users", getAllUsers);
+router.delete("/users/:id", deleteUser);
 
 export default router;
