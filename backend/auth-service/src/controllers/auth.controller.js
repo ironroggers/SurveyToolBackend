@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken";
 import User from "../models/user.model.js";
 import { BadRequestError, NotFoundError } from "../utils/errors.js";
+import bcrypt from "bcrypt";
 
 const generateToken = (user) => {
   return jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, {
@@ -195,6 +196,55 @@ export const deleteUser = async (req, res, next) => {
     res.status(200).json({
       success: true,
       message: 'User deleted successfully',
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const updateUser = async (req, res, next) => {
+  try {
+    const userId = req.params.id;
+    const { username, email, role, reportingTo, designation, password } = req.body;
+
+    // Check if user exists
+    const user = await User.findById(userId);
+    if (!user) {
+      throw new NotFoundError('User not found');
+    }
+
+    // Validate reportingTo if provided and role is not ADMIN
+    if (role && role !== 'ADMIN' && reportingTo) {
+      const reportingManager = await User.findById(reportingTo);
+      if (!reportingManager) {
+        throw new BadRequestError('Invalid reporting manager');
+      }
+    }
+
+    // Prepare update object
+    const updateData = {
+      username,
+      email,
+      role,
+      designation,
+      reportingTo: role === 'ADMIN' ? null : reportingTo
+    };
+
+    // Only update password if provided
+    if (password) {
+      const hashedPassword = await bcrypt.hash(password, 12);
+      updateData.password = hashedPassword;
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      updateData,
+      { new: true, runValidators: true }
+    ).select('-password');
+
+    res.status(200).json({
+      success: true,
+      data: updatedUser,
     });
   } catch (error) {
     next(error);
