@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 import User from "../models/user.model.js";
 import { BadRequestError, NotFoundError } from "../utils/errors.js";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 
 const generateToken = (user) => {
   return jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, {
