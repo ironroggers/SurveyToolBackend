@@ -10,9 +10,11 @@ export const getAllBlockHOTOs = async (req, res) => {
     const totalCount = await BlockHOTO.countDocuments();
     const totalPages = Math.ceil(totalCount / limit);
 
-    const blockHOTOs = await BlockHOTO.find().skip(skip).limit(limit);
-    // .populate('createdBy', 'username email')
-    // .populate('location', 'name');
+    const blockHOTOs = await BlockHOTO.find()
+      .skip(skip)
+      .limit(limit)
+      // .populate("createdBy", "username email")
+      // .populate("location", "name");
 
     res.status(200).json({
       data: blockHOTOs,
