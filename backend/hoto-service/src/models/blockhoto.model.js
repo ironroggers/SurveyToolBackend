@@ -5,42 +5,54 @@ const blockHotoSchema = new mongoose.Schema(
     District_Code: {
       type: String,
       required: true,
+      trim: true,
     },
     Block_Code: {
       type: String,
       required: true,
+      trim: true,
     },
     Block_Name: {
       type: String,
       required: true,
+      trim: true,
     },
     Asset_Type: {
       type: String,
       required: true,
+      trim: true,
     },
     Item_Description: {
       type: String,
+      trim: true,
     },
     Asset_make: {
       type: String,
+      trim: true,
     },
     Asset_Model: {
       type: String,
+      trim: true,
     },
     Serial_Number: {
       type: String,
+      trim: true,
     },
     MAC_Address: {
       type: String,
+      trim: true,
     },
     IP_Address: {
       type: String,
+      trim: true,
     },
     Subnet: {
       type: String,
+      trim: true,
     },
     Firm_ware: {
       type: String,
+      trim: true,
     },
     No_of_PON_Ports: {
       type: Number,
@@ -50,6 +62,7 @@ const blockHotoSchema = new mongoose.Schema(
     },
     Power_Type: {
       type: String,
+      trim: true,
     },
     No_Of_WAN_Ports: {
       type: Number,
@@ -59,51 +72,64 @@ const blockHotoSchema = new mongoose.Schema(
     },
     Switch_Type: {
       type: String,
+      trim: true,
     },
     No_Of_Ports: {
       type: Number,
     },
     VLAN_Support: {
-      type: Boolean,
+      type: String,
+      trim: true,
     },
     PoE_Support: {
-      type: Boolean,
+      type: String,
+      trim: true,
     },
     ONT_Type: {
       type: String,
+      trim: true,
     },
     No_of_Ethernet_Ports: {
       type: Number,
     },
     WiFi_Capability: {
-      type: Boolean,
+      type: String,
+      trim: true,
     },
     Rack_Type: {
       type: String,
+      trim: true,
     },
     SizeU: {
       type: String,
+      trim: true,
     },
     Manufacture: {
       type: String,
+      trim: true,
     },
     Power_Source: {
       type: String,
+      trim: true,
     },
     Battery_Backup: {
       type: String,
+      trim: true,
     },
     Cooling_System: {
       type: String,
+      trim: true,
     },
     Capacity_kVA: {
       type: Number,
     },
     Input_Voltage: {
       type: String,
+      trim: true,
     },
     Output_Voltage: {
       type: String,
+      trim: true,
     },
     Capacity_Ah: {
       type: Number,
@@ -113,21 +139,26 @@ const blockHotoSchema = new mongoose.Schema(
     },
     Battery_Type: {
       type: String,
+      trim: true,
     },
     Fuel_Type: {
       type: String,
+      trim: true,
     },
     Power_Rating_W: {
       type: Number,
     },
     Surge_Protection: {
-      type: Boolean,
+      type: String,
+      trim: true,
     },
     Panel_Type: {
       type: String,
+      trim: true,
     },
     Battery_Integration: {
-      type: Boolean,
+      type: String,
+      trim: true,
     },
     Capacity_FiberPortsSplices: {
       type: Number,
@@ -137,15 +168,19 @@ const blockHotoSchema = new mongoose.Schema(
     },
     FDMS_Type: {
       type: String,
+      trim: true,
     },
     Rack_Mount: {
-      type: Boolean,
+      type: String,
+      trim: true,
     },
     Enclosure_Type: {
       type: String,
+      trim: true,
     },
     Ingress_Protection: {
       type: String,
+      trim: true,
     },
     No_Of_Adapter_Panels: {
       type: Number,
@@ -155,24 +190,30 @@ const blockHotoSchema = new mongoose.Schema(
     },
     Cable_Entry_Type: {
       type: String,
+      trim: true,
     },
     Patch_Cord_Type: {
       type: String,
+      trim: true,
     },
     No_Of_Patch_Cords_Installed: {
       type: Number,
     },
     Fiber_Core_Type: {
       type: String,
+      trim: true,
     },
     Connector_Type: {
       type: String,
+      trim: true,
     },
     Fiber_Termination_Method: {
       type: String,
+      trim: true,
     },
     Remarks: {
       type: String,
+      trim: true,
     },
     others: {
       type: Object,

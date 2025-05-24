@@ -3,14 +3,33 @@ import BlockHOTO from "../models/blockhoto.model.js";
 // Get all BlockHOTOs
 export const getAllBlockHOTOs = async (req, res) => {
   try {
-    const blockHOTOs = await BlockHOTO.find();
-    res.status(200).json(blockHOTOs);
+    console.log("getAllBlockHOTOs");
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+    const totalCount = await BlockHOTO.countDocuments();
+    const totalPages = Math.ceil(totalCount / limit);
+
+    const blockHOTOs = await BlockHOTO.find().skip(skip).limit(limit);
+    // .populate('createdBy', 'username email')
+    // .populate('location', 'name');
+
+    res.status(200).json({
+      data: blockHOTOs,
+      pagination: {
+        currentPage: page,
+        totalPages: totalPages,
+        pageSize: limit,
+        totalCount: totalCount,
+        hasNextPage: page < totalPages,
+        hasPrevPage: page > 1,
+      },
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
-// Get BlockHOTO by ID
 export const getBlockHOTOById = async (req, res) => {
   try {
     const blockHOTO = await BlockHOTO.findById(req.params.id);
@@ -23,7 +42,6 @@ export const getBlockHOTOById = async (req, res) => {
   }
 };
 
-// Create new BlockHOTO
 export const createBlockHOTO = async (req, res) => {
   try {
     const newBlockHOTO = new BlockHOTO(req.body);
@@ -34,7 +52,6 @@ export const createBlockHOTO = async (req, res) => {
   }
 };
 
-// Update BlockHOTO
 export const updateBlockHOTO = async (req, res) => {
   try {
     const updatedBlockHOTO = await BlockHOTO.findByIdAndUpdate(
@@ -51,7 +68,6 @@ export const updateBlockHOTO = async (req, res) => {
   }
 };
 
-// Delete BlockHOTO
 export const deleteBlockHOTO = async (req, res) => {
   try {
     const deletedBlockHOTO = await BlockHOTO.findByIdAndDelete(req.params.id);
