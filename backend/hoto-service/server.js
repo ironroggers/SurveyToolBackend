@@ -3,7 +3,7 @@ import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
 import dotenv from "dotenv";
-import hotoRoutes from "./src/routes/hoto.routes.js";
+import blockHOTO from "./src/routes/blockhoto.routes.js";
 import {
   errorHandler,
   notFoundHandler,
@@ -29,7 +29,7 @@ app.get("/health", (req, res) => {
   });
 });
 
-app.use("/api/v1/hoto", hotoRoutes);
+app.use("/api/blockhoto", blockHOTO);
 
 app.use(notFoundHandler);
 app.use(errorHandler);
