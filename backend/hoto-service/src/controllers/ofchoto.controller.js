@@ -4,13 +4,35 @@ import OFCHoto from "../models/ofchoto.model.js";
 export const getAllOFCHotos = async (req, res) => {
   try {
     console.log("getAllOFCHotos");
+    
+    // If no location is provided, return empty array with pagination
+    if (!req.query.location) {
+      return res.status(200).json({
+        data: [],
+        pagination: {
+          currentPage: 1,
+          totalPages: 0,
+          pageSize: parseInt(req.query.limit) || 10,
+          totalCount: 0,
+          hasNextPage: false,
+          hasPrevPage: false,
+        },
+      });
+    }
+
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * limit;
-    const totalCount = await OFCHoto.countDocuments();
+
+    // Build query based on filters
+    const query = {
+      location: req.query.location
+    };
+
+    const totalCount = await OFCHoto.countDocuments(query);
     const totalPages = Math.ceil(totalCount / limit);
 
-    const ofcHotos = await OFCHoto.find()
+    const ofcHotos = await OFCHoto.find(query)
       .skip(skip)
       .limit(limit)
       .populate("createdBy", "username email role")
