@@ -13,8 +13,9 @@ export const getAllGPhotos = async (req, res) => {
     const gPhotos = await GPhoto.find()
       .skip(skip)
       .limit(limit)
-      // .populate("createdBy", "username email")
-      // .populate("location", "name");
+      .populate("createdBy", "username email role")
+      .populate("location", "district block status surveyor supervisor")
+      .populate("blockHoto");
 
     res.status(200).json({
       data: gPhotos,
@@ -34,7 +35,10 @@ export const getAllGPhotos = async (req, res) => {
 
 export const getGPhotoById = async (req, res) => {
   try {
-    const gPhoto = await GPhoto.findById(req.params.id);
+    const gPhoto = await GPhoto.findById(req.params.id)
+      .populate("createdBy", "username email role")
+      .populate("location", "district block status surveyor supervisor")
+      .populate("blockHoto");
     if (!gPhoto) {
       return res.status(404).json({ message: "GPhoto record not found" });
     }
@@ -48,7 +52,11 @@ export const createGPhoto = async (req, res) => {
   try {
     const newGPhoto = new GPhoto(req.body);
     const savedGPhoto = await newGPhoto.save();
-    res.status(201).json(savedGPhoto);
+    const populatedGPhoto = await savedGPhoto
+      .populate("createdBy", "username email role")
+      .populate("location", "district block status surveyor supervisor")
+      .populate("blockHoto");
+    res.status(201).json(populatedGPhoto);
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
@@ -60,7 +68,10 @@ export const updateGPhoto = async (req, res) => {
       req.params.id,
       req.body,
       { new: true, runValidators: true }
-    );
+    )
+      .populate("createdBy", "username email role")
+      .populate("location", "district block status surveyor supervisor")
+      .populate("blockHoto");
     if (!updatedGPhoto) {
       return res.status(404).json({ message: "GPhoto record not found" });
     }

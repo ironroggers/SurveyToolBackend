@@ -13,8 +13,8 @@ export const getAllBlockHOTOs = async (req, res) => {
     const blockHOTOs = await BlockHOTO.find()
       .skip(skip)
       .limit(limit)
-      // .populate("createdBy", "username email")
-      // .populate("location", "name");
+      .populate("createdBy", "username email role")
+      .populate("location", "district block status surveyor supervisor");
 
     res.status(200).json({
       data: blockHOTOs,
@@ -34,7 +34,9 @@ export const getAllBlockHOTOs = async (req, res) => {
 
 export const getBlockHOTOById = async (req, res) => {
   try {
-    const blockHOTO = await BlockHOTO.findById(req.params.id);
+    const blockHOTO = await BlockHOTO.findById(req.params.id)
+      .populate("createdBy", "username email role")
+      .populate("location", "district block status surveyor supervisor");
     if (!blockHOTO) {
       return res.status(404).json({ message: "BlockHOTO record not found" });
     }
@@ -48,7 +50,10 @@ export const createBlockHOTO = async (req, res) => {
   try {
     const newBlockHOTO = new BlockHOTO(req.body);
     const savedBlockHOTO = await newBlockHOTO.save();
-    res.status(201).json(savedBlockHOTO);
+    const populatedHOTO = await savedBlockHOTO
+      .populate("createdBy", "username email role")
+      .populate("location", "district block status surveyor supervisor");
+    res.status(201).json(populatedHOTO);
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
@@ -60,7 +65,9 @@ export const updateBlockHOTO = async (req, res) => {
       req.params.id,
       req.body,
       { new: true, runValidators: true }
-    );
+    )
+      .populate("createdBy", "username email role")
+      .populate("location", "district block status surveyor supervisor");
     if (!updatedBlockHOTO) {
       return res.status(404).json({ message: "BlockHOTO record not found" });
     }

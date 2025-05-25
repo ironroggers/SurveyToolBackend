@@ -13,8 +13,8 @@ export const getAllOFCHotos = async (req, res) => {
     const ofcHotos = await OFCHoto.find()
       .skip(skip)
       .limit(limit)
-      // .populate("createdBy", "username email")
-      // .populate("location", "name");
+      .populate("createdBy", "username email role")
+      .populate("location", "district block status surveyor supervisor");
 
     res.status(200).json({
       data: ofcHotos,
@@ -34,7 +34,10 @@ export const getAllOFCHotos = async (req, res) => {
 
 export const getOFCHotoById = async (req, res) => {
   try {
-    const ofcHoto = await OFCHoto.findById(req.params.id);
+    const ofcHoto = await OFCHoto.findById(req.params.id)
+      .populate("createdBy", "username email role")
+      .populate("location", "district block status surveyor supervisor")
+      .populate("blockHoto");
     if (!ofcHoto) {
       return res.status(404).json({ message: "OFC HOTO record not found" });
     }
@@ -48,7 +51,11 @@ export const createOFCHoto = async (req, res) => {
   try {
     const newOFCHoto = new OFCHoto(req.body);
     const savedOFCHoto = await newOFCHoto.save();
-    res.status(201).json(savedOFCHoto);
+    const populatedHoto = await savedOFCHoto
+      .populate("createdBy", "username email role")
+      .populate("location", "district block status surveyor supervisor")
+      .populate("blockHoto");
+    res.status(201).json(populatedHoto);
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
@@ -60,7 +67,10 @@ export const updateOFCHoto = async (req, res) => {
       req.params.id,
       req.body,
       { new: true, runValidators: true }
-    );
+    )
+      .populate("createdBy", "username email role")
+      .populate("location", "district block status surveyor supervisor")
+      .populate("blockHoto");
     if (!updatedOFCHoto) {
       return res.status(404).json({ message: "OFC HOTO record not found" });
     }

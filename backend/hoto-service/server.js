@@ -3,6 +3,11 @@ import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
 import dotenv from "dotenv";
+
+// Import models first to ensure schemas are registered
+import "./src/models/user.model.js";
+import "./src/models/location.model.js";
+
 import blockHOTO from "./src/routes/blockhoto.routes.js";
 import gphoto from "./src/routes/gphoto.routes.js";
 import ofchoto from "./src/routes/ofchoto.routes.js";
