@@ -5,6 +5,7 @@ import morgan from "morgan";
 import dotenv from "dotenv";
 import blockHOTO from "./src/routes/blockhoto.routes.js";
 import gphoto from "./src/routes/gphoto.routes.js";
+import ofchoto from "./src/routes/ofchoto.routes.js";
 import {
   errorHandler,
   notFoundHandler,
@@ -32,6 +33,7 @@ app.get("/health", (req, res) => {
 
 app.use("/api/blockhoto", blockHOTO);
 app.use("/api/gphoto", gphoto);
+app.use("/api/ofchoto", ofchoto);
 
 app.use(notFoundHandler);
 app.use(errorHandler);
