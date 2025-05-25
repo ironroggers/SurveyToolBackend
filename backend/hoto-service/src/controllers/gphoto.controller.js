@@ -52,10 +52,12 @@ export const createGPhoto = async (req, res) => {
   try {
     const newGPhoto = new GPhoto(req.body);
     const savedGPhoto = await newGPhoto.save();
-    const populatedGPhoto = await savedGPhoto
-      .populate("createdBy", "username email role")
-      .populate("location", "district block status surveyor supervisor")
-      .populate("blockHoto");
+    const populatedGPhoto = await GPhoto.findById(savedGPhoto._id)
+      .populate([
+        { path: "createdBy", select: "username email role" },
+        { path: "location", select: "district block status surveyor supervisor" },
+        { path: "blockHoto" }
+      ]);
     res.status(201).json(populatedGPhoto);
   } catch (error) {
     res.status(400).json({ error: error.message });

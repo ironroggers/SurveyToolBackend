@@ -14,7 +14,8 @@ export const getAllOFCHotos = async (req, res) => {
       .skip(skip)
       .limit(limit)
       .populate("createdBy", "username email role")
-      .populate("location", "district block status surveyor supervisor");
+      .populate("location", "district block status surveyor supervisor")
+      .populate("blockHoto");
 
     res.status(200).json({
       data: ofcHotos,
@@ -51,10 +52,12 @@ export const createOFCHoto = async (req, res) => {
   try {
     const newOFCHoto = new OFCHoto(req.body);
     const savedOFCHoto = await newOFCHoto.save();
-    const populatedHoto = await savedOFCHoto
-      .populate("createdBy", "username email role")
-      .populate("location", "district block status surveyor supervisor")
-      .populate("blockHoto");
+    const populatedHoto = await OFCHoto.findById(savedOFCHoto._id)
+      .populate([
+        { path: "createdBy", select: "username email role" },
+        { path: "location", select: "district block status surveyor supervisor" },
+        { path: "blockHoto" }
+      ]);
     res.status(201).json(populatedHoto);
   } catch (error) {
     res.status(400).json({ error: error.message });

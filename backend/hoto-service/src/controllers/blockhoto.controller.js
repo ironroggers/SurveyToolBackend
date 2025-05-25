@@ -50,9 +50,11 @@ export const createBlockHOTO = async (req, res) => {
   try {
     const newBlockHOTO = new BlockHOTO(req.body);
     const savedBlockHOTO = await newBlockHOTO.save();
-    const populatedHOTO = await savedBlockHOTO
-      .populate("createdBy", "username email role")
-      .populate("location", "district block status surveyor supervisor");
+    const populatedHOTO = await BlockHOTO.findById(savedBlockHOTO._id)
+      .populate([
+        { path: "createdBy", select: "username email role" },
+        { path: "location", select: "district block status surveyor supervisor" }
+      ]);
     res.status(201).json(populatedHOTO);
   } catch (error) {
     res.status(400).json({ error: error.message });
