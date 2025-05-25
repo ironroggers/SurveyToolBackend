@@ -147,7 +147,9 @@ GET `/health`
   "uptime": "seconds"
 }
 ```
+## Mongoose Schema Model
 
+```javascript
 const blockHotoSchema = new mongoose.Schema(
 {
 District_Code: {
@@ -385,3 +387,4 @@ required: true,
 timestamps: true,
 }
 );
+``` 
