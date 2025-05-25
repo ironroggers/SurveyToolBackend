@@ -61,7 +61,7 @@ export const updateBlockHOTO = async (req, res) => {
       req.body,
       { new: true, runValidators: true }
     );
-    if (!updatedHOTO) {
+    if (!updatedBlockHOTO) {
       return res.status(404).json({ message: "BlockHOTO record not found" });
     }
     res.status(200).json(updatedBlockHOTO);
