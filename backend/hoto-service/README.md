@@ -84,8 +84,8 @@ For complete API documentation, see [API_DOCUMENTATION.md](./API_DOCUMENTATION.m
 ### Example Usage
 
 ```bash
-# Get all handover HOTOs for a specific district
-curl "http://localhost:5000/api/hotos?hotoType=handover&districtCode=KL01"
+# Get all block HOTOs for a specific district with status filter
+curl "http://localhost:5000/api/hotos?hotoType=block&districtCode=KL01&status=1"
 
 # Create a new HOTO
 curl -X POST http://localhost:5000/api/hotos \
@@ -96,7 +96,12 @@ curl -X POST http://localhost:5000/api/hotos \
     "districtName": "Thiruvananthapuram",
     "blockCode": "BLK001",
     "blockName": "Block Name",
-    "hotoType": "handover",
+    "hotoType": "block",
+    "status": 1,
+    "others": {
+      "priority": "high",
+      "assignedTeam": "Team A"
+    },
     "contactPerson": {
       "name": "John Doe",
       "email": "john@example.com",
@@ -122,21 +127,26 @@ curl -X POST http://localhost:5000/api/hotos \
   gpName: String,
   ofcCode: String,
   ofcName: String,
-  hotoType: String (required, enum: ['handover', 'takeover', 'inspection', 'maintenance']),
+  hotoType: String (required, enum: ['block', 'ofc', 'gp']),
   remarks: String,
   latitude: String,
   longitude: String,
+  status: Number,
+  others: Mixed/Object (any data type),
   contactPerson: {
     name: String (required),
     email: String (required, valid email),
     mobile: String (required),
     description: String
   },
-  others: {
+  fields: [{
+    sequence: Number (required),
     key: String,
     value: String,
     confirmation: Boolean (default: false),
     remarks: String,
+    status: Number,
+    others: Mixed/Object (any data type),
     mediaFiles: [{
       url: String (required),
       fileType: String (required),
@@ -148,7 +158,7 @@ curl -X POST http://localhost:5000/api/hotos \
       place: String,
       source: String (enum: ['mobile', 'web'], required)
     }]
-  },
+  }],
   createdAt: Date,
   updatedAt: Date
 }
@@ -183,12 +193,13 @@ The API supports filtering by the following parameters:
 
 - `_id` - Filter by HOTO ID
 - `locationId` - Filter by location ID
-- `hotoType` - Filter by HOTO type
+- `hotoType` - Filter by HOTO type (`block`, `ofc`, `gp`)
 - `districtCode` - Filter by district code
 - `blockCode` - Filter by block code
 - `gpCode` - Filter by GP code
 - `ofcCode` - Filter by OFC code
 - `state` - Filter by state
+- `status` - Filter by status (Number)
 
 ### Pagination
 
