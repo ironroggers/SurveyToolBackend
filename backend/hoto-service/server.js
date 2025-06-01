@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { response } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
@@ -7,6 +7,7 @@ import dotenv from 'dotenv';
 import connectDB from './src/config/database.js';
 import errorHandler from './src/middleware/errorHandler.js';
 import hotoRoutes from './src/routes/hotoRoutes.js';
+import mediaRoutes from './src/routes/mediaRoutes.js';
 
 // Import models to register them with Mongoose
 import './src/models/Location.js';
@@ -49,6 +50,7 @@ app.get('/health', (req, res) => {
 
 // API routes
 app.use('/api/hotos', hotoRoutes);
+app.use('/api/media', mediaRoutes);
 
 // 404 handler
 app.use('*', (req, res) => {
