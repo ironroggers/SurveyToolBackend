@@ -143,7 +143,7 @@ curl -X POST http://localhost:5000/api/hotos \
     sequence: Number (required),
     key: String,
     value: String,
-    confirmation: Boolean (default: false),
+    confirmation: Boolean,
     remarks: String,
     status: Number,
     others: Mixed/Object (any data type),
