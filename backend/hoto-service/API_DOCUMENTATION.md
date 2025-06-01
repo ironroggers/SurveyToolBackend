@@ -48,7 +48,7 @@ Currently, the API is public and does not require authentication.
       "sequence": "Number (required)",
       "key": "String",
       "value": "String",
-      "confirmation": "Boolean (default: false)",
+      "confirmation": "Boolean",
       "remarks": "String",
       "status": "Number",
       "others": "Mixed/Object (any data type)",

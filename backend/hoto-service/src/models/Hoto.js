@@ -47,8 +47,7 @@ const FieldSchema = new mongoose.Schema({
   key: String,
   value: String,
   confirmation: {
-    type: Boolean,
-    default: false
+    type: Boolean
   },
   remarks: String,
   status: {
