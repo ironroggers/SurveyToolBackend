@@ -8,6 +8,10 @@ import connectDB from './src/config/database.js';
 import errorHandler from './src/middleware/errorHandler.js';
 import hotoRoutes from './src/routes/hotoRoutes.js';
 
+// Import models to register them with Mongoose
+import './src/models/Location.js';
+import './src/models/Hoto.js';
+
 // Load env vars
 dotenv.config();
 
