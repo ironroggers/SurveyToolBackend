@@ -39,7 +39,11 @@ const contactPersonSchema = new mongoose.Schema({
   description: String
 }, { _id: false });
 
-const othersSchema = new mongoose.Schema({
+const FieldSchema = new mongoose.Schema({
+  sequence: {
+    type: Number,
+    required: true
+  },
   key: String,
   value: String,
   confirmation: {
@@ -47,6 +51,12 @@ const othersSchema = new mongoose.Schema({
     default: false
   },
   remarks: String,
+  status: {
+    type: Number
+  },
+  others: {
+    type: mongoose.Schema.Types.Mixed
+  },
   mediaFiles: [mediaFileSchema]
 }, { _id: false });
 
@@ -83,13 +93,19 @@ const hotoSchema = new mongoose.Schema({
   hotoType: {
     type: String,
     required: true,
-    enum: ['handover', 'takeover', 'inspection', 'maintenance']
+    enum: ['block', 'ofc', 'gp']
   },
   remarks: String,
   latitude: String,
   longitude: String,
+  status: {
+    type: Number
+  },
+  others: {
+    type: mongoose.Schema.Types.Mixed
+  },
   contactPerson: contactPersonSchema,
-  others: othersSchema
+  fields: [FieldSchema]
 }, {
   timestamps: true,
   toJSON: { virtuals: true },
@@ -103,6 +119,7 @@ hotoSchema.index({ districtCode: 1 });
 hotoSchema.index({ blockCode: 1 });
 hotoSchema.index({ gpCode: 1 });
 hotoSchema.index({ ofcCode: 1 });
+hotoSchema.index({ status: 1 });
 hotoSchema.index({ createdAt: -1 });
 
 const Hoto = mongoose.model('Hoto', hotoSchema);

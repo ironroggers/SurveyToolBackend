@@ -40,6 +40,10 @@ export const getHotos = asyncHandler(async (req, res) => {
     query.state = req.query.state;
   }
 
+  if (req.query.status) {
+    query.status = parseInt(req.query.status, 10);
+  }
+
   // Pagination
   const page = parseInt(req.query.page, 10) || 1;
   const limit = parseInt(req.query.limit, 10) || 25;
