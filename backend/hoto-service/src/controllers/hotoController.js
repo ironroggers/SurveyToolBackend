@@ -53,7 +53,6 @@ export const getHotos = asyncHandler(async (req, res) => {
   // Execute query
   const total = await Hoto.countDocuments(query);
   const hotos = await Hoto.find(query)
-    .populate('locationId', 'name code')
     .sort({ createdAt: -1 })
     .limit(limit)
     .skip(startIndex);
@@ -88,7 +87,7 @@ export const getHotos = asyncHandler(async (req, res) => {
 // @route   GET /api/hotos/:id
 // @access  Public
 export const getHoto = asyncHandler(async (req, res) => {
-  const hoto = await Hoto.findById(req.params.id).populate('locationId', 'name code');
+  const hoto = await Hoto.findById(req.params.id);
 
   if (!hoto) {
     return res.status(404).json({
@@ -165,7 +164,6 @@ export const deleteHoto = asyncHandler(async (req, res) => {
 // @access  Public
 export const getHotosByLocation = asyncHandler(async (req, res) => {
   const hotos = await Hoto.find({ locationId: req.params.locationId })
-    .populate('locationId', 'name code')
     .sort({ createdAt: -1 });
 
   res.status(200).json({
@@ -180,7 +178,6 @@ export const getHotosByLocation = asyncHandler(async (req, res) => {
 // @access  Public
 export const getHotosByType = asyncHandler(async (req, res) => {
   const hotos = await Hoto.find({ hotoType: req.params.hotoType })
-    .populate('locationId', 'name code')
     .sort({ createdAt: -1 });
 
   res.status(200).json({
