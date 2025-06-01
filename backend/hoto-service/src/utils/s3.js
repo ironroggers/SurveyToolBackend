@@ -17,12 +17,9 @@ const s3Client = new S3Client({
 
 const generateFileName = (originalname) => {
   const timestamp = Date.now();
-  // const randomString = crypto.randomBytes(16).toString('hex');
+  const randomString = crypto.randomBytes(16).toString("hex");
   const extension = originalname.split(".").pop();
-  return `${timestamp}-${originalname
-    .split(".")[0]
-    .split(" ")
-    .join("_")}.${extension}`;
+  return `${timestamp}-${randomString}.${extension}`;
 };
 
 const getFileType = (mimetype) => {
