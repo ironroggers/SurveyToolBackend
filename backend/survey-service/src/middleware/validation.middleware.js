@@ -2,67 +2,117 @@ import { body } from 'express-validator';
 import { validateRequest } from '../utils/validator.js';
 
 export const validateSurvey = [
-  body('title')
+  body('name')
     .trim()
     .notEmpty()
-    .withMessage('Title is required')
+    .withMessage('Survey name is required')
     .isLength({ min: 3 })
-    .withMessage('Title must be at least 3 characters long'),
+    .withMessage('Name must be at least 3 characters long'),
 
   body('description')
-    .optional()
-    .trim(),
-
-  body('location')
+    .trim()
     .notEmpty()
-    .withMessage('Location is required')
+    .withMessage('Description is required'),
+
+  body('locationId')
+    .notEmpty()
+    .withMessage('Location ID is required')
     .isMongoId()
     .withMessage('Invalid location ID'),
 
-  body('latlong')
+  body('latitude')
     .notEmpty()
-    .withMessage('Latlong is required')
-    .isArray()
-    .withMessage('Latlong must be an array')
-    .custom((coords) => {
-      if (!coords || coords.length !== 2) {
-        throw new Error('Latlong must contain exactly 2 values [latitude, longitude]');
-      }
-      const [latitude, longitude] = coords;
-      if (latitude < -90 || latitude > 90) {
-        throw new Error('Invalid latitude (must be between -90 and 90)');
-      }
-      if (longitude < -180 || longitude > 180) {
-        throw new Error('Invalid longitude (must be between -180 and 180)');
-      }
-      return true;
-    }),
+    .withMessage('Latitude is required')
+    .trim(),
 
-  body('created_by')
+  body('longitude')
+    .notEmpty()
+    .withMessage('Longitude is required')
+    .trim(),
+
+  body('surveyType')
+    .notEmpty()
+    .withMessage('Survey type is required')
+    .isIn(['block', 'gp', 'ofc'])
+    .withMessage('Survey type must be block, gp, or ofc'),
+
+  body('createdBy')
     .notEmpty()
     .withMessage('Creator is required')
     .isMongoId()
     .withMessage('Invalid user ID'),
 
-  body('rowAuthority')
-    .optional()
-    .isIn(['NHAI', 'NH', 'State Highway', 'Forest', 'Municipal Coorporation', 'Municipality', 'Gram Panchayat', 'Railway', 'Private Road', 'Others'])
-    .withMessage('Invalid row authority type'),
+  body('updatedBy')
+    .notEmpty()
+    .withMessage('Updater is required')
+    .isMongoId()
+    .withMessage('Invalid user ID'),
 
-  body('others')
-    .optional(),
-
-  body('terrainData.existingInfrastructure')
+  body('stateName')
     .optional()
-    .isArray()
-    .withMessage('Existing infrastructure must be an array')
-    .custom((values) => {
-      const validTypes = ['POLES', 'DUCTS', 'MANHOLES', 'FIBER_CABLES', 'NONE'];
-      if (!values.every(type => validTypes.includes(type))) {
-        throw new Error('Invalid infrastructure type');
-      }
-      return true;
-    }),
+    .trim(),
+
+  body('stateCode')
+    .optional()
+    .trim(),
+
+  body('districtName')
+    .optional()
+    .trim(),
+
+  body('districtCode')
+    .optional()
+    .trim(),
+
+  body('blockName')
+    .optional()
+    .trim(),
+
+  body('blockCode')
+    .optional()
+    .trim(),
+
+  body('blockAddress')
+    .optional()
+    .trim(),
+
+  body('contactPerson.sdeName')
+    .optional()
+    .trim(),
+
+  body('contactPerson.sdeMobile')
+    .optional()
+    .trim(),
+
+  body('contactPerson.engineerName')
+    .optional()
+    .trim(),
+
+  body('contactPerson.engineerMobile')
+    .optional()
+    .trim(),
+
+  body('contactPerson.address')
+    .optional()
+    .trim(),
+
+  body('fields.*.sequence')
+    .optional()
+    .isNumeric()
+    .withMessage('Field sequence must be a number'),
+
+  body('fields.*.key')
+    .if(body('fields').exists())
+    .notEmpty()
+    .withMessage('Field key is required')
+    .trim(),
+
+  body('fields.*.fieldType')
+    .if(body('fields').exists())
+    .notEmpty()
+    .withMessage('Field type is required')
+    .isIn(['dropdown', 'text'])
+    .withMessage('Field type must be dropdown or text'),
 
   body('mediaFiles.*.url')
     .optional()
@@ -71,8 +121,137 @@ export const validateSurvey = [
 
   body('mediaFiles.*.fileType')
     .optional()
-    .isIn(['IMAGE', 'VIDEO', 'DOCUMENT'])
+    .isIn(['IMAGE', 'VIDEO', 'DOCUMENT', 'AUDIO'])
     .withMessage('Invalid file type'),
+
+  body('mediaFiles.*.latitude')
+    .if(body('mediaFiles').exists())
+    .notEmpty()
+    .withMessage('Latitude is required for media files')
+    .trim(),
+
+  body('mediaFiles.*.longitude')
+    .if(body('mediaFiles').exists())
+    .notEmpty()
+    .withMessage('Longitude is required for media files')
+    .trim(),
+
+  body('others')
+    .optional(),
+
+  validateRequest
+];
+
+export const validateSurveyUpdate = [
+  body('name')
+    .optional()
+    .trim()
+    .isLength({ min: 3 })
+    .withMessage('Name must be at least 3 characters long'),
+
+  body('description')
+    .optional()
+    .trim(),
+
+  body('locationId')
+    .optional()
+    .isMongoId()
+    .withMessage('Invalid location ID'),
+
+  body('latitude')
+    .optional()
+    .trim(),
+
+  body('longitude')
+    .optional()
+    .trim(),
+
+  body('surveyType')
+    .optional()
+    .isIn(['block', 'gp', 'ofc'])
+    .withMessage('Survey type must be block, gp, or ofc'),
+
+  body('updatedBy')
+    .optional()
+    .isMongoId()
+    .withMessage('Invalid user ID'),
+
+  body('stateName')
+    .optional()
+    .trim(),
+
+  body('stateCode')
+    .optional()
+    .trim(),
+
+  body('districtName')
+    .optional()
+    .trim(),
+
+  body('districtCode')
+    .optional()
+    .trim(),
+
+  body('blockName')
+    .optional()
+    .trim(),
+
+  body('blockCode')
+    .optional()
+    .trim(),
+
+  body('blockAddress')
+    .optional()
+    .trim(),
+
+  body('contactPerson.sdeName')
+    .optional()
+    .trim(),
+
+  body('contactPerson.sdeMobile')
+    .optional()
+    .trim(),
+
+  body('contactPerson.engineerName')
+    .optional()
+    .trim(),
+
+  body('contactPerson.engineerMobile')
+    .optional()
+    .trim(),
+
+  body('contactPerson.address')
+    .optional()
+    .trim(),
+
+  body('fields.*.sequence')
+    .optional()
+    .isNumeric()
+    .withMessage('Field sequence must be a number'),
+
+  body('fields.*.key')
+    .if(body('fields').exists())
+    .optional()
+    .trim(),
+
+  body('fields.*.fieldType')
+    .if(body('fields').exists())
+    .optional()
+    .isIn(['dropdown', 'text'])
+    .withMessage('Field type must be dropdown or text'),
+
+  body('mediaFiles.*.url')
+    .optional()
+    .isURL()
+    .withMessage('Invalid media file URL'),
+
+  body('mediaFiles.*.fileType')
+    .optional()
+    .isIn(['IMAGE', 'VIDEO', 'DOCUMENT', 'AUDIO'])
+    .withMessage('Invalid file type'),
+
+  body('others')
+    .optional(),
 
   validateRequest
 ];
@@ -87,7 +266,7 @@ export const validateMediaFile = [
   body('fileType')
     .notEmpty()
     .withMessage('File type is required')
-    .isIn(['IMAGE', 'VIDEO', 'DOCUMENT'])
+    .isIn(['IMAGE', 'VIDEO', 'DOCUMENT', 'AUDIO'])
     .withMessage('Invalid file type'),
 
   body('description')
@@ -95,29 +274,21 @@ export const validateMediaFile = [
     .trim(),
     
   body('latitude')
-    .if(body('fileType').isIn(['IMAGE', 'VIDEO']))
     .notEmpty()
-    .withMessage('Latitude is required for image and video files')
-    .isFloat({ min: -90, max: 90 })
-    .withMessage('Invalid latitude (must be between -90 and 90)'),
+    .withMessage('Latitude is required for media files')
+    .trim(),
     
   body('longitude')
-    .if(body('fileType').isIn(['IMAGE', 'VIDEO']))
     .notEmpty()
-    .withMessage('Longitude is required for image and video files')
-    .isFloat({ min: -180, max: 180 })
-    .withMessage('Invalid longitude (must be between -180 and 180)'),
+    .withMessage('Longitude is required for media files')
+    .trim(),
     
   body('deviceName')
-    .if(body('fileType').isIn(['IMAGE', 'VIDEO']))
-    .notEmpty()
-    .withMessage('Device name is required for image and video files')
+    .optional()
     .trim(),
     
   body('accuracy')
-    .if(body('fileType').isIn(['IMAGE', 'VIDEO']))
-    .notEmpty()
-    .withMessage('Accuracy is required for image and video files')
+    .optional()
     .isFloat({ min: 0 })
     .withMessage('Accuracy must be a positive number'),
     
@@ -128,13 +299,38 @@ export const validateMediaFile = [
   validateRequest
 ];
 
-export const validateComment = [
-  body('text')
+export const validateField = [
+  body('sequence')
+    .notEmpty()
+    .withMessage('Field sequence is required')
+    .isNumeric()
+    .withMessage('Sequence must be a number'),
+
+  body('key')
     .trim()
     .notEmpty()
-    .withMessage('Comment text is required')
-    .isLength({ min: 3 })
-    .withMessage('Comment must be at least 3 characters long'),
+    .withMessage('Field key is required'),
+
+  body('value')
+    .optional()
+    .trim(),
+
+  body('fieldType')
+    .notEmpty()
+    .withMessage('Field type is required')
+    .isIn(['dropdown', 'text'])
+    .withMessage('Field type must be dropdown or text'),
+
+  body('dropdownOptions')
+    .if(body('fieldType').equals('dropdown'))
+    .isArray()
+    .withMessage('Dropdown options must be an array')
+    .custom((options) => {
+      if (options.length === 0) {
+        throw new Error('Dropdown must have at least one option');
+      }
+      return true;
+    }),
 
   validateRequest
 ];
@@ -146,12 +342,11 @@ export const validateStatusUpdate = [
     .isNumeric()
     .withMessage('Status must be a number'),
 
-  body('rejectionReason')
-    .if(body('status').equals('REJECTED'))
+  body('updatedBy')
     .notEmpty()
-    .withMessage('Rejection reason is required when rejecting a survey')
-    .isLength({ min: 10 })
-    .withMessage('Rejection reason must be at least 10 characters long'),
+    .withMessage('Updater is required')
+    .isMongoId()
+    .withMessage('Invalid user ID'),
 
   validateRequest
 ]; 

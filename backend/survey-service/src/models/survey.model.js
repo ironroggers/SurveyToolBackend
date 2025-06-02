@@ -1,131 +1,222 @@
 import mongoose from "mongoose";
 
-const surveySchema = new mongoose.Schema(
-  {
-    location: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Location",
-      required: [true, "Location is required"],
-    },
-    latlong: {
-      type: [Number],
-      required: true,
-      validate: {
-        validator: function(coords) {
-          return coords.length === 2 &&
-                 coords[0] >= -90 && coords[0] <= 90 &&
-                 coords[1] >= -180 && coords[1] <= 180;
-        },
-        message: "Invalid coordinates. Latitude must be between -90 and 90, Longitude between -180 and 180"
-      }
-    },
-    created_on: {
-      type: Date,
-      default: Date.now,
-      required: true
-    },
-    created_by: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: [true, "Creator is required"],
-    },
-    title: {
-      type: String,
-      required: [true, "Survey title is required"],
-      trim: true,
-      minlength: [3, "Title must be at least 3 characters long"],
-    },
-    description: {
-      type: String,
-      trim: true,
-    },
-    mediaFiles: [
-      {
-        url: {
-          type: String,
-          required: true,
-        },
-        fileType: {
-          type: String,
-          required: true,
-          enum: ["IMAGE", "VIDEO", "DOCUMENT"],
-        },
-        description: String,
-        uploaded_at: {
-          type: Date,
-          default: Date.now,
-        },
-        latitude: {
-          type: Number,
-          required: true,
-          min: -90,
-          max: 90
-        },
-        longitude: {
-          type: Number,
-          required: true,
-          min: -180,
-          max: 180
-        },
-        deviceName: {
-          type: String,
-          required: true
-        },
-        accuracy: {
-          type: Number,
-          required: true
-        },
-        place: {
-          type: String,
-          trim: true,
-        },
-      },
-    ],
-    terrainData: {
-      type: {
-        type: String,
-        enum: ["URBAN", "RURAL", "FOREST", "MOUNTAIN", "WETLAND", "COASTAL"],
-      },
-    },
-    rowAuthority: {
-      type: String,
-      enum: ["NHAI", "NH", "State Highway", "Forest", "Municipal Coorporation", "Municipality", "Gram Panchayat", "Railway", "Private Road", "Others"],
-    },
-    others: {
-      type: mongoose.Schema.Types.Mixed,
-    },
-    updated_on: {
-      type: Date,
-      default: Date.now,
-    },
-    updated_by: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-    },
-    status: {
-      type: Number,
-      default: 1,
-    },
+// MediaFileSchema subdocument
+const mediaFileSchema = new mongoose.Schema({
+  url: {
+    type: String,
+    required: [true, "Media file URL is required"]
   },
-  {
-    timestamps: true,
+  fileType: {
+    type: String,
+    required: [true, "File type is required"],
+    enum: ["IMAGE", "VIDEO", "DOCUMENT", "AUDIO"]
+  },
+  description: {
+    type: String,
+    trim: true
+  },
+  latitude: {
+    type: String,
+    required: [true, "Latitude is required for media file"]
+  },
+  longitude: {
+    type: String,
+    required: [true, "Longitude is required for media file"]
+  },
+  deviceName: {
+    type: String,
+    trim: true
+  },
+  accuracy: {
+    type: Number
+  },
+  place: {
+    type: String,
+    trim: true
   }
-);
+}, { _id: true });
 
+// FieldSchema subdocument
+const fieldSchema = new mongoose.Schema({
+  sequence: {
+    type: Number,
+    required: [true, "Field sequence is required"]
+  },
+  key: {
+    type: String,
+    required: [true, "Field key is required"],
+    trim: true
+  },
+  value: {
+    type: String,
+    trim: true
+  },
+  fieldType: {
+    type: String,
+    required: [true, "Field type is required"],
+    enum: ["dropdown", "text"]
+  },
+  dropdownOptions: [{
+    type: String,
+    trim: true
+  }],
+  mediaFiles: [mediaFileSchema],
+  status: {
+    type: Number,
+    default: 1
+  }
+}, { _id: true });
+
+// ContactPerson subdocument
+const contactPersonSchema = new mongoose.Schema({
+  sdeName: {
+    type: String,
+    trim: true
+  },
+  sdeMobile: {
+    type: String,
+    trim: true
+  },
+  engineerName: {
+    type: String,
+    trim: true
+  },
+  engineerMobile: {
+    type: String,
+    trim: true
+  },
+  address: {
+    type: String,
+    trim: true
+  }
+}, { _id: false });
+
+// Main Survey Schema
+const surveySchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: [true, "Survey name is required"],
+    trim: true,
+    minlength: [3, "Name must be at least 3 characters long"]
+  },
+  description: {
+    type: String,
+    required: [true, "Survey description is required"],
+    trim: true
+  },
+  locationId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Location",
+    required: [true, "Location ID is required"]
+  },
+  stateName: {
+    type: String,
+    trim: true
+  },
+  stateCode: {
+    type: String,
+    trim: true
+  },
+  districtName: {
+    type: String,
+    trim: true
+  },
+  districtCode: {
+    type: String,
+    trim: true
+  },
+  blockName: {
+    type: String,
+    trim: true
+  },
+  blockCode: {
+    type: String,
+    trim: true
+  },
+  latitude: {
+    type: String,
+    required: [true, "Latitude is required"]
+  },
+  longitude: {
+    type: String,
+    required: [true, "Longitude is required"]
+  },
+  blockAddress: {
+    type: String,
+    trim: true
+  },
+  mediaFiles: [mediaFileSchema],
+  contactPerson: contactPersonSchema,
+  surveyType: {
+    type: String,
+    required: [true, "Survey type is required"],
+    enum: ["block", "gp", "ofc"]
+  },
+  fields: [fieldSchema],
+  status: {
+    type: Number,
+    default: 1
+  },
+  createdOn: {
+    type: Date,
+    required: [true, "Created date is required"],
+    default: Date.now
+  },
+  createdBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: [true, "Creator is required"]
+  },
+  updatedOn: {
+    type: Date,
+    required: [true, "Updated date is required"],
+    default: Date.now
+  },
+  updatedBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: [true, "Updater is required"]
+  },
+  others: {
+    type: mongoose.Schema.Types.Mixed
+  }
+}, {
+  timestamps: true
+});
+
+// Indexes for better query performance
+surveySchema.index({ locationId: 1 });
+surveySchema.index({ surveyType: 1 });
 surveySchema.index({ status: 1 });
-surveySchema.index({ created_by: 1 });
-surveySchema.index({ "terrainData.type": 1 });
-surveySchema.index({ location: 1 });
-surveySchema.index({ latlong: "2d" });
-surveySchema.index({ rowAuthority: 1 });
+surveySchema.index({ createdBy: 1 });
+surveySchema.index({ createdOn: -1 });
+surveySchema.index({ locationId: 1, surveyType: 1 });
+surveySchema.index({ stateName: 1 });
+surveySchema.index({ districtName: 1 });
+surveySchema.index({ blockName: 1 });
 
-surveySchema.statics.findNearby = async function (coordinates, maxDistance) {
-  return this.find({
-    latlong: {
-      $near: coordinates,
-      $maxDistance: maxDistance
-    }
-  });
+// Pre-save middleware to update updatedOn
+surveySchema.pre('save', function(next) {
+  this.updatedOn = new Date();
+  next();
+});
+
+surveySchema.pre('findOneAndUpdate', function(next) {
+  this.set({ updatedOn: new Date() });
+  next();
+});
+
+// Static methods
+surveySchema.statics.findByLocation = async function(locationId) {
+  return this.find({ locationId, status: { $ne: 0 } });
+};
+
+surveySchema.statics.findByType = async function(surveyType) {
+  return this.find({ surveyType, status: { $ne: 0 } });
+};
+
+surveySchema.statics.findByLocationAndType = async function(locationId, surveyType) {
+  return this.find({ locationId, surveyType, status: { $ne: 0 } });
 };
 
 export default mongoose.model("Survey", surveySchema, "Survey");
