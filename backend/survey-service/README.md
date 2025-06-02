@@ -60,7 +60,8 @@ Authorization: Bearer <your-jwt-token>
   "longitude": "string (required)",
   "deviceName": "string",
   "accuracy": "number",
-  "place": "string"
+  "place": "string",
+  "uploadedAt": "Date (default: Date.now)"
 }
 ```
 
@@ -286,7 +287,8 @@ GET /api/surveys?locationId=64f8b2d5e1a2c3d4e5f6g7h8&surveyType=block&page=1&lim
   "longitude": "73.8567",
   "deviceName": "iPhone 13",
   "accuracy": 5.0,
-  "place": "Survey Point 1"
+  "place": "Survey Point 1",
+  "uploadedAt": "2024-01-15T10:30:00.000Z"
 }
 ```
 
@@ -464,7 +466,8 @@ const surveyData = {
       fileType: "IMAGE",
       latitude: "13.2516",
       longitude: "77.7044",
-      description: "Main road view"
+      description: "Main road view",
+      uploadedAt: "2024-01-15T10:30:00.000Z"
     }
   ],
   fields: [

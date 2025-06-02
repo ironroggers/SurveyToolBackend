@@ -33,6 +33,11 @@ const mediaFileSchema = new mongoose.Schema({
   place: {
     type: String,
     trim: true
+  },
+  uploadedAt: {
+    type: Date,
+    default: Date.now,
+    required: [true, "Upload date is required"]
   }
 }, { _id: true });
 
