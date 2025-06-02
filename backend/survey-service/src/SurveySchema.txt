@@ -1,0 +1,54 @@
+
+1. Survey Form Schema
+---------------------------------------
+_id
+name - String required
+description - String required
+locationId - ObjectId required
+stateName - String
+stateCode - String
+districtName - String
+districtCode - String
+blockName - String
+blockCode - String
+latitude - String required
+longitude - String required
+blockAddress - String
+mediaFiles - list of MediaFileSchema
+contactPerson - {
+    sdeName  - String
+    sdeMobile - String
+    engineerName - String
+    engineerMobile - String
+    address - String
+}
+surveyType - enum [block, gp, hoto] required
+fields - list of FieldSchema
+status - Number
+createdOn - Date required
+createdBy - ObjectId required
+updatedOn - Date required
+updatedBy - ObjectId  required
+others - Mixed
+
+2. FieldSchema
+---------------------------------------
+sequence - Number required
+key - String required
+value - String
+fieldType - enum [dropdown, text] required
+dropdownOptions - list of String
+mediaFiles - List of MediaFileSchema
+status - Number
+
+3. MediaFileSchema
+---------------------------------------
+url -  string required
+fileType - String required
+description: String,
+latitude: String, required
+longitude: String, required
+deviceName: String,
+accuracy: Number,
+place: String,
+
