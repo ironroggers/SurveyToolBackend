@@ -19,7 +19,6 @@ import {
   validateSurvey,
   validateSurveyUpdate,
 } from "../middleware/validation.middleware.js";
-import { authenticateToken } from "../middleware/auth.middleware.js";
 
 const router = express.Router();
 
@@ -29,24 +28,24 @@ const router = express.Router();
 router.get("/stats", getSurveyStats);
 router.get("/", getSurveys);
 router.get("/:id", getSurveyById);
-router.post("/", authenticateToken, validateSurvey, createSurvey);
-router.put("/:id", authenticateToken, validateSurveyUpdate, updateSurvey);
-router.delete("/:id", authenticateToken, deleteSurvey);
+router.post("/", validateSurvey, createSurvey);
+router.put("/:id", validateSurveyUpdate, updateSurvey);
+router.delete("/:id", deleteSurvey);
 
 // Filter routes
 router.get("/location/:locationId", getSurveysByLocation);
 router.get("/type/:surveyType", getSurveysByType);
 
 // Media file routes
-router.post("/:id/media", authenticateToken, addMediaFile);
-router.delete("/:id/media/:mediaId", authenticateToken, removeMediaFile);
+router.post("/:id/media", addMediaFile);
+router.delete("/:id/media/:mediaId", removeMediaFile);
 
 // Field routes
-router.post("/:id/fields", authenticateToken, addField);
-router.put("/:id/fields/:fieldId", authenticateToken, updateField);
-router.delete("/:id/fields/:fieldId", authenticateToken, removeField);
+router.post("/:id/fields", addField);
+router.put("/:id/fields/:fieldId", updateField);
+router.delete("/:id/fields/:fieldId", removeField);
 
 // Status update route
-router.patch("/:id/status", authenticateToken, updateStatus);
+router.patch("/:id/status", updateStatus);
 
 export default router;
