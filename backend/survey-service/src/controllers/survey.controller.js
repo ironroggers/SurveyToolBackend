@@ -285,7 +285,7 @@ export const addMediaFile = async (req, res, next) => {
       throw new NotFoundError('Survey not found');
     }
 
-    const { url, fileType, description, latitude, longitude, deviceName, accuracy, place } = req.body;
+    const { url, fileType, description, latitude, longitude, deviceName, accuracy, place, uploadedAt } = req.body;
     
     const mediaFile = {
       url,
@@ -295,7 +295,8 @@ export const addMediaFile = async (req, res, next) => {
       longitude,
       deviceName,
       accuracy,
-      place
+      place,
+      uploadedAt: uploadedAt ? new Date(uploadedAt) : new Date()
     };
 
     survey.mediaFiles.push(mediaFile);
@@ -350,13 +351,19 @@ export const addField = async (req, res, next) => {
 
     const { sequence, key, value, fieldType, dropdownOptions, mediaFiles } = req.body;
     
+    // Process media files to ensure uploadedAt is set
+    const processedMediaFiles = mediaFiles ? mediaFiles.map(media => ({
+      ...media,
+      uploadedAt: media.uploadedAt ? new Date(media.uploadedAt) : new Date()
+    })) : [];
+    
     const field = {
       sequence,
       key,
       value,
       fieldType,
       dropdownOptions,
-      mediaFiles: mediaFiles || []
+      mediaFiles: processedMediaFiles
     };
 
     survey.fields.push(field);

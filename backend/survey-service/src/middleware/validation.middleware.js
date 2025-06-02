@@ -136,6 +136,16 @@ export const validateSurvey = [
     .withMessage('Longitude is required for media files')
     .trim(),
 
+  body('mediaFiles.*.uploadedAt')
+    .optional()
+    .isISO8601()
+    .withMessage('Invalid upload date format'),
+
+  body('fields.*.mediaFiles.*.uploadedAt')
+    .optional()
+    .isISO8601()
+    .withMessage('Invalid upload date format in field media files'),
+
   body('others')
     .optional(),
 
@@ -240,16 +250,6 @@ export const validateSurveyUpdate = [
     .isIn(['dropdown', 'text'])
     .withMessage('Field type must be dropdown or text'),
 
-  body('mediaFiles.*.url')
-    .optional()
-    .isURL()
-    .withMessage('Invalid media file URL'),
-
-  body('mediaFiles.*.fileType')
-    .optional()
-    .isIn(['IMAGE', 'VIDEO', 'DOCUMENT', 'AUDIO'])
-    .withMessage('Invalid file type'),
-
   body('others')
     .optional(),
 
@@ -295,6 +295,11 @@ export const validateMediaFile = [
   body('place')
     .optional()
     .trim(),
+
+  body('uploadedAt')
+    .optional()
+    .isISO8601()
+    .withMessage('Invalid upload date format'),
 
   validateRequest
 ];
