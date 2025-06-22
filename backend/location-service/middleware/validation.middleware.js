@@ -88,3 +88,62 @@ export const validateLocation = [
 
   validateRequest,
 ];
+
+export const validateLocationUpdate = [
+  body("status")
+    .optional()
+    .isInt({ min: 1, max: 6 })
+    .withMessage("Status must be a number between 1-6 (1: Released, 2: Assigned, 3: Active, 4: Completed, 5: Accepted, 6: Reverted)"),
+
+  body("route")
+    .optional()
+    .isArray()
+    .withMessage("Route must be an array"),
+
+  body("route.*.place")
+    .if(body("route").exists())
+    .notEmpty()
+    .withMessage("Place is required for each route item"),
+
+  body("route.*.latitude")
+    .if(body("route").exists())
+    .isFloat({ min: -90, max: 90 })
+    .withMessage("Latitude must be a number between -90 and 90"),
+
+  body("route.*.longitude")
+    .if(body("route").exists())
+    .isFloat({ min: -180, max: 180 })
+    .withMessage("Longitude must be a number between -180 and 180"),
+
+  body("route.*.type")
+    .if(body("route").exists())
+    .notEmpty()
+    .withMessage("Type is required for each route item"),
+
+  body("assigned_to")
+    .optional()
+    .isMongoId()
+    .withMessage("Invalid assigned_to ID format"),
+
+  body("surveyor")
+    .optional()
+    .isMongoId()
+    .withMessage("Invalid surveyor ID format"),
+
+  body("supervisor")
+    .optional()
+    .isMongoId()
+    .withMessage("Invalid supervisor ID format"),
+
+  body("due_date")
+    .optional()
+    .isISO8601()
+    .withMessage("Due date must be a valid date"),
+
+  body("comments")
+    .optional()
+    .isString()
+    .withMessage("Comments must be a string"),
+
+  validateRequest,
+];

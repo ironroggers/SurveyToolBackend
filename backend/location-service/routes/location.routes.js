@@ -10,7 +10,7 @@ import {
   getLocationsByStatus,
   addRouteToLocation
 } from "../controllers/location.controller.js";
-import { validateLocation } from "../middleware/validation.middleware.js";
+import { validateLocation, validateLocationUpdate } from "../middleware/validation.middleware.js";
 import { body } from "express-validator";
 import { validateRequest } from "../utils/validator.js";
 
@@ -38,7 +38,7 @@ router.get("/", getLocations);
 router.post("/", validateLocation, createLocation);
 
 // Update location
-router.put("/:id", validateLocationStatusUpdate, updateLocation);
+router.put("/:id", validateLocationUpdate, updateLocation);
 
 // Delete location
 router.delete("/:id", deleteLocation);

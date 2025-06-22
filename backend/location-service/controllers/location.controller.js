@@ -137,24 +137,25 @@ export const getLocationById = async (req, res, next) => {
 // Update location
 export const updateLocation = async (req, res, next) => {
   try {
-    const { status, surveyor, assigned_to, supervisor, due_date, comments } = req.body;
-    
-    if (status === undefined) {
-      throw new BadRequestError("Status is required");
-    }
+    const { status, surveyor, assigned_to, supervisor, due_date, comments, route } = req.body;
     
     const updateData = {
-      status: parseInt(status),
       updated_on: new Date()
     };
 
-    // Add additional fields if provided
+    // Add fields only if provided
+    if (status !== undefined) updateData.status = parseInt(status);
     if (surveyor) updateData.surveyor = surveyor;
     if (assigned_to) updateData.assigned_to = assigned_to;
     if (supervisor) updateData.supervisor = supervisor;
     if (due_date) updateData.due_date = new Date(due_date);
     if (comments !== undefined) updateData.comments = comments;
+    if (route !== undefined) {
+      console.log("Updating route with data:", JSON.stringify(route));
+      updateData.route = route;
+    }
     
+
     const location = await Location.findByIdAndUpdate(req.params.id, updateData, {
       new: true,
       runValidators: true,
