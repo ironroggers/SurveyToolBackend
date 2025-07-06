@@ -204,9 +204,7 @@ const surveySchema = new mongoose.Schema({
     ref: "User",
     required: [true, "Updater is required"]
   },
-  rowSchema : {
-    type: rowSchema,
-  },
+  rowSchema: rowSchema,
   others: {
     type: mongoose.Schema.Types.Mixed
   }
