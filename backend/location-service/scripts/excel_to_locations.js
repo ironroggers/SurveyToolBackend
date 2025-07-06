@@ -78,8 +78,9 @@
 //         state_code: "KL",
 //         district,
 //         district_code: "dummy_code",
-//         block_address: "dummy_address",
 //         block,
+//         block_code: "dummy_code",
+//         block_address: "dummy_address",
 //         route: [],
 //       };
 //     }
@@ -96,11 +97,11 @@
 
 //   // Append the first route point as the last point (to close the loop)
 //   const locations = Object.values(locationMap);
-//   locations.forEach((loc) => {
-//     if (loc.route && loc.route.length > 0) {
-//       loc.route.push({ ...loc.route[0] });
-//     }
-//   });
+//   // locations.forEach((loc) => {
+//   //   if (loc.route && loc.route.length > 0) {
+//   //     loc.route.push({ ...loc.route[0] });
+//   //   }
+//   // });
 
 //   const json = JSON.stringify(locations, null, 2);
 
