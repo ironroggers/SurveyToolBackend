@@ -96,6 +96,26 @@ export const validateSurvey = [
     .optional()
     .trim(),
 
+  body('rowSchema.rowOwnership')
+    .optional()
+    .trim(),
+
+  body('rowSchema.rowAuthority')
+    .optional()
+    .trim(),
+
+  body('rowSchema.rowAuthorityName')
+    .optional()
+    .trim(),
+
+  body('rowSchema.rowAuthorityAddress')
+    .optional()
+    .trim(),
+
+  body('rowSchema.rowFeasibility')
+    .optional()
+    .trim(),
+
   body('fields.*.sequence')
     .optional()
     .isNumeric()
@@ -231,6 +251,26 @@ export const validateSurveyUpdate = [
     .trim(),
 
   body('contactPerson.address')
+    .optional()
+    .trim(),
+
+  body('rowSchema.rowOwnership')
+    .optional()
+    .trim(),
+
+  body('rowSchema.rowAuthority')
+    .optional()
+    .trim(),
+
+  body('rowSchema.rowAuthorityName')
+    .optional()
+    .trim(),
+
+  body('rowSchema.rowAuthorityAddress')
+    .optional()
+    .trim(),
+
+  body('rowSchema.rowFeasibility')
     .optional()
     .trim(),
 
