@@ -4,8 +4,9 @@
     "state_code": "KL",
     "district": "ALAPPUZHA",
     "district_code": "dummy_code",
-    "block_address": "dummy_address",
     "block": "HARIPPAD",
+    "block_code": "dummy_code",
+    "block_address": "dummy_address",
     "route": [
       {
         "place": "HARIPPAD BHQ",
@@ -66,12 +67,6 @@
         "latitude": 9.28353,
         "longitude": 76.43999,
         "type": "GP"
-      },
-      {
-        "place": "HARIPPAD BHQ",
-        "latitude": 9.288953,
-        "longitude": 76.443273,
-        "type": "BHQ"
       }
     ]
   },
@@ -80,8 +75,9 @@
     "state_code": "KL",
     "district": "Alappuzha",
     "district_code": "dummy_code",
-    "block_address": "dummy_address",
     "block": "MUTHUKULAM",
+    "block_code": "dummy_code",
+    "block_address": "dummy_address",
     "route": [
       {
         "place": "MUKHATHALA BHQ",
@@ -124,12 +120,6 @@
         "latitude": 8.896801,
         "longitude": 76.667455,
         "type": "GP"
-      },
-      {
-        "place": "MUKHATHALA BHQ",
-        "latitude": 8.896537,
-        "longitude": 76.665937,
-        "type": "BHQ"
       }
     ]
   },
@@ -138,8 +128,9 @@
     "state_code": "KL",
     "district": "Ernakulam",
     "district_code": "dummy_code",
-    "block_address": "dummy_address",
     "block": "EDAPPALLY",
+    "block_code": "dummy_code",
+    "block_address": "dummy_address",
     "route": [
       {
         "place": "EDAPPALLY BHQ",
@@ -176,12 +167,6 @@
         "latitude": 10.014623,
         "longitude": 76.353489,
         "type": "GP"
-      },
-      {
-        "place": "EDAPPALLY BHQ",
-        "latitude": 10.014623,
-        "longitude": 76.353489,
-        "type": "BHQ"
       }
     ]
   },
@@ -190,8 +175,9 @@
     "state_code": "KL",
     "district": "Ernakulam",
     "district_code": "dummy_code",
-    "block_address": "dummy_address",
     "block": "PALLURUTHY",
+    "block_code": "dummy_code",
+    "block_address": "dummy_address",
     "route": [
       {
         "place": "PALLURUTHY BHQ",
@@ -228,12 +214,6 @@
         "latitude": 9.90844,
         "longitude": 76.29398,
         "type": "GP"
-      },
-      {
-        "place": "PALLURUTHY BHQ",
-        "latitude": 9.921737,
-        "longitude": 76.273234,
-        "type": "BHQ"
       }
     ]
   },
@@ -242,8 +222,9 @@
     "state_code": "KL",
     "district": "Ernakulam",
     "district_code": "dummy_code",
-    "block_address": "dummy_address",
     "block": "PARAVUR",
+    "block_code": "dummy_code",
+    "block_address": "dummy_address",
     "route": [
       {
         "place": "PARAVUR BHQ",
@@ -286,12 +267,6 @@
         "latitude": 10.123737,
         "longitude": 76.247274,
         "type": "GP"
-      },
-      {
-        "place": "PARAVUR BHQ",
-        "latitude": 10.1185424,
-        "longitude": 76.2482648,
-        "type": "BHQ"
       }
     ]
   },
@@ -300,8 +275,9 @@
     "state_code": "KL",
     "district": "Ernakulam",
     "district_code": "dummy_code",
-    "block_address": "dummy_address",
     "block": "VYPEEN",
+    "block_code": "dummy_code",
+    "block_address": "dummy_address",
     "route": [
       {
         "place": "VYPEEN BHQ",
@@ -338,12 +314,6 @@
         "latitude": 10.0607266,
         "longitude": 76.2138949,
         "type": "GP"
-      },
-      {
-        "place": "VYPEEN BHQ",
-        "latitude": 10.111074,
-        "longitude": 76.2015192,
-        "type": "BHQ"
       }
     ]
   },
@@ -352,8 +322,9 @@
     "state_code": "KL",
     "district": "Kannur",
     "district_code": "dummy_code",
-    "block_address": "dummy_address",
     "block": "KANNUR",
+    "block_code": "dummy_code",
+    "block_address": "dummy_address",
     "route": [
       {
         "place": "KANNUR BHQ",
@@ -402,12 +373,6 @@
         "latitude": 11.91372,
         "longitude": 75.3584,
         "type": "GP"
-      },
-      {
-        "place": "KANNUR BHQ",
-        "latitude": 11.895454,
-        "longitude": 75.362599,
-        "type": "BHQ"
       }
     ]
   },
@@ -416,8 +381,9 @@
     "state_code": "KL",
     "district": "Kollam",
     "district_code": "dummy_code",
-    "block_address": "dummy_address",
     "block": "CHAVARA",
+    "block_code": "dummy_code",
+    "block_address": "dummy_address",
     "route": [
       {
         "place": "CHAVARA BHQ",
@@ -460,12 +426,6 @@
         "latitude": 8.980359,
         "longitude": 76.534751,
         "type": "GP"
-      },
-      {
-        "place": "CHAVARA BHQ",
-        "latitude": 8.99377,
-        "longitude": 76.533654,
-        "type": "BHQ"
       }
     ]
   },
@@ -474,8 +434,9 @@
     "state_code": "KL",
     "district": "Kollam",
     "district_code": "dummy_code",
-    "block_address": "dummy_address",
     "block": "CHITTUMALA",
+    "block_code": "dummy_code",
+    "block_address": "dummy_address",
     "route": [
       {
         "place": "CHITTUMALA BHQ",
@@ -536,12 +497,6 @@
         "latitude": 8.96085,
         "longitude": 76.67244,
         "type": "GP"
-      },
-      {
-        "place": "CHITTUMALA BHQ",
-        "latitude": 9.006539,
-        "longitude": 76.659078,
-        "type": "BHQ"
       }
     ]
   },
@@ -550,8 +505,9 @@
     "state_code": "KL",
     "district": "Kollam",
     "district_code": "dummy_code",
-    "block_address": "dummy_address",
     "block": "MUKHATHALA",
+    "block_code": "dummy_code",
+    "block_address": "dummy_address",
     "route": [
       {
         "place": "MUKHATHALA BHQ",
@@ -600,12 +556,6 @@
         "latitude": 8.896537,
         "longitude": 76.665937,
         "type": "GP"
-      },
-      {
-        "place": "MUKHATHALA BHQ",
-        "latitude": 8.896537,
-        "longitude": 76.665937,
-        "type": "BHQ"
       }
     ]
   },
@@ -614,8 +564,9 @@
     "state_code": "KL",
     "district": "Kollam",
     "district_code": "dummy_code",
-    "block_address": "dummy_address",
     "block": "SASTHAMCOTTAH",
+    "block_code": "dummy_code",
+    "block_address": "dummy_address",
     "route": [
       {
         "place": "SASTHAMCOTTAH BHQ",
@@ -670,12 +621,6 @@
         "latitude": 9.043558,
         "longitude": 76.626826,
         "type": "GP"
-      },
-      {
-        "place": "SASTHAMCOTTAH BHQ",
-        "latitude": 9.067402,
-        "longitude": 76.649825,
-        "type": "BHQ"
       }
     ]
   },
@@ -684,8 +629,9 @@
     "state_code": "KL",
     "district": "Malappuram",
     "district_code": "dummy_code",
-    "block_address": "dummy_address",
     "block": "PONNANI",
+    "block_code": "dummy_code",
+    "block_address": "dummy_address",
     "route": [
       {
         "place": "PONNANI BHQ",
@@ -728,12 +674,6 @@
         "latitude": 10.7827816,
         "longitude": 76.0235062,
         "type": "GP"
-      },
-      {
-        "place": "PONNANI BHQ",
-        "latitude": 10.782295,
-        "longitude": 76.00999,
-        "type": "BHQ"
       }
     ]
   },
@@ -742,8 +682,9 @@
     "state_code": "KL",
     "district": "Malappuram",
     "district_code": "dummy_code",
-    "block_address": "dummy_address",
     "block": "TANUR",
+    "block_code": "dummy_code",
+    "block_address": "dummy_address",
     "route": [
       {
         "place": "TANUR BHQ",
@@ -816,12 +757,6 @@
         "latitude": 10.953424,
         "longitude": 75.946278,
         "type": "GP"
-      },
-      {
-        "place": "TANUR BHQ",
-        "latitude": 10.984628,
-        "longitude": 75.87517,
-        "type": "BHQ"
       }
     ]
   },
@@ -830,8 +765,9 @@
     "state_code": "KL",
     "district": "Malappuram",
     "district_code": "dummy_code",
-    "block_address": "dummy_address",
     "block": "VENGARA",
+    "block_code": "dummy_code",
+    "block_address": "dummy_address",
     "route": [
       {
         "place": "VENGARA BHQ",
@@ -898,12 +834,6 @@
         "latitude": 11.050268,
         "longitude": 75.984457,
         "type": "GP"
-      },
-      {
-        "place": "VENGARA BHQ",
-        "latitude": 11.050268,
-        "longitude": 75.984457,
-        "type": "BHQ"
       }
     ]
   },
@@ -912,8 +842,9 @@
     "state_code": "KL",
     "district": "Thrissur",
     "district_code": "dummy_code",
-    "block_address": "dummy_address",
     "block": "CHERPU",
+    "block_code": "dummy_code",
+    "block_address": "dummy_address",
     "route": [
       {
         "place": "CHERPU BHQ",
@@ -950,12 +881,6 @@
         "latitude": 10.458029,
         "longitude": 76.191945,
         "type": "GP"
-      },
-      {
-        "place": "CHERPU BHQ",
-        "latitude": 10.472736,
-        "longitude": 76.212746,
-        "type": "BHQ"
       }
     ]
   },
@@ -964,8 +889,9 @@
     "state_code": "KL",
     "district": "Thrissur",
     "district_code": "dummy_code",
-    "block_address": "dummy_address",
     "block": "MULLASSERY",
+    "block_code": "dummy_code",
+    "block_address": "dummy_address",
     "route": [
       {
         "place": "MULLASSERY BHQ",
@@ -1008,12 +934,6 @@
         "latitude": 10.57672,
         "longitude": 76.07632,
         "type": "GP"
-      },
-      {
-        "place": "MULLASSERY BHQ",
-        "latitude": 10.54414,
-        "longitude": 76.081955,
-        "type": "BHQ"
       }
     ]
   },
@@ -1022,8 +942,9 @@
     "state_code": "KL",
     "district": "Thrissur",
     "district_code": "dummy_code",
-    "block_address": "dummy_address",
     "block": "PUZHAKKAL",
+    "block_code": "dummy_code",
+    "block_address": "dummy_address",
     "route": [
       {
         "place": "PUZHAKKAL BHQ",
@@ -1072,12 +993,6 @@
         "latitude": 10.56429,
         "longitude": 76.12334,
         "type": "GP"
-      },
-      {
-        "place": "PUZHAKKAL BHQ",
-        "latitude": 10.553397,
-        "longitude": 76.166342,
-        "type": "BHQ"
       }
     ]
   },
@@ -1086,8 +1001,9 @@
     "state_code": "KL",
     "district": "Thrissur",
     "district_code": "dummy_code",
-    "block_address": "dummy_address",
     "block": "VELLANGALLUR",
+    "block_code": "dummy_code",
+    "block_address": "dummy_address",
     "route": [
       {
         "place": "VELLANGALLUR BHQ",
@@ -1136,12 +1052,6 @@
         "latitude": 10.296654,
         "longitude": 76.217703,
         "type": "GP"
-      },
-      {
-        "place": "VELLANGALLUR BHQ",
-        "latitude": 10.296075,
-        "longitude": 76.222482,
-        "type": "BHQ"
       }
     ]
   },
@@ -1150,8 +1060,9 @@
     "state_code": "KL",
     "district": "Idukki",
     "district_code": "dummy_code",
-    "block_address": "dummy_address",
     "block": "ELEMDESAM",
+    "block_code": "dummy_code",
+    "block_address": "dummy_address",
     "route": [
       {
         "place": "ELAMDESAM BHQ",
@@ -1206,12 +1117,6 @@
         "latitude": 9.861708,
         "longitude": 76.80217,
         "type": "GP"
-      },
-      {
-        "place": "ELAMDESAM BHQ",
-        "latitude": 9.881502,
-        "longitude": 76.766661,
-        "type": "BHQ"
       }
     ]
   },
@@ -1220,8 +1125,9 @@
     "state_code": "KL",
     "district": "Idukki",
     "district_code": "dummy_code",
-    "block_address": "dummy_address",
     "block": "NEDUMKANDOM",
+    "block_code": "dummy_code",
+    "block_address": "dummy_address",
     "route": [
       {
         "place": "NEDUMKANDOM BHQ",
@@ -1276,12 +1182,6 @@
         "latitude": 9.799401,
         "longitude": 77.161281,
         "type": "GP"
-      },
-      {
-        "place": "NEDUMKANDOM BHQ",
-        "latitude": 9.834476,
-        "longitude": 77.158765,
-        "type": "BHQ"
       }
     ]
   },
@@ -1290,8 +1190,9 @@
     "state_code": "KL",
     "district": "Idukki",
     "district_code": "dummy_code",
-    "block_address": "dummy_address",
     "block": "THODUPUZHA",
+    "block_code": "dummy_code",
+    "block_address": "dummy_address",
     "route": [
       {
         "place": "THODUPUZHA BHQ",
@@ -1340,12 +1241,6 @@
         "latitude": 9.89929,
         "longitude": 76.715454,
         "type": "GP"
-      },
-      {
-        "place": "THODUPUZHA BHQ",
-        "latitude": 9.887383,
-        "longitude": 76.698259,
-        "type": "BHQ"
       }
     ]
   },
@@ -1354,8 +1249,9 @@
     "state_code": "KL",
     "district": "Kannur",
     "district_code": "dummy_code",
-    "block_address": "dummy_address",
     "block": "IRITTY",
+    "block_code": "dummy_code",
+    "block_address": "dummy_address",
     "route": [
       {
         "place": "IRITTY BHQ",
@@ -1416,12 +1312,6 @@
         "latitude": 11.953198,
         "longitude": 75.643095,
         "type": "GP"
-      },
-      {
-        "place": "IRITTY BHQ",
-        "latitude": 11.98189,
-        "longitude": 75.67796,
-        "type": "BHQ"
       }
     ]
   },
@@ -1430,8 +1320,9 @@
     "state_code": "KL",
     "district": "Kannur",
     "district_code": "dummy_code",
-    "block_address": "dummy_address",
     "block": "PAYYANNUR",
+    "block_code": "dummy_code",
+    "block_address": "dummy_address",
     "route": [
       {
         "place": "PAYYANNUR BHQ",
@@ -1486,12 +1377,6 @@
         "latitude": 12.22425,
         "longitude": 75.31554,
         "type": "GP"
-      },
-      {
-        "place": "PAYYANNUR BHQ",
-        "latitude": 12.10356,
-        "longitude": 75.2,
-        "type": "BHQ"
       }
     ]
   },
@@ -1500,8 +1385,9 @@
     "state_code": "KL",
     "district": "Ernakulam",
     "district_code": "dummy_code",
-    "block_address": "dummy_address",
     "block": "ALANGAD",
+    "block_code": "dummy_code",
+    "block_address": "dummy_address",
     "route": [
       {
         "place": "ALANGAD BHQ",
@@ -1538,12 +1424,6 @@
         "latitude": 10.12935,
         "longitude": 76.300268,
         "type": "GP"
-      },
-      {
-        "place": "ALANGAD BHQ",
-        "latitude": 10.127087,
-        "longitude": 76.299789,
-        "type": "BHQ"
       }
     ]
   },
@@ -1552,8 +1432,9 @@
     "state_code": "KL",
     "district": "Ernakulam",
     "district_code": "dummy_code",
-    "block_address": "dummy_address",
     "block": "KOOVAPPADY",
+    "block_code": "dummy_code",
+    "block_address": "dummy_address",
     "route": [
       {
         "place": "KOOVAPPADY BHQ",
@@ -1602,12 +1483,6 @@
         "latitude": 10.131075,
         "longitude": 76.529039,
         "type": "GP"
-      },
-      {
-        "place": "KOOVAPPADY BHQ",
-        "latitude": 10.11259997,
-        "longitude": 76.51602733,
-        "type": "BHQ"
       }
     ]
   },
@@ -1616,8 +1491,9 @@
     "state_code": "KL",
     "district": "Ernakulam",
     "district_code": "dummy_code",
-    "block_address": "dummy_address",
     "block": "KOTHAMANGALAM",
+    "block_code": "dummy_code",
+    "block_address": "dummy_address",
     "route": [
       {
         "place": "KOTHAMANGALAM BHQ",
@@ -1690,12 +1566,6 @@
         "latitude": 10.02805556,
         "longitude": 76.62611111,
         "type": "GP"
-      },
-      {
-        "place": "KOTHAMANGALAM BHQ",
-        "latitude": 10.07361111,
-        "longitude": 76.62472222,
-        "type": "BHQ"
       }
     ]
   },
@@ -1704,8 +1574,9 @@
     "state_code": "KL",
     "district": "Ernakulam",
     "district_code": "dummy_code",
-    "block_address": "dummy_address",
     "block": "MUVATTUPUZHA",
+    "block_code": "dummy_code",
+    "block_address": "dummy_address",
     "route": [
       {
         "place": "VALAKOM TP",
@@ -1766,12 +1637,6 @@
         "latitude": 10.00100001,
         "longitude": 76.56736997,
         "type": "GP"
-      },
-      {
-        "place": "VALAKOM TP",
-        "latitude": 9.990603,
-        "longitude": 76.57639,
-        "type": "BHQ"
       }
     ]
   },
@@ -1780,8 +1645,9 @@
     "state_code": "KL",
     "district": "Kannur",
     "district_code": "dummy_code",
-    "block_address": "dummy_address",
     "block": "IRIKKUR",
+    "block_code": "dummy_code",
+    "block_address": "dummy_address",
     "route": [
       {
         "place": "IRIKKUR BHQ",
@@ -1848,12 +1714,6 @@
         "latitude": 11.99837,
         "longitude": 75.62802,
         "type": "GP"
-      },
-      {
-        "place": "IRIKKUR BHQ",
-        "latitude": 11.982468,
-        "longitude": 75.553627,
-        "type": "BHQ"
       }
     ]
   },
@@ -1862,8 +1722,9 @@
     "state_code": "KL",
     "district": "Kottayam",
     "district_code": "dummy_code",
-    "block_address": "dummy_address",
     "block": "KADUTHURUTHY",
+    "block_code": "dummy_code",
+    "block_address": "dummy_address",
     "route": [
       {
         "place": "KADUTHURUTHY BHQ",
@@ -1960,12 +1821,6 @@
         "latitude": 9.765306,
         "longitude": 76.492293,
         "type": "GP"
-      },
-      {
-        "place": "KADUTHURUTHY BHQ",
-        "latitude": 9.770956,
-        "longitude": 76.487644,
-        "type": "BHQ"
       }
     ]
   },
@@ -1974,8 +1829,9 @@
     "state_code": "KL",
     "district": "Kozhikode",
     "district_code": "dummy_code",
-    "block_address": "dummy_address",
     "block": "BALUSSERI",
+    "block_code": "dummy_code",
+    "block_address": "dummy_address",
     "route": [
       {
         "place": "BALUSSERI BHQ",
@@ -2030,12 +1886,6 @@
         "latitude": 11.44757,
         "longitude": 75.82987,
         "type": "GP"
-      },
-      {
-        "place": "BALUSSERI BHQ",
-        "latitude": 11.453039,
-        "longitude": 75.822029,
-        "type": "BHQ"
       }
     ]
   },
@@ -2044,8 +1894,9 @@
     "state_code": "KL",
     "district": "Palakkad",
     "district_code": "dummy_code",
-    "block_address": "dummy_address",
     "block": "CHITTUR",
+    "block_code": "dummy_code",
+    "block_address": "dummy_address",
     "route": [
       {
         "place": "CHITTUR BHQ",
@@ -2100,12 +1951,6 @@
         "latitude": 10.729352,
         "longitude": 76.7866,
         "type": "GP"
-      },
-      {
-        "place": "CHITTUR BHQ",
-        "latitude": 10.740533,
-        "longitude": 76.816637,
-        "type": "BHQ"
       }
     ]
   },
@@ -2114,8 +1959,9 @@
     "state_code": "KL",
     "district": "Thrissur",
     "district_code": "dummy_code",
-    "block_address": "dummy_address",
     "block": "CHALAKKUDY",
+    "block_code": "dummy_code",
+    "block_address": "dummy_address",
     "route": [
       {
         "place": "CHALAKUDY BHQ",
@@ -2164,12 +2010,6 @@
         "latitude": 10.304459,
         "longitude": 76.331627,
         "type": "GP"
-      },
-      {
-        "place": "CHALAKUDY BHQ",
-        "latitude": 10.307553,
-        "longitude": 76.33523,
-        "type": "BHQ"
       }
     ]
   },
@@ -2178,8 +2018,9 @@
     "state_code": "KL",
     "district": "Kannur",
     "district_code": "dummy_code",
-    "block_address": "dummy_address",
     "block": "EDAKKAD",
+    "block_code": "dummy_code",
+    "block_address": "dummy_address",
     "route": [
       {
         "place": "EDAKKAD BHQ",
@@ -2240,12 +2081,6 @@
         "latitude": 11.833851,
         "longitude": 75.452864,
         "type": "GP"
-      },
-      {
-        "place": "EDAKKAD BHQ",
-        "latitude": 11.846891,
-        "longitude": 75.433278,
-        "type": "BHQ"
       }
     ]
   },
@@ -2254,8 +2089,9 @@
     "state_code": "KL",
     "district": "Kollam",
     "district_code": "dummy_code",
-    "block_address": "dummy_address",
     "block": "ANCHAL",
+    "block_code": "dummy_code",
+    "block_address": "dummy_address",
     "route": [
       {
         "place": "ANCHAL BHQ",
@@ -2316,12 +2152,6 @@
         "latitude": 8.927324,
         "longitude": 76.91407,
         "type": "GP"
-      },
-      {
-        "place": "ANCHAL BHQ",
-        "latitude": 8.935799,
-        "longitude": 76.916956,
-        "type": "BHQ"
       }
     ]
   },
@@ -2330,8 +2160,9 @@
     "state_code": "KL",
     "district": "Kollam",
     "district_code": "dummy_code",
-    "block_address": "dummy_address",
     "block": "CHADAYAMANGALAM",
+    "block_code": "dummy_code",
+    "block_address": "dummy_address",
     "route": [
       {
         "place": "CHADAYAMANGALAM BHQ",
@@ -2392,12 +2223,6 @@
         "latitude": 8.825351,
         "longitude": 76.928006,
         "type": "GP"
-      },
-      {
-        "place": "CHADAYAMANGALAM BHQ",
-        "latitude": 8.885207,
-        "longitude": 76.868589,
-        "type": "BHQ"
       }
     ]
   },
@@ -2406,8 +2231,9 @@
     "state_code": "KL",
     "district": "Kottayam",
     "district_code": "dummy_code",
-    "block_address": "dummy_address",
     "block": "ETTUMANOOR",
+    "block_code": "dummy_code",
+    "block_address": "dummy_address",
     "route": [
       {
         "place": "ETTUMANOOR BHQ",
@@ -2462,12 +2288,6 @@
         "latitude": 9.669327,
         "longitude": 76.556055,
         "type": "GP"
-      },
-      {
-        "place": "ETTUMANOOR BHQ",
-        "latitude": 9.67105,
-        "longitude": 76.55171,
-        "type": "BHQ"
       }
     ]
   },
@@ -2476,8 +2296,9 @@
     "state_code": "KL",
     "district": "Kozhikode",
     "district_code": "dummy_code",
-    "block_address": "dummy_address",
     "block": "CHELANNUR",
+    "block_code": "dummy_code",
+    "block_address": "dummy_address",
     "route": [
       {
         "place": "CHELANNUR BHQ",
@@ -2532,12 +2353,6 @@
         "latitude": 11.38642,
         "longitude": 75.82375,
         "type": "GP"
-      },
-      {
-        "place": "CHELANNUR BHQ",
-        "latitude": 11.33142,
-        "longitude": 75.80912,
-        "type": "BHQ"
       }
     ]
   },
@@ -2546,8 +2361,9 @@
     "state_code": "KL",
     "district": "Malappuram",
     "district_code": "dummy_code",
-    "block_address": "dummy_address",
     "block": "AREAKODE",
+    "block_code": "dummy_code",
+    "block_address": "dummy_address",
     "route": [
       {
         "place": "AREAKODE BHQ",
@@ -2608,12 +2424,6 @@
         "latitude": 11.234815,
         "longitude": 76.050463,
         "type": "GP"
-      },
-      {
-        "place": "AREAKODE BHQ",
-        "latitude": 11.232527,
-        "longitude": 76.048878,
-        "type": "BHQ"
       }
     ]
   },
@@ -2622,8 +2432,9 @@
     "state_code": "KL",
     "district": "Pathanamthitta",
     "district_code": "dummy_code",
-    "block_address": "dummy_address",
     "block": "ELANTHOOR",
+    "block_code": "dummy_code",
+    "block_address": "dummy_address",
     "route": [
       {
         "place": "ELANTHOOR BHQ",
@@ -2678,12 +2489,6 @@
         "latitude": 9.316094,
         "longitude": 76.709,
         "type": "GP"
-      },
-      {
-        "place": "ELANTHOOR BHQ",
-        "latitude": 9.303057,
-        "longitude": 9.303057,
-        "type": "BHQ"
       }
     ]
   },
@@ -2692,8 +2497,9 @@
     "state_code": "KL",
     "district": "Trivandrum",
     "district_code": "dummy_code",
-    "block_address": "dummy_address",
     "block": "ATHIYANNOOR",
+    "block_code": "dummy_code",
+    "block_address": "dummy_address",
     "route": [
       {
         "place": "ATHIYANNOOR BHQ",
@@ -2736,12 +2542,6 @@
         "latitude": 8.40319141,
         "longitude": 77.01284274,
         "type": "GP"
-      },
-      {
-        "place": "ATHIYANNOOR BHQ",
-        "latitude": 8.41471,
-        "longitude": 77.061837,
-        "type": "BHQ"
       }
     ]
   },
@@ -2750,8 +2550,9 @@
     "state_code": "KL",
     "district": "Alappuzha",
     "district_code": "dummy_code",
-    "block_address": "dummy_address",
     "block": "AMBALAPPUZHA",
+    "block_code": "dummy_code",
+    "block_address": "dummy_address",
     "route": [
       {
         "place": "AMBALAPPUZHA BLOCK office",
@@ -2788,12 +2589,6 @@
         "latitude": 9.38293,
         "longitude": 76.35572,
         "type": "GP"
-      },
-      {
-        "place": "AMBALAPPUZHA BLOCK office",
-        "latitude": 9.464004,
-        "longitude": 76.339743,
-        "type": "BHQ"
       }
     ]
   },
@@ -2802,8 +2597,9 @@
     "state_code": "KL",
     "district": "Alappuzha",
     "district_code": "dummy_code",
-    "block_address": "dummy_address",
     "block": "ARYAD",
+    "block_code": "dummy_code",
+    "block_address": "dummy_address",
     "route": [
       {
         "place": "ARYAD BLOCK OFFICE",
@@ -2840,12 +2636,6 @@
         "latitude": 9.61006,
         "longitude": 76.32864,
         "type": "GP"
-      },
-      {
-        "place": "ARYAD BLOCK OFFICE",
-        "latitude": 9.577934,
-        "longitude": 76.330422,
-        "type": "BHQ"
       }
     ]
   },
@@ -2854,8 +2644,9 @@
     "state_code": "KL",
     "district": "Alappuzha",
     "district_code": "dummy_code",
-    "block_address": "dummy_address",
     "block": "BHARANICAVU",
+    "block_code": "dummy_code",
+    "block_address": "dummy_address",
     "route": [
       {
         "place": "BHARANICAVU BLOCK OFFICE",
@@ -2904,12 +2695,6 @@
         "latitude": 9.17526,
         "longitude": 76.61969,
         "type": "GP"
-      },
-      {
-        "place": "BHARANICAVU BLOCK OFFICE",
-        "latitude": 9.170992,
-        "longitude": 76.609135,
-        "type": "BHQ"
       }
     ]
   },
@@ -2918,8 +2703,9 @@
     "state_code": "KL",
     "district": "Alappuzha",
     "district_code": "dummy_code",
-    "block_address": "dummy_address",
     "block": "KANJIKKUZHY",
+    "block_code": "dummy_code",
+    "block_address": "dummy_address",
     "route": [
       {
         "place": "KANJIKKUZHY BLOCK OFFICE",
@@ -2968,12 +2754,6 @@
         "latitude": 9.625314,
         "longitude": 76.332258,
         "type": "GP"
-      },
-      {
-        "place": "KANJIKKUZHY BLOCK OFFICE",
-        "latitude": 9.625314,
-        "longitude": 76.332258,
-        "type": "BHQ"
       }
     ]
   },
@@ -2982,8 +2762,9 @@
     "state_code": "KL",
     "district": "Alappuzha",
     "district_code": "dummy_code",
-    "block_address": "dummy_address",
     "block": "PATTANAKKAD",
+    "block_code": "dummy_code",
+    "block_address": "dummy_address",
     "route": [
       {
         "place": "PATTANAKKAD BLOCK OFFICE",
@@ -3050,12 +2831,6 @@
         "latitude": 9.7324,
         "longitude": 76.31862,
         "type": "GP"
-      },
-      {
-        "place": "PATTANAKKAD BLOCK OFFICE",
-        "latitude": 9.737105,
-        "longitude": 76.317762,
-        "type": "BHQ"
       }
     ]
   },
@@ -3064,8 +2839,9 @@
     "state_code": "KL",
     "district": "Alappuzha",
     "district_code": "dummy_code",
-    "block_address": "dummy_address",
     "block": "THYCATTUSSERY",
+    "block_code": "dummy_code",
+    "block_address": "dummy_address",
     "route": [
       {
         "place": "THYCATTUSSERY BLOCK DEVELOPMENT OFFICE",
@@ -3102,12 +2878,6 @@
         "latitude": 9.81623,
         "longitude": 76.35132,
         "type": "GP"
-      },
-      {
-        "place": "THYCATTUSSERY BLOCK DEVELOPMENT OFFICE",
-        "latitude": 9.817038,
-        "longitude": 76.351502,
-        "type": "BHQ"
       }
     ]
   },
@@ -3116,8 +2886,9 @@
     "state_code": "KL",
     "district": "Alappuzha",
     "district_code": "dummy_code",
-    "block_address": "dummy_address",
     "block": "VELIYANAD",
+    "block_code": "dummy_code",
+    "block_address": "dummy_address",
     "route": [
       {
         "place": "VELIYANAD BLOCK OFFICE",
@@ -3160,12 +2931,6 @@
         "latitude": 9.4356,
         "longitude": 76.44739,
         "type": "GP"
-      },
-      {
-        "place": "VELIYANAD BLOCK OFFICE",
-        "latitude": 9.421926,
-        "longitude": 76.473246,
-        "type": "BHQ"
       }
     ]
   },
@@ -3174,8 +2939,9 @@
     "state_code": "KL",
     "district": "Ernakulam",
     "district_code": "dummy_code",
-    "block_address": "dummy_address",
     "block": "ANGAMALI",
+    "block_code": "dummy_code",
+    "block_address": "dummy_address",
     "route": [
       {
         "place": "ANKAMALY BLOCK OFFICE",
@@ -3236,12 +3002,6 @@
         "latitude": 10.18717,
         "longitude": 76.38331,
         "type": "GP"
-      },
-      {
-        "place": "ANKAMALY BLOCK OFFICE",
-        "latitude": 10.196249,
-        "longitude": 76.388258,
-        "type": "BHQ"
       }
     ]
   },
@@ -3250,8 +3010,9 @@
     "state_code": "KL",
     "district": "Ernakulam",
     "district_code": "dummy_code",
-    "block_address": "dummy_address",
     "block": "MULANTHURUTHY",
+    "block_code": "dummy_code",
+    "block_address": "dummy_address",
     "route": [
       {
         "place": "MULAMTHURUTHY BLOCK OFFICE",
@@ -3300,12 +3061,6 @@
         "latitude": 9.89823,
         "longitude": 76.3836,
         "type": "GP"
-      },
-      {
-        "place": "MULAMTHURUTHY BLOCK OFFICE",
-        "latitude": 9.889326,
-        "longitude": 76.391084,
-        "type": "BHQ"
       }
     ]
   },
@@ -3314,8 +3069,9 @@
     "state_code": "KL",
     "district": "Kannur",
     "district_code": "dummy_code",
-    "block_address": "dummy_address",
     "block": "PANOOR",
+    "block_code": "dummy_code",
+    "block_address": "dummy_address",
     "route": [
       {
         "place": "PANOOR BLOCK OFFICE",
@@ -3388,12 +3144,6 @@
         "latitude": 11.759826,
         "longitude": 75.57721,
         "type": "GP"
-      },
-      {
-        "place": "PANOOR BLOCK OFFICE",
-        "latitude": 11.758615,
-        "longitude": 75.573872,
-        "type": "BHQ"
       }
     ]
   },
@@ -3402,8 +3152,9 @@
     "state_code": "KL",
     "district": "Kollam",
     "district_code": "dummy_code",
-    "block_address": "dummy_address",
     "block": "ITHIKKARA",
+    "block_code": "dummy_code",
+    "block_address": "dummy_address",
     "route": [
       {
         "place": "ITHIKKARA BLOCK OFFICE",
@@ -3446,12 +3197,6 @@
         "latitude": 8.863014,
         "longitude": 76.715121,
         "type": "GP"
-      },
-      {
-        "place": "ITHIKKARA BLOCK OFFICE",
-        "latitude": 8.8521,
-        "longitude": 76.714674,
-        "type": "BHQ"
       }
     ]
   },
@@ -3460,8 +3205,9 @@
     "state_code": "KL",
     "district": "Kollam",
     "district_code": "dummy_code",
-    "block_address": "dummy_address",
     "block": "KOTTARAKKARA",
+    "block_code": "dummy_code",
+    "block_address": "dummy_address",
     "route": [
       {
         "place": "KOTTARAKKARA BLOCK OFFICE",
@@ -3516,12 +3262,6 @@
         "latitude": 9.00544,
         "longitude": 76.77925,
         "type": "GP"
-      },
-      {
-        "place": "KOTTARAKKARA BLOCK OFFICE",
-        "latitude": 8.984386,
-        "longitude": 76.766748,
-        "type": "BHQ"
       }
     ]
   },
@@ -3530,8 +3270,9 @@
     "state_code": "KL",
     "district": "Kasargod",
     "district_code": "dummy_code",
-    "block_address": "dummy_address",
     "block": "NILESHWAR",
+    "block_code": "dummy_code",
+    "block_address": "dummy_address",
     "route": [
       {
         "place": "Nileswar Bhq",
@@ -3580,12 +3321,6 @@
         "latitude": 12.21064,
         "longitude": 75.15457,
         "type": "GP"
-      },
-      {
-        "place": "Nileswar Bhq",
-        "latitude": 12.26409,
-        "longitude": 75.15351,
-        "type": "BHQ"
       }
     ]
   },
@@ -3594,8 +3329,9 @@
     "state_code": "KL",
     "district": "Kottayam",
     "district_code": "dummy_code",
-    "block_address": "dummy_address",
     "block": "KANJIRAPPALLY",
+    "block_code": "dummy_code",
+    "block_address": "dummy_address",
     "route": [
       {
         "place": "KANJIRAPPALLY BHQ",
@@ -3650,12 +3386,6 @@
         "latitude": 9.554796,
         "longitude": 76.790241,
         "type": "GP"
-      },
-      {
-        "place": "KANJIRAPPALLY BHQ",
-        "latitude": 9.542412,
-        "longitude": 76.798379,
-        "type": "BHQ"
       }
     ]
   },
@@ -3664,8 +3394,9 @@
     "state_code": "KL",
     "district": "Kottayam",
     "district_code": "dummy_code",
-    "block_address": "dummy_address",
     "block": "PALLOM",
+    "block_code": "dummy_code",
+    "block_address": "dummy_address",
     "route": [
       {
         "place": "Pallom BHQ",
@@ -3708,12 +3439,6 @@
         "latitude": 9.532714,
         "longitude": 76.523,
         "type": "GP"
-      },
-      {
-        "place": "Pallom BHQ",
-        "latitude": 9.598895,
-        "longitude": 76.564207,
-        "type": "BHQ"
       }
     ]
   },
@@ -3722,8 +3447,9 @@
     "state_code": "KL",
     "district": "Kottayam",
     "district_code": "dummy_code",
-    "block_address": "dummy_address",
     "block": "UZHAVOOR",
+    "block_code": "dummy_code",
+    "block_address": "dummy_address",
     "route": [
       {
         "place": "UZHAVOOR BHQ",
@@ -3784,12 +3510,6 @@
         "latitude": 9.791833,
         "longitude": 76.610667,
         "type": "GP"
-      },
-      {
-        "place": "UZHAVOOR BHQ",
-        "latitude": 9.769624,
-        "longitude": 76.568239,
-        "type": "BHQ"
       }
     ]
   },
@@ -3798,8 +3518,9 @@
     "state_code": "KL",
     "district": "Palakkad",
     "district_code": "dummy_code",
-    "block_address": "dummy_address",
     "block": "ALATHUR",
+    "block_code": "dummy_code",
+    "block_address": "dummy_address",
     "route": [
       {
         "place": "ALATHUR BHQ",
@@ -3866,12 +3587,6 @@
         "latitude": 10.592039,
         "longitude": 76.483153,
         "type": "GP"
-      },
-      {
-        "place": "ALATHUR BHQ",
-        "latitude": 10.645495,
-        "longitude": 76.555332,
-        "type": "BHQ"
       }
     ]
   }
