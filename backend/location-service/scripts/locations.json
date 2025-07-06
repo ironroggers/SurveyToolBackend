@@ -1,0 +1,3935 @@
+[
+  {
+    "state": "Kerala",
+    "state_code": "KL",
+    "serial_number": 1,
+    "district": "ALAPPUZHA",
+    "district_code": "dummy_code",
+    "district_address": "dummy_address",
+    "block": "HARIPPAD",
+    "route": [
+      {
+        "place": "HARIPPAD BHQ",
+        "latitude": 9.288953,
+        "longitude": 76.443273,
+        "type": "BHQ"
+      },
+      {
+        "place": "VEEYAPURAM GP",
+        "latitude": 9.31989,
+        "longitude": 76.4608,
+        "type": "GP"
+      },
+      {
+        "place": "KARUVATTA GP",
+        "latitude": 9.31534,
+        "longitude": 76.42793,
+        "type": "GP"
+      },
+      {
+        "place": "THRIKKUNNAPUZHA GP",
+        "latitude": 9.25916,
+        "longitude": 76.41013,
+        "type": "GP"
+      },
+      {
+        "place": "KARTHIKAPPALLY GP",
+        "latitude": 9.26131,
+        "longitude": 76.4497,
+        "type": "GP"
+      },
+      {
+        "place": "PALLIPPAD GP",
+        "latitude": 9.27959,
+        "longitude": 76.47808,
+        "type": "GP"
+      },
+      {
+        "place": "CHERUTHANA GP",
+        "latitude": 9.28303,
+        "longitude": 76.45386,
+        "type": "GP"
+      },
+      {
+        "place": "HARIPPAD GP",
+        "latitude": 9.28199969,
+        "longitude": 76.45425023,
+        "type": "GP"
+      },
+      {
+        "place": "HARIPPAD EXCHANGE",
+        "latitude": 9.28083,
+        "longitude": 76.4586,
+        "type": "GP"
+      },
+      {
+        "place": "KUMARAPURAM GP",
+        "latitude": 9.28353,
+        "longitude": 76.43999,
+        "type": "GP"
+      },
+      {
+        "place": "HARIPPAD BHQ",
+        "latitude": 9.288953,
+        "longitude": 76.443273,
+        "type": "BHQ"
+      }
+    ]
+  },
+  {
+    "state": "Kerala",
+    "state_code": "KL",
+    "serial_number": 2,
+    "district": "Alappuzha",
+    "district_code": "dummy_code",
+    "district_address": "dummy_address",
+    "block": "MUTHUKULAM",
+    "route": [
+      {
+        "place": "MUKHATHALA BHQ",
+        "latitude": 8.896537,
+        "longitude": 76.665937,
+        "type": "BHQ"
+      },
+      {
+        "place": "KOTTAMKARA GP",
+        "latitude": 8.906314,
+        "longitude": 76.63649,
+        "type": "GP"
+      },
+      {
+        "place": "ELAMBALLUR GP",
+        "latitude": 8.955857,
+        "longitude": 76.671507,
+        "type": "GP"
+      },
+      {
+        "place": "NEDUMPANA GP",
+        "latitude": 8.906907,
+        "longitude": 76.690876,
+        "type": "GP"
+      },
+      {
+        "place": "MAYYANAD GP",
+        "latitude": 8.840709,
+        "longitude": 76.647191,
+        "type": "GP"
+      },
+      {
+        "place": "MUKHATHALA BSNL",
+        "latitude": 8.896801,
+        "longitude": 76.667455,
+        "type": "GP"
+      },
+      {
+        "place": "MUKHATHALA BSNL",
+        "latitude": 8.896801,
+        "longitude": 76.667455,
+        "type": "GP"
+      },
+      {
+        "place": "MUKHATHALA BHQ",
+        "latitude": 8.896537,
+        "longitude": 76.665937,
+        "type": "BHQ"
+      }
+    ]
+  },
+  {
+    "state": "Kerala",
+    "state_code": "KL",
+    "serial_number": 3,
+    "district": "Ernakulam",
+    "district_code": "dummy_code",
+    "district_address": "dummy_address",
+    "block": "EDAPPALLY",
+    "route": [
+      {
+        "place": "EDAPPALLY BHQ",
+        "latitude": 10.014623,
+        "longitude": 76.353489,
+        "type": "BHQ"
+      },
+      {
+        "place": "CHERANALLUR GP",
+        "latitude": 10.040346,
+        "longitude": 76.279766,
+        "type": "GP"
+      },
+      {
+        "place": "KADAMAKKUDY TP",
+        "latitude": 10.041618,
+        "longitude": 76.263095,
+        "type": "GP"
+      },
+      {
+        "place": "MULAVUKAD TP",
+        "latitude": 10.034075,
+        "longitude": 76.253156,
+        "type": "GP"
+      },
+      {
+        "place": "EDAPPALLY OLT TP",
+        "latitude": 9.991559,
+        "longitude": 76.264504,
+        "type": "GP"
+      },
+      {
+        "place": "EDAPPALLY OLT",
+        "latitude": 10.014623,
+        "longitude": 76.353489,
+        "type": "GP"
+      },
+      {
+        "place": "EDAPPALLY BHQ",
+        "latitude": 10.014623,
+        "longitude": 76.353489,
+        "type": "BHQ"
+      }
+    ]
+  },
+  {
+    "state": "Kerala",
+    "state_code": "KL",
+    "serial_number": 4,
+    "district": "Ernakulam",
+    "district_code": "dummy_code",
+    "district_address": "dummy_address",
+    "block": "PALLURUTHY",
+    "route": [
+      {
+        "place": "PALLURUTHY BHQ",
+        "latitude": 9.921737,
+        "longitude": 76.273234,
+        "type": "BHQ"
+      },
+      {
+        "place": "CHELLANAM TP",
+        "latitude": 9.856019,
+        "longitude": 76.270208,
+        "type": "GP"
+      },
+      {
+        "place": "KUMBALANGY GP",
+        "latitude": 9.887923,
+        "longitude": 76.2855,
+        "type": "GP"
+      },
+      {
+        "place": "PALLURUTHY BHQ",
+        "latitude": 9.921737,
+        "longitude": 76.273234,
+        "type": "GP"
+      },
+      {
+        "place": "KUMBALAM TP",
+        "latitude": 9.904291,
+        "longitude": 76.321263,
+        "type": "GP"
+      },
+      {
+        "place": "PALLURUTHY BSNL",
+        "latitude": 9.90844,
+        "longitude": 76.29398,
+        "type": "GP"
+      },
+      {
+        "place": "PALLURUTHY BHQ",
+        "latitude": 9.921737,
+        "longitude": 76.273234,
+        "type": "BHQ"
+      }
+    ]
+  },
+  {
+    "state": "Kerala",
+    "state_code": "KL",
+    "serial_number": 5,
+    "district": "Ernakulam",
+    "district_code": "dummy_code",
+    "district_address": "dummy_address",
+    "block": "PARAVUR",
+    "route": [
+      {
+        "place": "PARAVUR BHQ",
+        "latitude": 10.1185424,
+        "longitude": 76.2482648,
+        "type": "BHQ"
+      },
+      {
+        "place": "EZHIKKARA GP",
+        "latitude": 10.1150807,
+        "longitude": 76.2271903,
+        "type": "GP"
+      },
+      {
+        "place": "CHITTATTUKARA GP",
+        "latitude": 10.160764,
+        "longitude": 76.21349,
+        "type": "GP"
+      },
+      {
+        "place": "VADAKKEKARA GP",
+        "latitude": 10.167518,
+        "longitude": 76.212481,
+        "type": "GP"
+      },
+      {
+        "place": "CHENDAMANGALAM TP",
+        "latitude": 10.169212,
+        "longitude": 76.223432,
+        "type": "GP"
+      },
+      {
+        "place": "PARAVUR BSNL",
+        "latitude": 10.14945,
+        "longitude": 76.22644,
+        "type": "GP"
+      },
+      {
+        "place": "PARAVUR BHQ TP",
+        "latitude": 10.123737,
+        "longitude": 76.247274,
+        "type": "GP"
+      },
+      {
+        "place": "PARAVUR BHQ",
+        "latitude": 10.1185424,
+        "longitude": 76.2482648,
+        "type": "BHQ"
+      }
+    ]
+  },
+  {
+    "state": "Kerala",
+    "state_code": "KL",
+    "serial_number": 6,
+    "district": "Ernakulam",
+    "district_code": "dummy_code",
+    "district_address": "dummy_address",
+    "block": "VYPEEN",
+    "route": [
+      {
+        "place": "VYPEEN BHQ",
+        "latitude": 10.111074,
+        "longitude": 76.2015192,
+        "type": "BHQ"
+      },
+      {
+        "place": "VYPEEN BHQ",
+        "latitude": 10.111074,
+        "longitude": 76.2015192,
+        "type": "GP"
+      },
+      {
+        "place": "PALLIPPURAM GP",
+        "latitude": 10.13900201,
+        "longitude": 76.19500401,
+        "type": "GP"
+      },
+      {
+        "place": "VYPEEN BHQ",
+        "latitude": 10.111074,
+        "longitude": 76.2015192,
+        "type": "GP"
+      },
+      {
+        "place": "EDAVANAKKAD GP",
+        "latitude": 10.0945371,
+        "longitude": 76.2067495,
+        "type": "GP"
+      },
+      {
+        "place": "NAYARAMBALAM GP",
+        "latitude": 10.0607266,
+        "longitude": 76.2138949,
+        "type": "GP"
+      },
+      {
+        "place": "VYPEEN BHQ",
+        "latitude": 10.111074,
+        "longitude": 76.2015192,
+        "type": "BHQ"
+      }
+    ]
+  },
+  {
+    "state": "Kerala",
+    "state_code": "KL",
+    "serial_number": 7,
+    "district": "Kannur",
+    "district_code": "dummy_code",
+    "district_address": "dummy_address",
+    "block": "KANNUR",
+    "route": [
+      {
+        "place": "KANNUR BHQ",
+        "latitude": 11.895454,
+        "longitude": 75.362599,
+        "type": "BHQ"
+      },
+      {
+        "place": "PALLIKKUNNU GP",
+        "latitude": 11.88921,
+        "longitude": 75.36152,
+        "type": "GP"
+      },
+      {
+        "place": "PUZHATHI GP",
+        "latitude": 11.89652,
+        "longitude": 75.38469,
+        "type": "GP"
+      },
+      {
+        "place": "KANNUR BSNL",
+        "latitude": 11.928588,
+        "longitude": 75.347238,
+        "type": "GP"
+      },
+      {
+        "place": "KANNUR BSNL TP",
+        "latitude": 11.930531,
+        "longitude": 75.352994,
+        "type": "GP"
+      },
+      {
+        "place": "KANNUR BSNL",
+        "latitude": 11.928588,
+        "longitude": 75.347238,
+        "type": "GP"
+      },
+      {
+        "place": "AZHIKODE GP",
+        "latitude": 11.92039,
+        "longitude": 75.336015,
+        "type": "GP"
+      },
+      {
+        "place": "CHIRAKKAL GP",
+        "latitude": 11.91372,
+        "longitude": 75.3584,
+        "type": "GP"
+      },
+      {
+        "place": "KANNUR BHQ",
+        "latitude": 11.895454,
+        "longitude": 75.362599,
+        "type": "BHQ"
+      }
+    ]
+  },
+  {
+    "state": "Kerala",
+    "state_code": "KL",
+    "serial_number": 8,
+    "district": "Kollam",
+    "district_code": "dummy_code",
+    "district_address": "dummy_address",
+    "block": "CHAVARA",
+    "route": [
+      {
+        "place": "CHAVARA BHQ",
+        "latitude": 8.99377,
+        "longitude": 76.533654,
+        "type": "BHQ"
+      },
+      {
+        "place": "PANMANA GP",
+        "latitude": 9.01141,
+        "longitude": 76.54172,
+        "type": "GP"
+      },
+      {
+        "place": "THEVALAKKARA GP",
+        "latitude": 9.01389,
+        "longitude": 76.5744,
+        "type": "GP"
+      },
+      {
+        "place": "THEKKUMBHAGAM GP",
+        "latitude": 8.96045,
+        "longitude": 76.56363,
+        "type": "GP"
+      },
+      {
+        "place": "NEENDAKARA GP",
+        "latitude": 8.95578,
+        "longitude": 76.53405,
+        "type": "GP"
+      },
+      {
+        "place": "CHAVARA BSNL",
+        "latitude": 8.975501,
+        "longitude": 76.534841,
+        "type": "GP"
+      },
+      {
+        "place": "CHAVARA GP TP",
+        "latitude": 8.980359,
+        "longitude": 76.534751,
+        "type": "GP"
+      },
+      {
+        "place": "CHAVARA BHQ",
+        "latitude": 8.99377,
+        "longitude": 76.533654,
+        "type": "BHQ"
+      }
+    ]
+  },
+  {
+    "state": "Kerala",
+    "state_code": "KL",
+    "serial_number": 9,
+    "district": "Kollam",
+    "district_code": "dummy_code",
+    "district_address": "dummy_address",
+    "block": "CHITTUMALA",
+    "route": [
+      {
+        "place": "CHITTUMALA BHQ",
+        "latitude": 9.006539,
+        "longitude": 76.659078,
+        "type": "BHQ"
+      },
+      {
+        "place": "KIZHAKKEKALLADA GP",
+        "latitude": 9.01705,
+        "longitude": 76.65303,
+        "type": "GP"
+      },
+      {
+        "place": "MUNDROTHURUTHU GP",
+        "latitude": 9.002333,
+        "longitude": 76.63036,
+        "type": "GP"
+      },
+      {
+        "place": "THRIKKARUVA GP",
+        "latitude": 8.95099,
+        "longitude": 76.60033,
+        "type": "GP"
+      },
+      {
+        "place": "THRIKKADAVUR GP TP",
+        "latitude": 8.92863,
+        "longitude": 76.60149,
+        "type": "GP"
+      },
+      {
+        "place": "PANAYAM GP",
+        "latitude": 8.93727,
+        "longitude": 76.61735,
+        "type": "GP"
+      },
+      {
+        "place": "PERINAD GP",
+        "latitude": 8.9485,
+        "longitude": 76.63763,
+        "type": "GP"
+      },
+      {
+        "place": "CHITTUMALA BHQ",
+        "latitude": 9.006539,
+        "longitude": 76.659078,
+        "type": "GP"
+      },
+      {
+        "place": "PERAYAM GP",
+        "latitude": 8.98228,
+        "longitude": 76.67133,
+        "type": "GP"
+      },
+      {
+        "place": "KUNDARA GP",
+        "latitude": 8.96085,
+        "longitude": 76.67244,
+        "type": "GP"
+      },
+      {
+        "place": "CHITTUMALA BHQ",
+        "latitude": 9.006539,
+        "longitude": 76.659078,
+        "type": "BHQ"
+      }
+    ]
+  },
+  {
+    "state": "Kerala",
+    "state_code": "KL",
+    "serial_number": 10,
+    "district": "Kollam",
+    "district_code": "dummy_code",
+    "district_address": "dummy_address",
+    "block": "MUKHATHALA",
+    "route": [
+      {
+        "place": "MUKHATHALA BHQ",
+        "latitude": 8.896537,
+        "longitude": 76.665937,
+        "type": "BHQ"
+      },
+      {
+        "place": "KOTTAMKARA GP",
+        "latitude": 8.906314,
+        "longitude": 76.63649,
+        "type": "GP"
+      },
+      {
+        "place": "ELAMBALLUR GP",
+        "latitude": 8.955857,
+        "longitude": 76.671507,
+        "type": "GP"
+      },
+      {
+        "place": "NEDUMPANA GP",
+        "latitude": 8.906907,
+        "longitude": 76.690876,
+        "type": "GP"
+      },
+      {
+        "place": "MAYYANAD GP",
+        "latitude": 8.840709,
+        "longitude": 76.647191,
+        "type": "GP"
+      },
+      {
+        "place": "MUKHATHALA BSNL",
+        "latitude": 8.896801,
+        "longitude": 76.667455,
+        "type": "GP"
+      },
+      {
+        "place": "MUKHATHALA BSNL",
+        "latitude": 8.896801,
+        "longitude": 76.667455,
+        "type": "GP"
+      },
+      {
+        "place": "MUKHATHALA BHQ",
+        "latitude": 8.896537,
+        "longitude": 76.665937,
+        "type": "GP"
+      },
+      {
+        "place": "MUKHATHALA BHQ",
+        "latitude": 8.896537,
+        "longitude": 76.665937,
+        "type": "BHQ"
+      }
+    ]
+  },
+  {
+    "state": "Kerala",
+    "state_code": "KL",
+    "serial_number": 11,
+    "district": "Kollam",
+    "district_code": "dummy_code",
+    "district_address": "dummy_address",
+    "block": "SASTHAMCOTTAH",
+    "route": [
+      {
+        "place": "SASTHAMCOTTAH BHQ",
+        "latitude": 9.067402,
+        "longitude": 76.649825,
+        "type": "BHQ"
+      },
+      {
+        "place": "PORUVAZHY GP",
+        "latitude": 9.074972,
+        "longitude": 76.660699,
+        "type": "GP"
+      },
+      {
+        "place": "KUNNATHUR-9.060738",
+        "latitude": 9.060738,
+        "longitude": 76.67647,
+        "type": "GP"
+      },
+      {
+        "place": "SOORANAD NORTH GP",
+        "latitude": 9.102683,
+        "longitude": 76.619724,
+        "type": "GP"
+      },
+      {
+        "place": "SOORANAD SOUTH GP",
+        "latitude": 9.074693,
+        "longitude": 76.604463,
+        "type": "GP"
+      },
+      {
+        "place": "WEST KALLADA GP",
+        "latitude": 9.021507,
+        "longitude": 76.630018,
+        "type": "GP"
+      },
+      {
+        "place": "MYNAGAPPALLY GP",
+        "latitude": 9.041762,
+        "longitude": 76.589385,
+        "type": "GP"
+      },
+      {
+        "place": "SASTHAMCOTTAH BSNL",
+        "latitude": 9.0438,
+        "longitude": 76.62425,
+        "type": "GP"
+      },
+      {
+        "place": "SASTHANCOTTA GP",
+        "latitude": 9.043558,
+        "longitude": 76.626826,
+        "type": "GP"
+      },
+      {
+        "place": "SASTHAMCOTTAH BHQ",
+        "latitude": 9.067402,
+        "longitude": 76.649825,
+        "type": "BHQ"
+      }
+    ]
+  },
+  {
+    "state": "Kerala",
+    "state_code": "KL",
+    "serial_number": 12,
+    "district": "Malappuram",
+    "district_code": "dummy_code",
+    "district_address": "dummy_address",
+    "block": "PONNANI",
+    "route": [
+      {
+        "place": "PONNANI BHQ",
+        "latitude": 10.782295,
+        "longitude": 76.00999,
+        "type": "BHQ"
+      },
+      {
+        "place": "EDAPPAL GP",
+        "latitude": 10.7858238,
+        "longitude": 76.0014725,
+        "type": "GP"
+      },
+      {
+        "place": "PONNANI BSNL",
+        "latitude": 10.844589,
+        "longitude": 75.98793,
+        "type": "GP"
+      },
+      {
+        "place": "TAVANUR GP",
+        "latitude": 10.8412943,
+        "longitude": 75.9944153,
+        "type": "GP"
+      },
+      {
+        "place": "KALADY GP",
+        "latitude": 10.826943,
+        "longitude": 75.990721,
+        "type": "GP"
+      },
+      {
+        "place": "PONNANI BHQ",
+        "latitude": 10.782295,
+        "longitude": 76.00999,
+        "type": "GP"
+      },
+      {
+        "place": "VATTAMKULAM GP",
+        "latitude": 10.7827816,
+        "longitude": 76.0235062,
+        "type": "GP"
+      },
+      {
+        "place": "PONNANI BHQ",
+        "latitude": 10.782295,
+        "longitude": 76.00999,
+        "type": "BHQ"
+      }
+    ]
+  },
+  {
+    "state": "Kerala",
+    "state_code": "KL",
+    "serial_number": 13,
+    "district": "Malappuram",
+    "district_code": "dummy_code",
+    "district_address": "dummy_address",
+    "block": "TANUR",
+    "route": [
+      {
+        "place": "TANUR BHQ",
+        "latitude": 10.984628,
+        "longitude": 75.87517,
+        "type": "BHQ"
+      },
+      {
+        "place": "TANUR GP",
+        "latitude": 10.97724,
+        "longitude": 75.88041,
+        "type": "GP"
+      },
+      {
+        "place": "NIRAMARUTHOOR GP",
+        "latitude": 10.925814,
+        "longitude": 75.900567,
+        "type": "GP"
+      },
+      {
+        "place": "PERUMANNAKLARI GP",
+        "latitude": 10.98092396,
+        "longitude": 75.95800904,
+        "type": "GP"
+      },
+      {
+        "place": "PONMUNDAM GP",
+        "latitude": 10.953424,
+        "longitude": 75.946278,
+        "type": "GP"
+      },
+      {
+        "place": "CHERIYAMUNDAM GP",
+        "latitude": 10.949018,
+        "longitude": 75.948132,
+        "type": "GP"
+      },
+      {
+        "place": "TANUR GP",
+        "latitude": 10.97724,
+        "longitude": 75.88041,
+        "type": "GP"
+      },
+      {
+        "place": "TANUR BSNL",
+        "latitude": 10.951469,
+        "longitude": 75.91355,
+        "type": "GP"
+      },
+      {
+        "place": "TANUR BSNL",
+        "latitude": 10.951469,
+        "longitude": 75.91355,
+        "type": "GP"
+      },
+      {
+        "place": "OZHUR GP",
+        "latitude": 10.980733,
+        "longitude": 75.918585,
+        "type": "GP"
+      },
+      {
+        "place": "TANALUR GP",
+        "latitude": 10.951945,
+        "longitude": 75.909032,
+        "type": "GP"
+      },
+      {
+        "place": "PONMUNDAM GP",
+        "latitude": 10.953424,
+        "longitude": 75.946278,
+        "type": "GP"
+      },
+      {
+        "place": "TANUR BHQ",
+        "latitude": 10.984628,
+        "longitude": 75.87517,
+        "type": "BHQ"
+      }
+    ]
+  },
+  {
+    "state": "Kerala",
+    "state_code": "KL",
+    "serial_number": 14,
+    "district": "Malappuram",
+    "district_code": "dummy_code",
+    "district_address": "dummy_address",
+    "block": "VENGARA",
+    "route": [
+      {
+        "place": "VENGARA BHQ",
+        "latitude": 11.050268,
+        "longitude": 75.984457,
+        "type": "BHQ"
+      },
+      {
+        "place": "VENGARA GP",
+        "latitude": 11.050267,
+        "longitude": 75.984597,
+        "type": "GP"
+      },
+      {
+        "place": "THENNALA GP",
+        "latitude": 10.9967127,
+        "longitude": 75.9599991,
+        "type": "GP"
+      },
+      {
+        "place": "EDARIKODE GP",
+        "latitude": 10.993625,
+        "longitude": 75.979397,
+        "type": "GP"
+      },
+      {
+        "place": "URAKAM GP",
+        "latitude": 11.063247,
+        "longitude": 76.015381,
+        "type": "GP"
+      },
+      {
+        "place": "VENGARA BSNL",
+        "latitude": 11.051623,
+        "longitude": 75.986821,
+        "type": "GP"
+      },
+      {
+        "place": "KANNAMANGALAM GP",
+        "latitude": 11.078988,
+        "longitude": 75.976326,
+        "type": "GP"
+      },
+      {
+        "place": "ABDUL RAHIMAN NAGAR GP TP",
+        "latitude": 11.046465,
+        "longitude": 75.940184,
+        "type": "GP"
+      },
+      {
+        "place": "VENGARA BSNL",
+        "latitude": 11.051623,
+        "longitude": 75.986821,
+        "type": "GP"
+      },
+      {
+        "place": "PARAPPUR GP",
+        "latitude": 11.013641,
+        "longitude": 75.991669,
+        "type": "GP"
+      },
+      {
+        "place": "VENGARA BHQ",
+        "latitude": 11.050268,
+        "longitude": 75.984457,
+        "type": "GP"
+      },
+      {
+        "place": "VENGARA BHQ",
+        "latitude": 11.050268,
+        "longitude": 75.984457,
+        "type": "BHQ"
+      }
+    ]
+  },
+  {
+    "state": "Kerala",
+    "state_code": "KL",
+    "serial_number": 15,
+    "district": "Thrissur",
+    "district_code": "dummy_code",
+    "district_address": "dummy_address",
+    "block": "CHERPU",
+    "route": [
+      {
+        "place": "CHERPU BHQ",
+        "latitude": 10.472736,
+        "longitude": 76.212746,
+        "type": "BHQ"
+      },
+      {
+        "place": "AVINISSERY GP",
+        "latitude": 10.46827,
+        "longitude": 76.23029,
+        "type": "GP"
+      },
+      {
+        "place": "VALLACHIRA",
+        "latitude": 10.438773,
+        "longitude": 76.234689,
+        "type": "GP"
+      },
+      {
+        "place": "CHERPU BSNL",
+        "latitude": 10.445239,
+        "longitude": 76.21335,
+        "type": "GP"
+      },
+      {
+        "place": "CHERPU GP",
+        "latitude": 10.437919,
+        "longitude": 76.210763,
+        "type": "GP"
+      },
+      {
+        "place": "PARALAM GP",
+        "latitude": 10.458029,
+        "longitude": 76.191945,
+        "type": "GP"
+      },
+      {
+        "place": "CHERPU BHQ",
+        "latitude": 10.472736,
+        "longitude": 76.212746,
+        "type": "BHQ"
+      }
+    ]
+  },
+  {
+    "state": "Kerala",
+    "state_code": "KL",
+    "serial_number": 16,
+    "district": "Thrissur",
+    "district_code": "dummy_code",
+    "district_address": "dummy_address",
+    "block": "MULLASSERY",
+    "route": [
+      {
+        "place": "MULLASSERY BHQ",
+        "latitude": 10.54414,
+        "longitude": 76.081955,
+        "type": "BHQ"
+      },
+      {
+        "place": "MULLASSERY GP",
+        "latitude": 10.53408,
+        "longitude": 76.08657,
+        "type": "GP"
+      },
+      {
+        "place": "VENKITANGU GP",
+        "latitude": 10.51921,
+        "longitude": 76.09148,
+        "type": "GP"
+      },
+      {
+        "place": "MULLASSERY GP",
+        "latitude": 10.53408,
+        "longitude": 76.08657,
+        "type": "GP"
+      },
+      {
+        "place": "MULLASSERY BSNL",
+        "latitude": 10.558398,
+        "longitude": 76.066681,
+        "type": "GP"
+      },
+      {
+        "place": "PAVARATTY GP",
+        "latitude": 10.5661,
+        "longitude": 76.06179,
+        "type": "GP"
+      },
+      {
+        "place": "ELAVALLY GP",
+        "latitude": 10.57672,
+        "longitude": 76.07632,
+        "type": "GP"
+      },
+      {
+        "place": "MULLASSERY BHQ",
+        "latitude": 10.54414,
+        "longitude": 76.081955,
+        "type": "BHQ"
+      }
+    ]
+  },
+  {
+    "state": "Kerala",
+    "state_code": "KL",
+    "serial_number": 17,
+    "district": "Thrissur",
+    "district_code": "dummy_code",
+    "district_address": "dummy_address",
+    "block": "PUZHAKKAL",
+    "route": [
+      {
+        "place": "PUZHAKKAL BHQ",
+        "latitude": 10.553397,
+        "longitude": 76.166342,
+        "type": "BHQ"
+      },
+      {
+        "place": "ADAT GP",
+        "latitude": 10.55304,
+        "longitude": 76.16648,
+        "type": "GP"
+      },
+      {
+        "place": "PUZHAKKAL BSNL",
+        "latitude": 10.534113,
+        "longitude": 76.201829,
+        "type": "GP"
+      },
+      {
+        "place": "KOLAZHY GP",
+        "latitude": 10.58511,
+        "longitude": 76.21565,
+        "type": "GP"
+      },
+      {
+        "place": "MULAKUNNATHUKAVU GP",
+        "latitude": 10.60112,
+        "longitude": 76.21079,
+        "type": "GP"
+      },
+      {
+        "place": "AVANUR GP",
+        "latitude": 10.60348,
+        "longitude": 76.19358,
+        "type": "GP"
+      },
+      {
+        "place": "KAIPARAMBA GP",
+        "latitude": 10.59203,
+        "longitude": 76.15466,
+        "type": "GP"
+      },
+      {
+        "place": "THOLUR GP",
+        "latitude": 10.56429,
+        "longitude": 76.12334,
+        "type": "GP"
+      },
+      {
+        "place": "PUZHAKKAL BHQ",
+        "latitude": 10.553397,
+        "longitude": 76.166342,
+        "type": "BHQ"
+      }
+    ]
+  },
+  {
+    "state": "Kerala",
+    "state_code": "KL",
+    "serial_number": 18,
+    "district": "Thrissur",
+    "district_code": "dummy_code",
+    "district_address": "dummy_address",
+    "block": "VELLANGALLUR",
+    "route": [
+      {
+        "place": "VELLANGALLUR BHQ",
+        "latitude": 10.296075,
+        "longitude": 76.222482,
+        "type": "BHQ"
+      },
+      {
+        "place": "VELLOOKKARA",
+        "latitude": 10.31774,
+        "longitude": 76.24044,
+        "type": "GP"
+      },
+      {
+        "place": "PADIYUR",
+        "latitude": 10.32373,
+        "longitude": 76.179027,
+        "type": "GP"
+      },
+      {
+        "place": "POOMANGALAM",
+        "latitude": 10.30434,
+        "longitude": 76.1926,
+        "type": "GP"
+      },
+      {
+        "place": "VELLANGALLUR BSNL",
+        "latitude": 10.296654,
+        "longitude": 76.217703,
+        "type": "GP"
+      },
+      {
+        "place": "VELLANGALLUR",
+        "latitude": 10.28349,
+        "longitude": 76.21339,
+        "type": "GP"
+      },
+      {
+        "place": "PUTHENCHIRA",
+        "latitude": 10.26537,
+        "longitude": 76.23843,
+        "type": "GP"
+      },
+      {
+        "place": "VELLANGALLUR BSNL",
+        "latitude": 10.296654,
+        "longitude": 76.217703,
+        "type": "GP"
+      },
+      {
+        "place": "VELLANGALLUR BHQ",
+        "latitude": 10.296075,
+        "longitude": 76.222482,
+        "type": "BHQ"
+      }
+    ]
+  },
+  {
+    "state": "Kerala",
+    "state_code": "KL",
+    "serial_number": 19,
+    "district": "Idukki",
+    "district_code": "dummy_code",
+    "district_address": "dummy_address",
+    "block": "ELEMDESAM",
+    "route": [
+      {
+        "place": "ELAMDESAM BHQ",
+        "latitude": 9.881502,
+        "longitude": 76.766661,
+        "type": "BHQ"
+      },
+      {
+        "place": "ALAKKODE GP",
+        "latitude": 9.882431,
+        "longitude": 76.765191,
+        "type": "GP"
+      },
+      {
+        "place": "KARIMANNOOR GP",
+        "latitude": 9.920801,
+        "longitude": 76.778339,
+        "type": "GP"
+      },
+      {
+        "place": "KODIKULAM GP",
+        "latitude": 9.948131,
+        "longitude": 76.765051,
+        "type": "GP"
+      },
+      {
+        "place": "VANNAPURAM GP",
+        "latitude": 9.987931,
+        "longitude": 76.789751,
+        "type": "GP"
+      },
+      {
+        "place": "UDUMBANOOR GP",
+        "latitude": 9.906101,
+        "longitude": 76.813551,
+        "type": "GP"
+      },
+      {
+        "place": "VELLIYAMATTOM GP",
+        "latitude": 9.847971,
+        "longitude": 76.828641,
+        "type": "GP"
+      },
+      {
+        "place": "KUDAYATHOOR GP",
+        "latitude": 9.827101,
+        "longitude": 76.789501,
+        "type": "GP"
+      },
+      {
+        "place": "ELAMDESAM BSNL",
+        "latitude": 9.861708,
+        "longitude": 76.80217,
+        "type": "GP"
+      },
+      {
+        "place": "ELAMDESAM BHQ",
+        "latitude": 9.881502,
+        "longitude": 76.766661,
+        "type": "BHQ"
+      }
+    ]
+  },
+  {
+    "state": "Kerala",
+    "state_code": "KL",
+    "serial_number": 20,
+    "district": "Idukki",
+    "district_code": "dummy_code",
+    "district_address": "dummy_address",
+    "block": "NEDUMKANDOM",
+    "route": [
+      {
+        "place": "NEDUMKANDOM BHQ",
+        "latitude": 9.834476,
+        "longitude": 77.158765,
+        "type": "BHQ"
+      },
+      {
+        "place": "NEDUMKANDOM BHQ",
+        "latitude": 9.834476,
+        "longitude": 77.158765,
+        "type": "GP"
+      },
+      {
+        "place": "NEDUMKANDAM GP",
+        "latitude": 9.83422246,
+        "longitude": 77.15909804,
+        "type": "GP"
+      },
+      {
+        "place": "RAJAKKAD GP",
+        "latitude": 9.961191,
+        "longitude": 77.096912,
+        "type": "GP"
+      },
+      {
+        "place": "RAJAKUMARI GP",
+        "latitude": 9.968641,
+        "longitude": 77.152711,
+        "type": "GP"
+      },
+      {
+        "place": "SENAPATHY GP",
+        "latitude": 9.950042,
+        "longitude": 77.180151,
+        "type": "GP"
+      },
+      {
+        "place": "UDUMBANCHOLA GP",
+        "latitude": 9.899801,
+        "longitude": 77.177913,
+        "type": "GP"
+      },
+      {
+        "place": "KARUNAPURAM GP",
+        "latitude": 9.802981,
+        "longitude": 77.187941,
+        "type": "GP"
+      },
+      {
+        "place": "PAMPADUMPARA GP",
+        "latitude": 9.799401,
+        "longitude": 77.161281,
+        "type": "GP"
+      },
+      {
+        "place": "NEDUMKANDOM BHQ",
+        "latitude": 9.834476,
+        "longitude": 77.158765,
+        "type": "BHQ"
+      }
+    ]
+  },
+  {
+    "state": "Kerala",
+    "state_code": "KL",
+    "serial_number": 21,
+    "district": "Idukki",
+    "district_code": "dummy_code",
+    "district_address": "dummy_address",
+    "block": "THODUPUZHA",
+    "route": [
+      {
+        "place": "THODUPUZHA BHQ",
+        "latitude": 9.887383,
+        "longitude": 76.698259,
+        "type": "BHQ"
+      },
+      {
+        "place": "MUTTOM GP",
+        "latitude": 9.839559,
+        "longitude": 76.746061,
+        "type": "GP"
+      },
+      {
+        "place": "KARIMKUNNAM GP",
+        "latitude": 9.852926,
+        "longitude": 76.686422,
+        "type": "GP"
+      },
+      {
+        "place": "PURAPUZHA GP",
+        "latitude": 9.882971,
+        "longitude": 76.642301,
+        "type": "GP"
+      },
+      {
+        "place": "MANAKKAD GP",
+        "latitude": 9.910129,
+        "longitude": 76.676101,
+        "type": "GP"
+      },
+      {
+        "place": "KUMARAMANGALAM GP",
+        "latitude": 9.937501,
+        "longitude": 76.708471,
+        "type": "GP"
+      },
+      {
+        "place": "EDAVETTY GP",
+        "latitude": 9.893389,
+        "longitude": 76.745261,
+        "type": "GP"
+      },
+      {
+        "place": "THODUPUZHA BSNL",
+        "latitude": 9.89929,
+        "longitude": 76.715454,
+        "type": "GP"
+      },
+      {
+        "place": "THODUPUZHA BHQ",
+        "latitude": 9.887383,
+        "longitude": 76.698259,
+        "type": "BHQ"
+      }
+    ]
+  },
+  {
+    "state": "Kerala",
+    "state_code": "KL",
+    "serial_number": 22,
+    "district": "Kannur",
+    "district_code": "dummy_code",
+    "district_address": "dummy_address",
+    "block": "IRITTY",
+    "route": [
+      {
+        "place": "IRITTY BHQ",
+        "latitude": 11.98189,
+        "longitude": 75.67796,
+        "type": "BHQ"
+      },
+      {
+        "place": "KEEZHUR - CHAVASSERI GP",
+        "latitude": 11.96413,
+        "longitude": 75.65553,
+        "type": "GP"
+      },
+      {
+        "place": "KEEZHALLUR GP",
+        "latitude": 11.92834,
+        "longitude": 75.52731,
+        "type": "GP"
+      },
+      {
+        "place": "KOODALI GP",
+        "latitude": 11.94123,
+        "longitude": 75.505,
+        "type": "GP"
+      },
+      {
+        "place": "IRITTY BSNL",
+        "latitude": 11.99107,
+        "longitude": 75.67341,
+        "type": "GP"
+      },
+      {
+        "place": "PAYAM GP",
+        "latitude": 12.00286,
+        "longitude": 75.68956,
+        "type": "GP"
+      },
+      {
+        "place": "ARALAM GP",
+        "latitude": 11.99676,
+        "longitude": 75.72643,
+        "type": "GP"
+      },
+      {
+        "place": "AYYANKUNNU GP",
+        "latitude": 12.03236,
+        "longitude": 75.74512,
+        "type": "GP"
+      },
+      {
+        "place": "IRITTY BSNL",
+        "latitude": 11.99107,
+        "longitude": 75.67341,
+        "type": "GP"
+      },
+      {
+        "place": "THILLANKERI GP TP",
+        "latitude": 11.953198,
+        "longitude": 75.643095,
+        "type": "GP"
+      },
+      {
+        "place": "IRITTY BHQ",
+        "latitude": 11.98189,
+        "longitude": 75.67796,
+        "type": "BHQ"
+      }
+    ]
+  },
+  {
+    "state": "Kerala",
+    "state_code": "KL",
+    "serial_number": 23,
+    "district": "Kannur",
+    "district_code": "dummy_code",
+    "district_address": "dummy_address",
+    "block": "PAYYANNUR",
+    "route": [
+      {
+        "place": "PAYYANNUR BHQ",
+        "latitude": 12.10356,
+        "longitude": 75.2,
+        "type": "BHQ"
+      },
+      {
+        "place": "RAMANTHALI GP",
+        "latitude": 12.06035,
+        "longitude": 75.18941,
+        "type": "GP"
+      },
+      {
+        "place": "KUNHIMANGALAM GP",
+        "latitude": 12.07965,
+        "longitude": 75.24017,
+        "type": "GP"
+      },
+      {
+        "place": "ERAMAM - KUTTOOR GP",
+        "latitude": 12.13366,
+        "longitude": 75.30025,
+        "type": "GP"
+      },
+      {
+        "place": "PERINGOME - VAYAKKARA GP",
+        "latitude": 12.22425,
+        "longitude": 75.31554,
+        "type": "GP"
+      },
+      {
+        "place": "KANKOLE - ALAPADAMBA GP",
+        "latitude": 12.1786,
+        "longitude": 75.24739,
+        "type": "GP"
+      },
+      {
+        "place": "KARIVELLUR - PERALAM GP",
+        "latitude": 12.17343,
+        "longitude": 75.19363,
+        "type": "GP"
+      },
+      {
+        "place": "PAYYANNUR BSNL EXCH",
+        "latitude": 12.11337,
+        "longitude": 75.21138,
+        "type": "GP"
+      },
+      {
+        "place": "PERINGOME - VAYAKKARA GP",
+        "latitude": 12.22425,
+        "longitude": 75.31554,
+        "type": "GP"
+      },
+      {
+        "place": "PAYYANNUR BHQ",
+        "latitude": 12.10356,
+        "longitude": 75.2,
+        "type": "BHQ"
+      }
+    ]
+  },
+  {
+    "state": "Kerala",
+    "state_code": "KL",
+    "serial_number": 24,
+    "district": "Ernakulam",
+    "district_code": "dummy_code",
+    "district_address": "dummy_address",
+    "block": "ALANGAD",
+    "route": [
+      {
+        "place": "ALANGAD BHQ",
+        "latitude": 10.127087,
+        "longitude": 76.299789,
+        "type": "BHQ"
+      },
+      {
+        "place": "KARUMALLOOR GP",
+        "latitude": 10.12985,
+        "longitude": 76.29313,
+        "type": "GP"
+      },
+      {
+        "place": "ALANGAD GP",
+        "latitude": 10.11811,
+        "longitude": 76.28522,
+        "type": "GP"
+      },
+      {
+        "place": "VARAPUZHA GP",
+        "latitude": 10.07512,
+        "longitude": 76.27093,
+        "type": "GP"
+      },
+      {
+        "place": "KADUNGALLUR GP",
+        "latitude": 10.095904,
+        "longitude": 76.317963,
+        "type": "GP"
+      },
+      {
+        "place": "ALUVA EXCHANGE",
+        "latitude": 10.12935,
+        "longitude": 76.300268,
+        "type": "GP"
+      },
+      {
+        "place": "ALANGAD BHQ",
+        "latitude": 10.127087,
+        "longitude": 76.299789,
+        "type": "BHQ"
+      }
+    ]
+  },
+  {
+    "state": "Kerala",
+    "state_code": "KL",
+    "serial_number": 25,
+    "district": "Ernakulam",
+    "district_code": "dummy_code",
+    "district_address": "dummy_address",
+    "block": "KOOVAPPADY",
+    "route": [
+      {
+        "place": "KOOVAPPADY BHQ",
+        "latitude": 10.11259997,
+        "longitude": 76.51602733,
+        "type": "BHQ"
+      },
+      {
+        "place": "KOOVAPPADY GP",
+        "latitude": 10.153042,
+        "longitude": 76.482182,
+        "type": "GP"
+      },
+      {
+        "place": "OKKAL GP",
+        "latitude": 10.1538,
+        "longitude": 76.4533,
+        "type": "GP"
+      },
+      {
+        "place": "KOOVAPPADY-PERUMBAVOOR TE",
+        "latitude": 10.11531,
+        "longitude": 76.47692,
+        "type": "GP"
+      },
+      {
+        "place": "RAYAMANGALAM GP",
+        "latitude": 10.08506,
+        "longitude": 76.519591,
+        "type": "GP"
+      },
+      {
+        "place": "ASAMANNOOR GP",
+        "latitude": 10.0946,
+        "longitude": 76.55649,
+        "type": "GP"
+      },
+      {
+        "place": "MUDAKUZHA TP",
+        "latitude": 10.111716,
+        "longitude": 76.524879,
+        "type": "GP"
+      },
+      {
+        "place": "MUDAKUZHA GP",
+        "latitude": 10.131075,
+        "longitude": 76.529039,
+        "type": "GP"
+      },
+      {
+        "place": "KOOVAPPADY BHQ",
+        "latitude": 10.11259997,
+        "longitude": 76.51602733,
+        "type": "BHQ"
+      }
+    ]
+  },
+  {
+    "state": "Kerala",
+    "state_code": "KL",
+    "serial_number": 26,
+    "district": "Ernakulam",
+    "district_code": "dummy_code",
+    "district_address": "dummy_address",
+    "block": "KOTHAMANGALAM",
+    "route": [
+      {
+        "place": "KOTHAMANGALAM BHQ",
+        "latitude": 10.07361111,
+        "longitude": 76.62472222,
+        "type": "BHQ"
+      },
+      {
+        "place": "NELLIKKUZHI GP",
+        "latitude": 10.0775,
+        "longitude": 76.59027778,
+        "type": "GP"
+      },
+      {
+        "place": "KOTTAPPADY GP",
+        "latitude": 10.1175,
+        "longitude": 76.58972222,
+        "type": "GP"
+      },
+      {
+        "place": "PINDIMANA GP",
+        "latitude": 10.105,
+        "longitude": 76.62361111,
+        "type": "GP"
+      },
+      {
+        "place": "KOTHAMANGALAM-CHELAD TE",
+        "latitude": 10.0994,
+        "longitude": 76.64683,
+        "type": "GP"
+      },
+      {
+        "place": "KEERAMPARA GP",
+        "latitude": 10.10694444,
+        "longitude": 76.67055556,
+        "type": "GP"
+      },
+      {
+        "place": "KAVALANGAD TP",
+        "latitude": 10.105768,
+        "longitude": 76.6688,
+        "type": "GP"
+      },
+      {
+        "place": "KAVALANGAD GP",
+        "latitude": 10.05833333,
+        "longitude": 76.68222222,
+        "type": "GP"
+      },
+      {
+        "place": "PALLARIMANGALAM GP",
+        "latitude": 10.03027778,
+        "longitude": 76.68166667,
+        "type": "GP"
+      },
+      {
+        "place": "POTHANIKKAD GP",
+        "latitude": 10.01027778,
+        "longitude": 76.68083333,
+        "type": "GP"
+      },
+      {
+        "place": "VARAPPETTY TP",
+        "latitude": 10.006253,
+        "longitude": 76.68069,
+        "type": "GP"
+      },
+      {
+        "place": "VARAPPETTY GP",
+        "latitude": 10.02805556,
+        "longitude": 76.62611111,
+        "type": "GP"
+      },
+      {
+        "place": "KOTHAMANGALAM BHQ",
+        "latitude": 10.07361111,
+        "longitude": 76.62472222,
+        "type": "BHQ"
+      }
+    ]
+  },
+  {
+    "state": "Kerala",
+    "state_code": "KL",
+    "serial_number": 27,
+    "district": "Ernakulam",
+    "district_code": "dummy_code",
+    "district_address": "dummy_address",
+    "block": "MUVATTUPUZHA",
+    "route": [
+      {
+        "place": "VALAKOM TP",
+        "latitude": 9.990603,
+        "longitude": 76.57639,
+        "type": "BHQ"
+      },
+      {
+        "place": "VALAKOM GP",
+        "latitude": 9.97994631,
+        "longitude": 76.54073711,
+        "type": "GP"
+      },
+      {
+        "place": "MARADY GP",
+        "latitude": 9.95581892,
+        "longitude": 76.5601902,
+        "type": "GP"
+      },
+      {
+        "place": "ARAKUZHA GP",
+        "latitude": 9.93246181,
+        "longitude": 76.59921367,
+        "type": "GP"
+      },
+      {
+        "place": "AVOLY GP",
+        "latitude": 9.95781119,
+        "longitude": 76.62476692,
+        "type": "GP"
+      },
+      {
+        "place": "MANJALLOOR GP",
+        "latitude": 9.94425667,
+        "longitude": 76.64108884,
+        "type": "GP"
+      },
+      {
+        "place": "KALLOORKKAD GP",
+        "latitude": 9.97014121,
+        "longitude": 76.67191227,
+        "type": "GP"
+      },
+      {
+        "place": "AYAVANA GP",
+        "latitude": 9.98532374,
+        "longitude": 76.63798635,
+        "type": "GP"
+      },
+      {
+        "place": "MUVATTUPUZHA TE",
+        "latitude": 9.98407,
+        "longitude": 76.57732,
+        "type": "GP"
+      },
+      {
+        "place": "MUVATTUPUZHA BHQ",
+        "latitude": 10.00100001,
+        "longitude": 76.56736997,
+        "type": "GP"
+      },
+      {
+        "place": "VALAKOM TP",
+        "latitude": 9.990603,
+        "longitude": 76.57639,
+        "type": "BHQ"
+      }
+    ]
+  },
+  {
+    "state": "Kerala",
+    "state_code": "KL",
+    "serial_number": 28,
+    "district": "Kannur",
+    "district_code": "dummy_code",
+    "district_address": "dummy_address",
+    "block": "IRIKKUR",
+    "route": [
+      {
+        "place": "IRIKKUR BHQ",
+        "latitude": 11.982468,
+        "longitude": 75.553627,
+        "type": "BHQ"
+      },
+      {
+        "place": "IRIKKUR GP",
+        "latitude": 11.98490919,
+        "longitude": 75.55075653,
+        "type": "GP"
+      },
+      {
+        "place": "KUTTIATTOR GP",
+        "latitude": 11.958817,
+        "longitude": 75.474183,
+        "type": "GP"
+      },
+      {
+        "place": "MAYYIL GP",
+        "latitude": 11.99264,
+        "longitude": 75.45131,
+        "type": "GP"
+      },
+      {
+        "place": "MALAPATTOM GP",
+        "latitude": 12.01876,
+        "longitude": 75.48788,
+        "type": "GP"
+      },
+      {
+        "place": "SREEKANDAPURAM GP",
+        "latitude": 12.0445,
+        "longitude": 75.50856,
+        "type": "GP"
+      },
+      {
+        "place": "ERUVESSEY GP",
+        "latitude": 12.09501,
+        "longitude": 75.54652,
+        "type": "GP"
+      },
+      {
+        "place": "PAYYAVOOR GP",
+        "latitude": 12.06068,
+        "longitude": 75.58124,
+        "type": "GP"
+      },
+      {
+        "place": "ULIKKAL GP",
+        "latitude": 12.03754,
+        "longitude": 75.66535,
+        "type": "GP"
+      },
+      {
+        "place": "IRIKKUR BSNL",
+        "latitude": 11.990538,
+        "longitude": 75.672892,
+        "type": "GP"
+      },
+      {
+        "place": "PADIYUR GP",
+        "latitude": 11.99837,
+        "longitude": 75.62802,
+        "type": "GP"
+      },
+      {
+        "place": "IRIKKUR BHQ",
+        "latitude": 11.982468,
+        "longitude": 75.553627,
+        "type": "BHQ"
+      }
+    ]
+  },
+  {
+    "state": "Kerala",
+    "state_code": "KL",
+    "serial_number": 29,
+    "district": "Kottayam",
+    "district_code": "dummy_code",
+    "district_address": "dummy_address",
+    "block": "KADUTHURUTHY",
+    "route": [
+      {
+        "place": "KADUTHURUTHY BHQ",
+        "latitude": 9.770956,
+        "longitude": 76.487644,
+        "type": "BHQ"
+      },
+      {
+        "place": "THALAYOLAPARAMBU GP",
+        "latitude": 9.78535,
+        "longitude": 76.446717,
+        "type": "GP"
+      },
+      {
+        "place": "VELLOOR GP",
+        "latitude": 9.830017,
+        "longitude": 76.45195,
+        "type": "GP"
+      },
+      {
+        "place": "MULAKULAM GP",
+        "latitude": 9.8279,
+        "longitude": 76.4983,
+        "type": "GP"
+      },
+      {
+        "place": "NJEEZHOOR GP",
+        "latitude": 9.7899,
+        "longitude": 76.52325,
+        "type": "GP"
+      },
+      {
+        "place": "KADUTHURUTHY GP",
+        "latitude": 9.76555,
+        "longitude": 76.492983,
+        "type": "GP"
+      },
+      {
+        "place": "KADUTHURUTHY BSNL",
+        "latitude": 9.765306,
+        "longitude": 76.492293,
+        "type": "GP"
+      },
+      {
+        "place": "KADUTHURUTHY BSNL",
+        "latitude": 9.765306,
+        "longitude": 76.492293,
+        "type": "GP"
+      },
+      {
+        "place": "KADUTHURUTHY BHQ",
+        "latitude": 9.770956,
+        "longitude": 76.487644,
+        "type": "GP"
+      },
+      {
+        "place": "THALAYOLAPARAMBU GP",
+        "latitude": 9.78535,
+        "longitude": 76.446717,
+        "type": "GP"
+      },
+      {
+        "place": "VELLOOR GP",
+        "latitude": 9.830017,
+        "longitude": 76.45195,
+        "type": "GP"
+      },
+      {
+        "place": "MULAKULAM GP",
+        "latitude": 9.8279,
+        "longitude": 76.4983,
+        "type": "GP"
+      },
+      {
+        "place": "NJEEZHOOR GP",
+        "latitude": 9.7899,
+        "longitude": 76.52325,
+        "type": "GP"
+      },
+      {
+        "place": "KADUTHURUTHY GP",
+        "latitude": 9.76555,
+        "longitude": 76.492983,
+        "type": "GP"
+      },
+      {
+        "place": "KADUTHURUTHY BSNL",
+        "latitude": 9.765306,
+        "longitude": 76.492293,
+        "type": "GP"
+      },
+      {
+        "place": "KADUTHURUTHY BSNL",
+        "latitude": 9.765306,
+        "longitude": 76.492293,
+        "type": "GP"
+      },
+      {
+        "place": "KADUTHURUTHY BHQ",
+        "latitude": 9.770956,
+        "longitude": 76.487644,
+        "type": "BHQ"
+      }
+    ]
+  },
+  {
+    "state": "Kerala",
+    "state_code": "KL",
+    "serial_number": 30,
+    "district": "Kozhikode",
+    "district_code": "dummy_code",
+    "district_address": "dummy_address",
+    "block": "BALUSSERI",
+    "route": [
+      {
+        "place": "BALUSSERI BHQ",
+        "latitude": 11.453039,
+        "longitude": 75.822029,
+        "type": "BHQ"
+      },
+      {
+        "place": "ULIYERI GP",
+        "latitude": 11.45057,
+        "longitude": 75.77261,
+        "type": "GP"
+      },
+      {
+        "place": "NADUVANNUR GP",
+        "latitude": 11.48572,
+        "longitude": 75.77605,
+        "type": "GP"
+      },
+      {
+        "place": "KOTTUR GP",
+        "latitude": 11.49563,
+        "longitude": 75.81622,
+        "type": "GP"
+      },
+      {
+        "place": "KOORACHUNDU GP",
+        "latitude": 11.54018,
+        "longitude": 75.84299,
+        "type": "GP"
+      },
+      {
+        "place": "UNNIKULUM GP",
+        "latitude": 11.44291,
+        "longitude": 75.88058,
+        "type": "GP"
+      },
+      {
+        "place": "PANANGAD GP",
+        "latitude": 11.45503,
+        "longitude": 75.84259,
+        "type": "GP"
+      },
+      {
+        "place": "BALUSSERI BSNL",
+        "latitude": 11.446586,
+        "longitude": 75.835112,
+        "type": "GP"
+      },
+      {
+        "place": "BALUSSERI GP",
+        "latitude": 11.44757,
+        "longitude": 75.82987,
+        "type": "GP"
+      },
+      {
+        "place": "BALUSSERI BHQ",
+        "latitude": 11.453039,
+        "longitude": 75.822029,
+        "type": "BHQ"
+      }
+    ]
+  },
+  {
+    "state": "Kerala",
+    "state_code": "KL",
+    "serial_number": 31,
+    "district": "Palakkad",
+    "district_code": "dummy_code",
+    "district_address": "dummy_address",
+    "block": "CHITTUR",
+    "route": [
+      {
+        "place": "CHITTUR BHQ",
+        "latitude": 10.740533,
+        "longitude": 76.816637,
+        "type": "BHQ"
+      },
+      {
+        "place": "KOZHINJAMPARA GP",
+        "latitude": 10.73881892,
+        "longitude": 76.83412096,
+        "type": "GP"
+      },
+      {
+        "place": "ERUTHAMPATHY GP",
+        "latitude": 10.735582,
+        "longitude": 76.862276,
+        "type": "GP"
+      },
+      {
+        "place": "VADAKARAPATHY GP",
+        "latitude": 10.809377,
+        "longitude": 76.846236,
+        "type": "GP"
+      },
+      {
+        "place": "ELAPPULLY GP",
+        "latitude": 10.75801,
+        "longitude": 76.75185,
+        "type": "GP"
+      },
+      {
+        "place": "POLPULLY GP",
+        "latitude": 10.73106,
+        "longitude": 76.7302,
+        "type": "GP"
+      },
+      {
+        "place": "PERUMATTY TP",
+        "latitude": 10.700099,
+        "longitude": 76.739436,
+        "type": "GP"
+      },
+      {
+        "place": "CHITTUR BSNL",
+        "latitude": 10.703249,
+        "longitude": 76.746285,
+        "type": "GP"
+      },
+      {
+        "place": "NALLEPPILLY GP",
+        "latitude": 10.729352,
+        "longitude": 76.7866,
+        "type": "GP"
+      },
+      {
+        "place": "CHITTUR BHQ",
+        "latitude": 10.740533,
+        "longitude": 76.816637,
+        "type": "BHQ"
+      }
+    ]
+  },
+  {
+    "state": "Kerala",
+    "state_code": "KL",
+    "serial_number": 32,
+    "district": "Thrissur",
+    "district_code": "dummy_code",
+    "district_address": "dummy_address",
+    "block": "CHALAKKUDY",
+    "route": [
+      {
+        "place": "CHALAKUDY BHQ",
+        "latitude": 10.307553,
+        "longitude": 76.33523,
+        "type": "BHQ"
+      },
+      {
+        "place": "KODASSERY TP",
+        "latitude": 10.320467,
+        "longitude": 76.370133,
+        "type": "GP"
+      },
+      {
+        "place": "KODASSERY GP",
+        "latitude": 10.34325,
+        "longitude": 76.3946,
+        "type": "GP"
+      },
+      {
+        "place": "MELUR TP",
+        "latitude": 10.295971,
+        "longitude": 76.488772,
+        "type": "GP"
+      },
+      {
+        "place": "MELUR GP",
+        "latitude": 10.29366,
+        "longitude": 76.35292,
+        "type": "GP"
+      },
+      {
+        "place": "KADUKUTTY TP",
+        "latitude": 10.264474,
+        "longitude": 76.3505,
+        "type": "GP"
+      },
+      {
+        "place": "KADUKUTTY GP",
+        "latitude": 10.270061,
+        "longitude": 76.311062,
+        "type": "GP"
+      },
+      {
+        "place": "CHALAKKUDY BSNL",
+        "latitude": 10.304459,
+        "longitude": 76.331627,
+        "type": "GP"
+      },
+      {
+        "place": "CHALAKUDY BHQ",
+        "latitude": 10.307553,
+        "longitude": 76.33523,
+        "type": "BHQ"
+      }
+    ]
+  },
+  {
+    "state": "Kerala",
+    "state_code": "KL",
+    "serial_number": 33,
+    "district": "Kannur",
+    "district_code": "dummy_code",
+    "district_address": "dummy_address",
+    "block": "EDAKKAD",
+    "route": [
+      {
+        "place": "EDAKKAD BHQ",
+        "latitude": 11.846891,
+        "longitude": 75.433278,
+        "type": "BHQ"
+      },
+      {
+        "place": "CHEMBILODE GP",
+        "latitude": 11.87723,
+        "longitude": 75.45687,
+        "type": "GP"
+      },
+      {
+        "place": "MUNDERI GP",
+        "latitude": 11.91226,
+        "longitude": 75.45546,
+        "type": "GP"
+      },
+      {
+        "place": "CHELORA GP",
+        "latitude": 11.89983,
+        "longitude": 75.43089,
+        "type": "GP"
+      },
+      {
+        "place": "CHELORA TP",
+        "latitude": 11.898787,
+        "longitude": 75.413908,
+        "type": "GP"
+      },
+      {
+        "place": "ELAYAVOOR GP",
+        "latitude": 11.88638,
+        "longitude": 75.4037,
+        "type": "GP"
+      },
+      {
+        "place": "EDAKKAD BSNL",
+        "latitude": 11.873034,
+        "longitude": 75.396468,
+        "type": "GP"
+      },
+      {
+        "place": "EDAKKAD GP",
+        "latitude": 11.84587,
+        "longitude": 75.41694,
+        "type": "GP"
+      },
+      {
+        "place": "EDAKKAD BHQ",
+        "latitude": 11.846891,
+        "longitude": 75.433278,
+        "type": "GP"
+      },
+      {
+        "place": "KADAMBOOR TP",
+        "latitude": 11.833851,
+        "longitude": 75.452864,
+        "type": "GP"
+      },
+      {
+        "place": "EDAKKAD BHQ",
+        "latitude": 11.846891,
+        "longitude": 75.433278,
+        "type": "BHQ"
+      }
+    ]
+  },
+  {
+    "state": "Kerala",
+    "state_code": "KL",
+    "serial_number": 34,
+    "district": "Kollam",
+    "district_code": "dummy_code",
+    "district_address": "dummy_address",
+    "block": "ANCHAL",
+    "route": [
+      {
+        "place": "ANCHAL BHQ",
+        "latitude": 8.935799,
+        "longitude": 76.916956,
+        "type": "BHQ"
+      },
+      {
+        "place": "ANCHAL GP",
+        "latitude": 8.928619,
+        "longitude": 76.914043,
+        "type": "GP"
+      },
+      {
+        "place": "BSNL ANCHAL",
+        "latitude": 8.928059,
+        "longitude": 76.911739,
+        "type": "GP"
+      },
+      {
+        "place": "EDAMULAKKAL TP",
+        "latitude": 8.923158,
+        "longitude": 76.897877,
+        "type": "GP"
+      },
+      {
+        "place": "KARAVALOOR GP",
+        "latitude": 8.986218,
+        "longitude": 76.909638,
+        "type": "GP"
+      },
+      {
+        "place": "ARIENCAVU TP",
+        "latitude": 8.967806,
+        "longitude": 77.070123,
+        "type": "GP"
+      },
+      {
+        "place": "THENMALA GP",
+        "latitude": 8.966135,
+        "longitude": 77.069549,
+        "type": "GP"
+      },
+      {
+        "place": "KULATHUPUZHA GP",
+        "latitude": 8.907283,
+        "longitude": 77.05433,
+        "type": "GP"
+      },
+      {
+        "place": "EROOR GP",
+        "latitude": 8.936237,
+        "longitude": 76.946048,
+        "type": "GP"
+      },
+      {
+        "place": "ANCHAL TP",
+        "latitude": 8.927324,
+        "longitude": 76.91407,
+        "type": "GP"
+      },
+      {
+        "place": "ANCHAL BHQ",
+        "latitude": 8.935799,
+        "longitude": 76.916956,
+        "type": "BHQ"
+      }
+    ]
+  },
+  {
+    "state": "Kerala",
+    "state_code": "KL",
+    "serial_number": 35,
+    "district": "Kollam",
+    "district_code": "dummy_code",
+    "district_address": "dummy_address",
+    "block": "CHADAYAMANGALAM",
+    "route": [
+      {
+        "place": "CHADAYAMANGALAM BHQ",
+        "latitude": 8.885207,
+        "longitude": 76.868589,
+        "type": "BHQ"
+      },
+      {
+        "place": "CHADAYAMANGALAM BSNL",
+        "latitude": 8.896377,
+        "longitude": 76.861468,
+        "type": "GP"
+      },
+      {
+        "place": "ELAMADU GP",
+        "latitude": 8.900429,
+        "longitude": 76.832103,
+        "type": "GP"
+      },
+      {
+        "place": "VELINALLUR GP",
+        "latitude": 8.874267,
+        "longitude": 76.775926,
+        "type": "GP"
+      },
+      {
+        "place": "NILAMEL TP",
+        "latitude": 8.823798,
+        "longitude": 76.882445,
+        "type": "GP"
+      },
+      {
+        "place": "KADAKKAL GP",
+        "latitude": 8.826499,
+        "longitude": 76.917581,
+        "type": "GP"
+      },
+      {
+        "place": "ITTIVA GP",
+        "latitude": 8.867389,
+        "longitude": 76.907385,
+        "type": "GP"
+      },
+      {
+        "place": "CHADAYAMANGALAM BHQ",
+        "latitude": 8.885207,
+        "longitude": 76.868589,
+        "type": "GP"
+      },
+      {
+        "place": "KADAKKAL TP",
+        "latitude": 8.826295,
+        "longitude": 76.917735,
+        "type": "GP"
+      },
+      {
+        "place": "CHITHARA TP",
+        "latitude": 8.825351,
+        "longitude": 76.928006,
+        "type": "GP"
+      },
+      {
+        "place": "CHADAYAMANGALAM BHQ",
+        "latitude": 8.885207,
+        "longitude": 76.868589,
+        "type": "BHQ"
+      }
+    ]
+  },
+  {
+    "state": "Kerala",
+    "state_code": "KL",
+    "serial_number": 36,
+    "district": "Kottayam",
+    "district_code": "dummy_code",
+    "district_address": "dummy_address",
+    "block": "ETTUMANOOR",
+    "route": [
+      {
+        "place": "ETTUMANOOR BHQ",
+        "latitude": 9.67105,
+        "longitude": 76.55171,
+        "type": "BHQ"
+      },
+      {
+        "place": "ATHIRAMPUZHA TP",
+        "latitude": 9.668615,
+        "longitude": 76.538146,
+        "type": "GP"
+      },
+      {
+        "place": "NEENDOOR GP",
+        "latitude": 9.68680804,
+        "longitude": 76.50498323,
+        "type": "GP"
+      },
+      {
+        "place": "ARPOOKARA GP",
+        "latitude": 9.642945,
+        "longitude": 76.508687,
+        "type": "GP"
+      },
+      {
+        "place": "KUMARAKOM TP",
+        "latitude": 9.592797,
+        "longitude": 76.435754,
+        "type": "GP"
+      },
+      {
+        "place": "THIRUVARPU GP",
+        "latitude": 9.58111554,
+        "longitude": 76.47791,
+        "type": "GP"
+      },
+      {
+        "place": "AYMANAM TP",
+        "latitude": 9.612574,
+        "longitude": 76.507438,
+        "type": "GP"
+      },
+      {
+        "place": "ETTUMANOOR BSNL TP",
+        "latitude": 9.631394,
+        "longitude": 76.520676,
+        "type": "GP"
+      },
+      {
+        "place": "ETTUMANOOR TP",
+        "latitude": 9.669327,
+        "longitude": 76.556055,
+        "type": "GP"
+      },
+      {
+        "place": "ETTUMANOOR BHQ",
+        "latitude": 9.67105,
+        "longitude": 76.55171,
+        "type": "BHQ"
+      }
+    ]
+  },
+  {
+    "state": "Kerala",
+    "state_code": "KL",
+    "serial_number": 37,
+    "district": "Kozhikode",
+    "district_code": "dummy_code",
+    "district_address": "dummy_address",
+    "block": "CHELANNUR",
+    "route": [
+      {
+        "place": "CHELANNUR BHQ",
+        "latitude": 11.33142,
+        "longitude": 75.80912,
+        "type": "BHQ"
+      },
+      {
+        "place": "CHELANNUR BSNL",
+        "latitude": 11.349974,
+        "longitude": 75.809323,
+        "type": "GP"
+      },
+      {
+        "place": "CHELANNUR TP",
+        "latitude": 11.357866,
+        "longitude": 75.804663,
+        "type": "GP"
+      },
+      {
+        "place": "THALAKULATHUR GP",
+        "latitude": 11.3531,
+        "longitude": 75.75916,
+        "type": "GP"
+      },
+      {
+        "place": "KAKKODI GP",
+        "latitude": 11.31372,
+        "longitude": 75.79839,
+        "type": "GP"
+      },
+      {
+        "place": "CHELANNUR BHQ TP",
+        "latitude": 11.334702,
+        "longitude": 75.809592,
+        "type": "GP"
+      },
+      {
+        "place": "NARIKUNNI TP",
+        "latitude": 11.366849,
+        "longitude": 75.862756,
+        "type": "GP"
+      },
+      {
+        "place": "NANMANDA TP",
+        "latitude": 11.421483,
+        "longitude": 75.831493,
+        "type": "GP"
+      },
+      {
+        "place": "KAKKUR GP",
+        "latitude": 11.38642,
+        "longitude": 75.82375,
+        "type": "GP"
+      },
+      {
+        "place": "CHELANNUR BHQ",
+        "latitude": 11.33142,
+        "longitude": 75.80912,
+        "type": "BHQ"
+      }
+    ]
+  },
+  {
+    "state": "Kerala",
+    "state_code": "KL",
+    "serial_number": 38,
+    "district": "Malappuram",
+    "district_code": "dummy_code",
+    "district_address": "dummy_address",
+    "block": "AREAKODE",
+    "route": [
+      {
+        "place": "AREAKODE BHQ",
+        "latitude": 11.232527,
+        "longitude": 76.048878,
+        "type": "BHQ"
+      },
+      {
+        "place": "AREAKODE BSNL",
+        "latitude": 11.231936,
+        "longitude": 76.053676,
+        "type": "GP"
+      },
+      {
+        "place": "EDAVANNA TP",
+        "latitude": 11.20982,
+        "longitude": 76.093952,
+        "type": "GP"
+      },
+      {
+        "place": "KAVANNUR TP",
+        "latitude": 11.197183,
+        "longitude": 76.065132,
+        "type": "GP"
+      },
+      {
+        "place": "PULPATTA TP",
+        "latitude": 11.158885,
+        "longitude": 76.058674,
+        "type": "GP"
+      },
+      {
+        "place": "KUZHIMANNA GP",
+        "latitude": 11.178821,
+        "longitude": 76.002632,
+        "type": "GP"
+      },
+      {
+        "place": "CHEKKODE GP",
+        "latitude": 11.2138,
+        "longitude": 75.986439,
+        "type": "GP"
+      },
+      {
+        "place": "KIZHUPARAMBA TP",
+        "latitude": 11.249577,
+        "longitude": 76.022771,
+        "type": "GP"
+      },
+      {
+        "place": "URUNGATTIRI TP",
+        "latitude": 11.246045,
+        "longitude": 76.046367,
+        "type": "GP"
+      },
+      {
+        "place": "AREEKODE TP",
+        "latitude": 11.234815,
+        "longitude": 76.050463,
+        "type": "GP"
+      },
+      {
+        "place": "AREAKODE BHQ",
+        "latitude": 11.232527,
+        "longitude": 76.048878,
+        "type": "BHQ"
+      }
+    ]
+  },
+  {
+    "state": "Kerala",
+    "state_code": "KL",
+    "serial_number": 39,
+    "district": "Pathanamthitta",
+    "district_code": "dummy_code",
+    "district_address": "dummy_address",
+    "block": "ELANTHOOR",
+    "route": [
+      {
+        "place": "ELANTHOOR BHQ",
+        "latitude": 9.303057,
+        "longitude": 9.303057,
+        "type": "BHQ"
+      },
+      {
+        "place": "ELANTHOOR TP",
+        "latitude": 9.290899,
+        "longitude": 76.722593,
+        "type": "GP"
+      },
+      {
+        "place": "CHENNEERKARA TP",
+        "latitude": 9.251401,
+        "longitude": 76.733763,
+        "type": "GP"
+      },
+      {
+        "place": "OMALLUR TP",
+        "latitude": 9.240353,
+        "longitude": 76.755465,
+        "type": "GP"
+      },
+      {
+        "place": "NARANGANAM GP",
+        "latitude": 9.314452,
+        "longitude": 76.754332,
+        "type": "GP"
+      },
+      {
+        "place": "CHERUKOLE GP",
+        "latitude": 9.343351,
+        "longitude": 76.754011,
+        "type": "GP"
+      },
+      {
+        "place": "ELANTHOOR BSNL TP",
+        "latitude": 9.338556,
+        "longitude": 76.710909,
+        "type": "GP"
+      },
+      {
+        "place": "KOZHENCHERRY TP",
+        "latitude": 9.337381,
+        "longitude": 76.705195,
+        "type": "GP"
+      },
+      {
+        "place": "MALLAPUZHASSERY GP",
+        "latitude": 9.316094,
+        "longitude": 76.709,
+        "type": "GP"
+      },
+      {
+        "place": "ELANTHOOR BHQ",
+        "latitude": 9.303057,
+        "longitude": 9.303057,
+        "type": "BHQ"
+      }
+    ]
+  },
+  {
+    "state": "Kerala",
+    "state_code": "KL",
+    "serial_number": 40,
+    "district": "Trivandrum",
+    "district_code": "dummy_code",
+    "district_address": "dummy_address",
+    "block": "ATHIYANNOOR",
+    "route": [
+      {
+        "place": "ATHIYANNOOR BHQ",
+        "latitude": 8.41471,
+        "longitude": 77.061837,
+        "type": "BHQ"
+      },
+      {
+        "place": "ATHIYANNOOR TP",
+        "latitude": 8.393022,
+        "longitude": 77.063822,
+        "type": "GP"
+      },
+      {
+        "place": "ATHIYANNOOR BSNL",
+        "latitude": 8.359881,
+        "longitude": 77.052521,
+        "type": "GP"
+      },
+      {
+        "place": "KARUMKULAM GP",
+        "latitude": 8.337883,
+        "longitude": 77.049787,
+        "type": "GP"
+      },
+      {
+        "place": "KANJIRAMKULAM TP",
+        "latitude": 8.354824,
+        "longitude": 77.048486,
+        "type": "GP"
+      },
+      {
+        "place": "KOTTUKAL TP",
+        "latitude": 8.365309,
+        "longitude": 77.012951,
+        "type": "GP"
+      },
+      {
+        "place": "VENGANOOR GP",
+        "latitude": 8.40319141,
+        "longitude": 77.01284274,
+        "type": "GP"
+      },
+      {
+        "place": "ATHIYANNOOR BHQ",
+        "latitude": 8.41471,
+        "longitude": 77.061837,
+        "type": "BHQ"
+      }
+    ]
+  },
+  {
+    "state": "Kerala",
+    "state_code": "KL",
+    "serial_number": 41,
+    "district": "Alappuzha",
+    "district_code": "dummy_code",
+    "district_address": "dummy_address",
+    "block": "AMBALAPPUZHA",
+    "route": [
+      {
+        "place": "AMBALAPPUZHA BLOCK office",
+        "latitude": 9.464004,
+        "longitude": 76.339743,
+        "type": "BHQ"
+      },
+      {
+        "place": "UNNAPRA (NORTH) GP",
+        "latitude": 9.451026,
+        "longitude": 76.342258,
+        "type": "GP"
+      },
+      {
+        "place": "PUNNAPRA(SOUTH) GP",
+        "latitude": 9.43257,
+        "longitude": 76.345147,
+        "type": "GP"
+      },
+      {
+        "place": "AMBALAPPUZHA (NORTH) GP",
+        "latitude": 9.406471,
+        "longitude": 76.351239,
+        "type": "GP"
+      },
+      {
+        "place": "AMBALAPPUZHA(SOUTH) GP",
+        "latitude": 9.383151,
+        "longitude": 76.355935,
+        "type": "GP"
+      },
+      {
+        "place": "AMBALAPUZHA EXCHANGE",
+        "latitude": 9.38293,
+        "longitude": 76.35572,
+        "type": "GP"
+      },
+      {
+        "place": "AMBALAPPUZHA BLOCK office",
+        "latitude": 9.464004,
+        "longitude": 76.339743,
+        "type": "BHQ"
+      }
+    ]
+  },
+  {
+    "state": "Kerala",
+    "state_code": "KL",
+    "serial_number": 42,
+    "district": "Alappuzha",
+    "district_code": "dummy_code",
+    "district_address": "dummy_address",
+    "block": "ARYAD",
+    "route": [
+      {
+        "place": "ARYAD BLOCK OFFICE",
+        "latitude": 9.577934,
+        "longitude": 76.330422,
+        "type": "BHQ"
+      },
+      {
+        "place": "MARARIKKULAM SOUTH GP",
+        "latitude": 9.56357,
+        "longitude": 76.30936,
+        "type": "GP"
+      },
+      {
+        "place": "ARYAD GP",
+        "latitude": 9.5404,
+        "longitude": 76.34232,
+        "type": "GP"
+      },
+      {
+        "place": "MANNANCHERY GP",
+        "latitude": 9.57215,
+        "longitude": 76.34718,
+        "type": "GP"
+      },
+      {
+        "place": "MUHAMMA  GP",
+        "latitude": 9.613,
+        "longitude": 76.36305,
+        "type": "GP"
+      },
+      {
+        "place": "ARYAD SL PURAM EXCHANGE",
+        "latitude": 9.61006,
+        "longitude": 76.32864,
+        "type": "GP"
+      },
+      {
+        "place": "ARYAD BLOCK OFFICE",
+        "latitude": 9.577934,
+        "longitude": 76.330422,
+        "type": "BHQ"
+      }
+    ]
+  },
+  {
+    "state": "Kerala",
+    "state_code": "KL",
+    "serial_number": 43,
+    "district": "Alappuzha",
+    "district_code": "dummy_code",
+    "district_address": "dummy_address",
+    "block": "BHARANICAVU",
+    "route": [
+      {
+        "place": "BHARANICAVU BLOCK OFFICE",
+        "latitude": 9.170992,
+        "longitude": 76.609135,
+        "type": "BHQ"
+      },
+      {
+        "place": "MAVELIKKARA THAMARAKKULAM GP",
+        "latitude": 9.14525,
+        "longitude": 76.61472,
+        "type": "GP"
+      },
+      {
+        "place": "VALLIKUNNAM GP",
+        "latitude": 9.1304,
+        "longitude": 76.55624,
+        "type": "GP"
+      },
+      {
+        "place": "BHARANIKKAVU GP",
+        "latitude": 9.17746,
+        "longitude": 76.55343,
+        "type": "GP"
+      },
+      {
+        "place": "CHUNAKKARA GP",
+        "latitude": 9.19798,
+        "longitude": 76.59811,
+        "type": "GP"
+      },
+      {
+        "place": "NOORANAD GP",
+        "latitude": 9.19374,
+        "longitude": 76.63618,
+        "type": "GP"
+      },
+      {
+        "place": "PALAMEL GP",
+        "latitude": 9.17533,
+        "longitude": 76.63963,
+        "type": "GP"
+      },
+      {
+        "place": "BHARANICAVU EXCH",
+        "latitude": 9.17526,
+        "longitude": 76.61969,
+        "type": "GP"
+      },
+      {
+        "place": "BHARANICAVU BLOCK OFFICE",
+        "latitude": 9.170992,
+        "longitude": 76.609135,
+        "type": "BHQ"
+      }
+    ]
+  },
+  {
+    "state": "Kerala",
+    "state_code": "KL",
+    "serial_number": 44,
+    "district": "Alappuzha",
+    "district_code": "dummy_code",
+    "district_address": "dummy_address",
+    "block": "KANJIKKUZHY",
+    "route": [
+      {
+        "place": "KANJIKKUZHY BLOCK OFFICE",
+        "latitude": 9.625314,
+        "longitude": 76.332258,
+        "type": "BHQ"
+      },
+      {
+        "place": "MARARIKKULAM NORTH GP",
+        "latitude": 9.61163174,
+        "longitude": 76.32958464,
+        "type": "GP"
+      },
+      {
+        "place": "CHERTHALA SOUTH GP",
+        "latitude": 9.65751,
+        "longitude": 76.31799,
+        "type": "GP"
+      },
+      {
+        "place": "KADAKKARAPPALLY GP",
+        "latitude": 9.70349,
+        "longitude": 76.31392,
+        "type": "GP"
+      },
+      {
+        "place": "KANJIKKUZHY & PATTANAKKAD CHERTHALA OLT",
+        "latitude": 9.67981,
+        "longitude": 76.34092,
+        "type": "GP"
+      },
+      {
+        "place": "THANNEERMUKKAM GP",
+        "latitude": 9.67609,
+        "longitude": 76.39245,
+        "type": "GP"
+      },
+      {
+        "place": "KANJIKUZHI GP",
+        "latitude": 9.62211,
+        "longitude": 76.34264,
+        "type": "GP"
+      },
+      {
+        "place": "KANJIKKUZHY BLOCK OFFICE",
+        "latitude": 9.625314,
+        "longitude": 76.332258,
+        "type": "GP"
+      },
+      {
+        "place": "KANJIKKUZHY BLOCK OFFICE",
+        "latitude": 9.625314,
+        "longitude": 76.332258,
+        "type": "BHQ"
+      }
+    ]
+  },
+  {
+    "state": "Kerala",
+    "state_code": "KL",
+    "serial_number": 45,
+    "district": "Alappuzha",
+    "district_code": "dummy_code",
+    "district_address": "dummy_address",
+    "block": "PATTANAKKAD",
+    "route": [
+      {
+        "place": "PATTANAKKAD BLOCK OFFICE",
+        "latitude": 9.737105,
+        "longitude": 76.317762,
+        "type": "BHQ"
+      },
+      {
+        "place": "THURAVOOR GP",
+        "latitude": 9.75722,
+        "longitude": 76.31825,
+        "type": "GP"
+      },
+      {
+        "place": "KUTHIATHODU GP",
+        "latitude": 9.78349966,
+        "longitude": 76.31735518,
+        "type": "GP"
+      },
+      {
+        "place": "KODAMTHURUTHU GP",
+        "latitude": 9.79656,
+        "longitude": 76.31593,
+        "type": "GP"
+      },
+      {
+        "place": "EZHUPUNNA TP",
+        "latitude": 9.823396,
+        "longitude": 76.311329,
+        "type": "GP"
+      },
+      {
+        "place": "EZHUPUNNA TP",
+        "latitude": 9.823396,
+        "longitude": 76.311329,
+        "type": "GP"
+      },
+      {
+        "place": "EZHUPUNNA GP",
+        "latitude": 9.82339,
+        "longitude": 76.30518,
+        "type": "GP"
+      },
+      {
+        "place": "PATTANAKKAD TP",
+        "latitude": 9.72892,
+        "longitude": 76.319024,
+        "type": "GP"
+      },
+      {
+        "place": "PATTANAKKAD BSNL",
+        "latitude": 9.723038,
+        "longitude": 76.326787,
+        "type": "GP"
+      },
+      {
+        "place": "PATTANAKKAD TP",
+        "latitude": 9.72892,
+        "longitude": 76.319024,
+        "type": "GP"
+      },
+      {
+        "place": "PATTANAKKAD GP",
+        "latitude": 9.7324,
+        "longitude": 76.31862,
+        "type": "GP"
+      },
+      {
+        "place": "PATTANAKKAD BLOCK OFFICE",
+        "latitude": 9.737105,
+        "longitude": 76.317762,
+        "type": "BHQ"
+      }
+    ]
+  },
+  {
+    "state": "Kerala",
+    "state_code": "KL",
+    "serial_number": 46,
+    "district": "Alappuzha",
+    "district_code": "dummy_code",
+    "district_address": "dummy_address",
+    "block": "THYCATTUSSERY",
+    "route": [
+      {
+        "place": "THYCATTUSSERY BLOCK DEVELOPMENT OFFICE",
+        "latitude": 9.817038,
+        "longitude": 76.351502,
+        "type": "BHQ"
+      },
+      {
+        "place": "AROOKUTTY TP",
+        "latitude": 9.862441,
+        "longitude": 76.323824,
+        "type": "GP"
+      },
+      {
+        "place": "CHENNAMPALIPPURAM GP",
+        "latitude": 9.7411,
+        "longitude": 76.36283,
+        "type": "GP"
+      },
+      {
+        "place": "THAICATTUSSERY TP",
+        "latitude": 9.774469,
+        "longitude": 76.361314,
+        "type": "GP"
+      },
+      {
+        "place": "THAICATTUSSERY TP",
+        "latitude": 9.774469,
+        "longitude": 76.361314,
+        "type": "GP"
+      },
+      {
+        "place": "PANAVALLY GP",
+        "latitude": 9.81623,
+        "longitude": 76.35132,
+        "type": "GP"
+      },
+      {
+        "place": "THYCATTUSSERY BLOCK DEVELOPMENT OFFICE",
+        "latitude": 9.817038,
+        "longitude": 76.351502,
+        "type": "BHQ"
+      }
+    ]
+  },
+  {
+    "state": "Kerala",
+    "state_code": "KL",
+    "serial_number": 47,
+    "district": "Alappuzha",
+    "district_code": "dummy_code",
+    "district_address": "dummy_address",
+    "block": "VELIYANAD",
+    "route": [
+      {
+        "place": "VELIYANAD BLOCK OFFICE",
+        "latitude": 9.421926,
+        "longitude": 76.473246,
+        "type": "BHQ"
+      },
+      {
+        "place": "MUTTAR TP",
+        "latitude": 9.419206,
+        "longitude": 76.491127,
+        "type": "GP"
+      },
+      {
+        "place": "VELIYANAD TP",
+        "latitude": 9.424229,
+        "longitude": 76.492607,
+        "type": "GP"
+      },
+      {
+        "place": "KAVALAM TP",
+        "latitude": 9.467836,
+        "longitude": 76.493426,
+        "type": "GP"
+      },
+      {
+        "place": "THYCATTUSSERY BLOCK DEVELOPMENT OFFICE",
+        "latitude": 9.817038,
+        "longitude": 76.351502,
+        "type": "GP"
+      },
+      {
+        "place": "RAMANKARI GP",
+        "latitude": 9.423634,
+        "longitude": 76.466208,
+        "type": "GP"
+      },
+      {
+        "place": "VELIYANAD PULICUNNU EXCH",
+        "latitude": 9.4356,
+        "longitude": 76.44739,
+        "type": "GP"
+      },
+      {
+        "place": "VELIYANAD BLOCK OFFICE",
+        "latitude": 9.421926,
+        "longitude": 76.473246,
+        "type": "BHQ"
+      }
+    ]
+  },
+  {
+    "state": "Kerala",
+    "state_code": "KL",
+    "serial_number": 48,
+    "district": "Ernakulam",
+    "district_code": "dummy_code",
+    "district_address": "dummy_address",
+    "block": "ANGAMALI",
+    "route": [
+      {
+        "place": "ANKAMALY BLOCK OFFICE",
+        "latitude": 10.196249,
+        "longitude": 76.388258,
+        "type": "BHQ"
+      },
+      {
+        "place": "KARUKUTTY GP",
+        "latitude": 10.2250451,
+        "longitude": 76.375956,
+        "type": "GP"
+      },
+      {
+        "place": "MOOKKANNUR GP",
+        "latitude": 10.2190927,
+        "longitude": 76.4127418,
+        "type": "GP"
+      },
+      {
+        "place": "THURAVOOR GP",
+        "latitude": 10.205377,
+        "longitude": 76.4221403,
+        "type": "GP"
+      },
+      {
+        "place": "MANJAPRA GP",
+        "latitude": 10.2047781,
+        "longitude": 76.4521093,
+        "type": "GP"
+      },
+      {
+        "place": "MANJAPRA GP",
+        "latitude": 10.2047781,
+        "longitude": 76.4521093,
+        "type": "GP"
+      },
+      {
+        "place": "MALAYATTOOR NEELESWARAM GP",
+        "latitude": 10.1855633,
+        "longitude": 76.4755515,
+        "type": "GP"
+      },
+      {
+        "place": "KANJOOR TP",
+        "latitude": 10.166265,
+        "longitude": 76.43903,
+        "type": "GP"
+      },
+      {
+        "place": "KALADY GP",
+        "latitude": 10.1672139,
+        "longitude": 76.4360492,
+        "type": "GP"
+      },
+      {
+        "place": "ANKAMALY TE",
+        "latitude": 10.18717,
+        "longitude": 76.38331,
+        "type": "GP"
+      },
+      {
+        "place": "ANKAMALY BLOCK OFFICE",
+        "latitude": 10.196249,
+        "longitude": 76.388258,
+        "type": "BHQ"
+      }
+    ]
+  },
+  {
+    "state": "Kerala",
+    "state_code": "KL",
+    "serial_number": 49,
+    "district": "Ernakulam",
+    "district_code": "dummy_code",
+    "district_address": "dummy_address",
+    "block": "MULANTHURUTHY",
+    "route": [
+      {
+        "place": "MULAMTHURUTHY BLOCK OFFICE",
+        "latitude": 9.889326,
+        "longitude": 76.391084,
+        "type": "BHQ"
+      },
+      {
+        "place": "AMBALLUR GP",
+        "latitude": 9.858938,
+        "longitude": 76.402165,
+        "type": "GP"
+      },
+      {
+        "place": "EDAKKATTUVAYAL GP",
+        "latitude": 9.86647,
+        "longitude": 76.436711,
+        "type": "GP"
+      },
+      {
+        "place": "MANEED GP",
+        "latitude": 9.905408,
+        "longitude": 76.457943,
+        "type": "GP"
+      },
+      {
+        "place": "CHOTTANIKKARA GP",
+        "latitude": 9.928637,
+        "longitude": 76.390633,
+        "type": "GP"
+      },
+      {
+        "place": "MULUMTHURUTHY GP",
+        "latitude": 9.901083,
+        "longitude": 76.390291,
+        "type": "GP"
+      },
+      {
+        "place": "UDAYAMPERUR TP",
+        "latitude": 9.900159,
+        "longitude": 76.384559,
+        "type": "GP"
+      },
+      {
+        "place": "MULANTHURUTHY EXCH",
+        "latitude": 9.89823,
+        "longitude": 76.3836,
+        "type": "GP"
+      },
+      {
+        "place": "MULAMTHURUTHY BLOCK OFFICE",
+        "latitude": 9.889326,
+        "longitude": 76.391084,
+        "type": "BHQ"
+      }
+    ]
+  },
+  {
+    "state": "Kerala",
+    "state_code": "KL",
+    "serial_number": 50,
+    "district": "Kannur",
+    "district_code": "dummy_code",
+    "district_address": "dummy_address",
+    "block": "PANOOR",
+    "route": [
+      {
+        "place": "PANOOR BLOCK OFFICE",
+        "latitude": 11.758615,
+        "longitude": 75.573872,
+        "type": "BHQ"
+      },
+      {
+        "place": "PANOOR BLOCK OFFICE TP",
+        "latitude": 11.759412,
+        "longitude": 75.557381,
+        "type": "GP"
+      },
+      {
+        "place": "MOKERI GP",
+        "latitude": 11.78406,
+        "longitude": 75.57065,
+        "type": "GP"
+      },
+      {
+        "place": "PANOOR BLOCK OFFICE TP",
+        "latitude": 11.759412,
+        "longitude": 75.557381,
+        "type": "GP"
+      },
+      {
+        "place": "PANNIYANNUR GP",
+        "latitude": 11.75201,
+        "longitude": 75.55456,
+        "type": "GP"
+      },
+      {
+        "place": "CHOKLI GP",
+        "latitude": 11.72879,
+        "longitude": 75.5529,
+        "type": "GP"
+      },
+      {
+        "place": "CHOKLI GP",
+        "latitude": 11.72879,
+        "longitude": 75.5529,
+        "type": "GP"
+      },
+      {
+        "place": "KARIYAD TP",
+        "latitude": 11.713649,
+        "longitude": 75.586177,
+        "type": "GP"
+      },
+      {
+        "place": "PERINGALAM GP",
+        "latitude": 11.72826,
+        "longitude": 75.59292,
+        "type": "GP"
+      },
+      {
+        "place": "PANOOR GP",
+        "latitude": 11.7594,
+        "longitude": 75.58018,
+        "type": "GP"
+      },
+      {
+        "place": "PANOOR BSNL",
+        "latitude": 11.759826,
+        "longitude": 75.57721,
+        "type": "GP"
+      },
+      {
+        "place": "PANOOR BSNL",
+        "latitude": 11.759826,
+        "longitude": 75.57721,
+        "type": "GP"
+      },
+      {
+        "place": "PANOOR BLOCK OFFICE",
+        "latitude": 11.758615,
+        "longitude": 75.573872,
+        "type": "BHQ"
+      }
+    ]
+  },
+  {
+    "state": "Kerala",
+    "state_code": "KL",
+    "serial_number": 51,
+    "district": "Kollam",
+    "district_code": "dummy_code",
+    "district_address": "dummy_address",
+    "block": "ITHIKKARA",
+    "route": [
+      {
+        "place": "ITHIKKARA BLOCK OFFICE",
+        "latitude": 8.8521,
+        "longitude": 76.714674,
+        "type": "BHQ"
+      },
+      {
+        "place": "CHIRAKKARA GP",
+        "latitude": 8.82499,
+        "longitude": 76.715067,
+        "type": "GP"
+      },
+      {
+        "place": "POOTHAKKULAM GP",
+        "latitude": 8.817233,
+        "longitude": 76.699062,
+        "type": "GP"
+      },
+      {
+        "place": "KALLUVATHUKKAL GP",
+        "latitude": 8.832484,
+        "longitude": 76.745646,
+        "type": "GP"
+      },
+      {
+        "place": "CHATHANNUR GP",
+        "latitude": 8.863014,
+        "longitude": 76.715121,
+        "type": "GP"
+      },
+      {
+        "place": "ITHIKKARA BSNL",
+        "latitude": 8.863256,
+        "longitude": 76.709493,
+        "type": "GP"
+      },
+      {
+        "place": "CHATHANNUR GP",
+        "latitude": 8.863014,
+        "longitude": 76.715121,
+        "type": "GP"
+      },
+      {
+        "place": "ITHIKKARA BLOCK OFFICE",
+        "latitude": 8.8521,
+        "longitude": 76.714674,
+        "type": "BHQ"
+      }
+    ]
+  },
+  {
+    "state": "Kerala",
+    "state_code": "KL",
+    "serial_number": 52,
+    "district": "Kollam",
+    "district_code": "dummy_code",
+    "district_address": "dummy_address",
+    "block": "KOTTARAKKARA",
+    "route": [
+      {
+        "place": "KOTTARAKKARA BLOCK OFFICE",
+        "latitude": 8.984386,
+        "longitude": 76.766748,
+        "type": "BHQ"
+      },
+      {
+        "place": "VELIYAM GP",
+        "latitude": 8.940959,
+        "longitude": 76.772746,
+        "type": "GP"
+      },
+      {
+        "place": "POOYAPPALLY GP",
+        "latitude": 8.908344,
+        "longitude": 76.762047,
+        "type": "GP"
+      },
+      {
+        "place": "KAREEPRA GP",
+        "latitude": 8.951692,
+        "longitude": 76.720164,
+        "type": "GP"
+      },
+      {
+        "place": "EZHUKONE GP",
+        "latitude": 8.98034,
+        "longitude": 76.72018,
+        "type": "GP"
+      },
+      {
+        "place": "NEDUVATHUR TP",
+        "latitude": 8.99647,
+        "longitude": 76.75382,
+        "type": "GP"
+      },
+      {
+        "place": "NEDUVATHUR TP",
+        "latitude": 8.99647,
+        "longitude": 76.75382,
+        "type": "GP"
+      },
+      {
+        "place": "KOTTARAKKARA BSNL",
+        "latitude": 8.999424,
+        "longitude": 76.768986,
+        "type": "GP"
+      },
+      {
+        "place": "KOTTARAKARA GP",
+        "latitude": 9.00544,
+        "longitude": 76.77925,
+        "type": "GP"
+      },
+      {
+        "place": "KOTTARAKKARA BLOCK OFFICE",
+        "latitude": 8.984386,
+        "longitude": 76.766748,
+        "type": "BHQ"
+      }
+    ]
+  },
+  {
+    "state": "Kerala",
+    "state_code": "KL",
+    "serial_number": 53,
+    "district": "Kasargod",
+    "district_code": "dummy_code",
+    "district_address": "dummy_address",
+    "block": "NILESHWAR",
+    "route": [
+      {
+        "place": "Nileswar Bhq",
+        "latitude": 12.26409,
+        "longitude": 75.15351,
+        "type": "BHQ"
+      },
+      {
+        "place": "KAYYUR CHEEMENI GP",
+        "latitude": 12.2369,
+        "longitude": 75.2303,
+        "type": "GP"
+      },
+      {
+        "place": "CHERUVATHUR GP",
+        "latitude": 12.2159,
+        "longitude": 75.1609,
+        "type": "GP"
+      },
+      {
+        "place": "PILICODE GP",
+        "latitude": 12.1911,
+        "longitude": 75.1674,
+        "type": "GP"
+      },
+      {
+        "place": "THRIKKARIPUR GP",
+        "latitude": 12.1451,
+        "longitude": 75.1775,
+        "type": "GP"
+      },
+      {
+        "place": "VALIYAPARAMBA GP TP",
+        "latitude": 12.139215,
+        "longitude": 75.163386,
+        "type": "GP"
+      },
+      {
+        "place": "PADNE GP",
+        "latitude": 12.1699,
+        "longitude": 75.1503,
+        "type": "GP"
+      },
+      {
+        "place": "UPPALA EXCHANGE",
+        "latitude": 12.21064,
+        "longitude": 75.15457,
+        "type": "GP"
+      },
+      {
+        "place": "Nileswar Bhq",
+        "latitude": 12.26409,
+        "longitude": 75.15351,
+        "type": "BHQ"
+      }
+    ]
+  },
+  {
+    "state": "Kerala",
+    "state_code": "KL",
+    "serial_number": 55,
+    "district": "Kottayam",
+    "district_code": "dummy_code",
+    "district_address": "dummy_address",
+    "block": "KANJIRAPPALLY",
+    "route": [
+      {
+        "place": "KANJIRAPPALLY BHQ",
+        "latitude": 9.542412,
+        "longitude": 76.798379,
+        "type": "BHQ"
+      },
+      {
+        "place": "ERUMELI GP",
+        "latitude": 9.481132,
+        "longitude": 76.845525,
+        "type": "GP"
+      },
+      {
+        "place": "ERUMELI GP TP",
+        "latitude": 9.472261,
+        "longitude": 76.844264,
+        "type": "GP"
+      },
+      {
+        "place": "KORUTHODE GP",
+        "latitude": 9.4671,
+        "longitude": 76.96315,
+        "type": "GP"
+      },
+      {
+        "place": "MUNDAKAYAM GP",
+        "latitude": 9.5383,
+        "longitude": 76.885917,
+        "type": "GP"
+      },
+      {
+        "place": "MUNDAKAYAM GP",
+        "latitude": 9.5383,
+        "longitude": 76.885917,
+        "type": "GP"
+      },
+      {
+        "place": "PARATHODE GP",
+        "latitude": 9.56668597,
+        "longitude": 76.81459239,
+        "type": "GP"
+      },
+      {
+        "place": "KANJIRAPPALLY BSNL",
+        "latitude": 9.554796,
+        "longitude": 76.790241,
+        "type": "GP"
+      },
+      {
+        "place": "KANJIRAPPALLY BSNL",
+        "latitude": 9.554796,
+        "longitude": 76.790241,
+        "type": "GP"
+      },
+      {
+        "place": "KANJIRAPPALLY BHQ",
+        "latitude": 9.542412,
+        "longitude": 76.798379,
+        "type": "BHQ"
+      }
+    ]
+  },
+  {
+    "state": "Kerala",
+    "state_code": "KL",
+    "serial_number": 56,
+    "district": "Kottayam",
+    "district_code": "dummy_code",
+    "district_address": "dummy_address",
+    "block": "PALLOM",
+    "route": [
+      {
+        "place": "Pallom BHQ",
+        "latitude": 9.598895,
+        "longitude": 76.564207,
+        "type": "BHQ"
+      },
+      {
+        "place": "VIJAYAPURAM GP",
+        "latitude": 9.591433,
+        "longitude": 76.564583,
+        "type": "GP"
+      },
+      {
+        "place": "Pallom BSNL",
+        "latitude": 9.586973,
+        "longitude": 76.521439,
+        "type": "GP"
+      },
+      {
+        "place": "AYARKKUNNAM GP",
+        "latitude": 9.635267,
+        "longitude": 76.605133,
+        "type": "GP"
+      },
+      {
+        "place": "PUTHUPPALLY GP",
+        "latitude": 9.555133,
+        "longitude": 76.57235,
+        "type": "GP"
+      },
+      {
+        "place": "PANACHIKKAD GP",
+        "latitude": 9.529017,
+        "longitude": 76.541283,
+        "type": "GP"
+      },
+      {
+        "place": "KURICHY GP TP",
+        "latitude": 9.532714,
+        "longitude": 76.523,
+        "type": "GP"
+      },
+      {
+        "place": "Pallom BHQ",
+        "latitude": 9.598895,
+        "longitude": 76.564207,
+        "type": "BHQ"
+      }
+    ]
+  },
+  {
+    "state": "Kerala",
+    "state_code": "KL",
+    "serial_number": 57,
+    "district": "Kottayam",
+    "district_code": "dummy_code",
+    "district_address": "dummy_address",
+    "block": "UZHAVOOR",
+    "route": [
+      {
+        "place": "UZHAVOOR BHQ",
+        "latitude": 9.769624,
+        "longitude": 76.568239,
+        "type": "BHQ"
+      },
+      {
+        "place": "KURAVILANGAD GP",
+        "latitude": 9.757517,
+        "longitude": 76.560533,
+        "type": "GP"
+      },
+      {
+        "place": "MANJOOR GP",
+        "latitude": 9.732883,
+        "longitude": 76.50475,
+        "type": "GP"
+      },
+      {
+        "place": "KANAKKARI GP",
+        "latitude": 9.716017,
+        "longitude": 76.558967,
+        "type": "GP"
+      },
+      {
+        "place": "KADAPLAMATTOM GP",
+        "latitude": 9.7049,
+        "longitude": 76.60883,
+        "type": "GP"
+      },
+      {
+        "place": "MARANGATTUPILLY GP",
+        "latitude": 9.742683,
+        "longitude": 76.611917,
+        "type": "GP"
+      },
+      {
+        "place": "RAMAPURAM GP TP",
+        "latitude": 9.801774,
+        "longitude": 76.651584,
+        "type": "GP"
+      },
+      {
+        "place": "VELIYANNOOR GP",
+        "latitude": 9.8318,
+        "longitude": 76.608433,
+        "type": "GP"
+      },
+      {
+        "place": "UZHAVOOR GP",
+        "latitude": 9.791833,
+        "longitude": 76.610667,
+        "type": "GP"
+      },
+      {
+        "place": "UZHAVOOR BSNL",
+        "latitude": 9.791833,
+        "longitude": 76.610667,
+        "type": "GP"
+      },
+      {
+        "place": "UZHAVOOR BHQ",
+        "latitude": 9.769624,
+        "longitude": 76.568239,
+        "type": "BHQ"
+      }
+    ]
+  },
+  {
+    "state": "Kerala",
+    "state_code": "KL",
+    "serial_number": 58,
+    "district": "Palakkad",
+    "district_code": "dummy_code",
+    "district_address": "dummy_address",
+    "block": "ALATHUR",
+    "route": [
+      {
+        "place": "ALATHUR BHQ",
+        "latitude": 10.645495,
+        "longitude": 76.555332,
+        "type": "BHQ"
+      },
+      {
+        "place": "ALATHUR GP",
+        "latitude": 10.644604,
+        "longitude": 76.547783,
+        "type": "GP"
+      },
+      {
+        "place": "VADAKKANCHERI TP",
+        "latitude": 10.594072,
+        "longitude": 76.48176,
+        "type": "GP"
+      },
+      {
+        "place": "KANNAMBARA GP",
+        "latitude": 10.616883,
+        "longitude": 76.460455,
+        "type": "GP"
+      },
+      {
+        "place": "PUDUCODE GP",
+        "latitude": 10.63502358,
+        "longitude": 76.45015609,
+        "type": "GP"
+      },
+      {
+        "place": "TARUR GP",
+        "latitude": 10.670966,
+        "longitude": 76.472662,
+        "type": "GP"
+      },
+      {
+        "place": "KAVASERY GP",
+        "latitude": 10.655459,
+        "longitude": 76.511989,
+        "type": "GP"
+      },
+      {
+        "place": "ALATHUR BSNL",
+        "latitude": 10.648345,
+        "longitude": 76.543807,
+        "type": "GP"
+      },
+      {
+        "place": "ALATHUR BHQ TP",
+        "latitude": 10.645495,
+        "longitude": 76.555332,
+        "type": "GP"
+      },
+      {
+        "place": "KANNAMBARA TP",
+        "latitude": 10.594072,
+        "longitude": 76.48176,
+        "type": "GP"
+      },
+      {
+        "place": "VADAKKANCHERI GP",
+        "latitude": 10.592039,
+        "longitude": 76.483153,
+        "type": "GP"
+      },
+      {
+        "place": "ALATHUR BHQ",
+        "latitude": 10.645495,
+        "longitude": 76.555332,
+        "type": "BHQ"
+      }
+    ]
+  }
+]
