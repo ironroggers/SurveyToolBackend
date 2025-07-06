@@ -72,6 +72,28 @@ const fieldSchema = new mongoose.Schema({
   }
 }, { _id: true });
 
+const rowSchema = new mongoose.Schema({
+  rowOwnership: {
+    type: String,
+    trim: true
+  },
+  rowAuthority: {
+    type: String,
+  },
+  rowAuthorityName: {
+    type: String,
+  },
+  rowAuthorityAddress: {
+    type: String,
+  },
+  rowFeasibility: {
+    type: String,
+  },
+  others : {
+    type: Object,
+  }
+})
+
 // ContactPerson subdocument
 const contactPersonSchema = new mongoose.Schema({
   sdeName: {
@@ -181,6 +203,9 @@ const surveySchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
     required: [true, "Updater is required"]
+  },
+  rowSchema : {
+    type: mongoose.Schema.Types.ObjectId,
   },
   others: {
     type: mongoose.Schema.Types.Mixed
