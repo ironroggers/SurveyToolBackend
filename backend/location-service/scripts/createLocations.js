@@ -18,7 +18,7 @@ const createLocations = async () => {
     console.log("Connected to MongoDB successfully!");
 
     // Read the locations JSON file
-    const locationsPath = path.join(__dirname, "scripts", "locations.json");
+    const locationsPath = path.join(__dirname, "locations.json");
     const locationsData = JSON.parse(fs.readFileSync(locationsPath, "utf8"));
     console.log(`Read ${locationsData.length} locations from ${locationsPath}`);
 

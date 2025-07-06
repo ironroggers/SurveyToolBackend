@@ -1,0 +1,668 @@
+[{
+  "_id": {
+    "$oid": "68408db1a7e8ea346110f85e"
+  },
+  "district": "Hyderabad",
+  "block": "Parvath nagar",
+  "route": [
+    {
+      "place": "Home",
+      "latitude": 17.454138,
+      "longitude": 78.398463,
+      "type": "BHQ"
+    },
+    {
+      "place": "Main road",
+      "latitude": 17.454366,
+      "longitude": 78.397742,
+      "type": "GP"
+    },
+    {
+      "place": "Crossing",
+      "latitude": 17.451584,
+      "longitude": 78.396734,
+      "type": "GP"
+    },
+    {
+      "place": "Rd number 44",
+      "latitude": 17.452698,
+      "longitude": 78.39538,
+      "type": "GP"
+    },
+    {
+      "place": "Rd number 33",
+      "latitude": 17.453583,
+      "longitude": 78.394544,
+      "type": "GP"
+    },
+    {
+      "place": "Happening",
+      "latitude": 17.455346,
+      "longitude": 78.394719,
+      "type": "GP"
+    }
+  ],
+  "status": 4,
+  "updated_on": {
+    "$date": "2025-06-28T06:34:14.255Z"
+  },
+  "createdAt": {
+    "$date": "2025-05-07T09:50:44.992Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-28T06:34:14.255Z"
+  },
+  "__v": 0,
+  "assigned_to": {
+    "$oid": "68441d5c5561319a3d5a1d61"
+  },
+  "due_date": {
+    "$date": "2025-06-07T00:00:00.000Z"
+  },
+  "surveyor": {
+    "$oid": "68441d5c5561319a3d5a1d61"
+  },
+  "supervisor": {
+    "$oid": "68441cff5561319a3d5a1d5a"
+  },
+  "comments": "Add more OFC  Survey"
+},
+{
+  "_id": {
+    "$oid": "68442c07fd6401c594c4f6ce"
+  },
+  "district": "THIRUVANANTHAPURAM",
+  "block": "NEDUMANGAD",
+  "route": [
+    {
+      "place": "NEDUMANGAD BSNL EXCHANGE",
+      "latitude": 8.613094,
+      "longitude": 76.995858,
+      "type": "BHQ"
+    },
+    {
+      "place": "ANAD",
+      "latitude": 8.63354,
+      "longitude": 77.00932,
+      "type": "GP"
+    },
+    {
+      "place": "ARUVIKKARA",
+      "latitude": 8.57066,
+      "longitude": 77.01497,
+      "type": "GP"
+    },
+    {
+      "place": "KARAKULAM",
+      "latitude": 8.56262,
+      "longitude": 76.98318,
+      "type": "GP"
+    },
+    {
+      "place": "PANAVOOR",
+      "latitude": 8.66059,
+      "longitude": 76.98794,
+      "type": "GP"
+    },
+    {
+      "place": "VEMBAYAM",
+      "latitude": 8.61727,
+      "longitude": 76.93749,
+      "type": "GP"
+    },
+    {
+      "place": "Added Point 1750670160534",
+      "latitude": 8.650566865290912,
+      "longitude": 77.01871792448298,
+      "type": "others"
+    },
+    {
+      "place": "Added Point 1750670177785",
+      "latitude": 8.638003020105803,
+      "longitude": 77.0158706520243,
+      "type": "others"
+    }
+  ],
+  "status": 5,
+  "updated_on": {
+    "$date": "2025-06-23T09:16:18.247Z"
+  },
+  "createdAt": {
+    "$date": "2025-06-07T12:09:43.892Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-23T09:16:18.248Z"
+  },
+  "__v": 0,
+  "assigned_to": {
+    "$oid": "68441d5c5561319a3d5a1d61"
+  },
+  "due_date": {
+    "$date": "2025-06-07T00:00:00.000Z"
+  },
+  "supervisor": {
+    "$oid": "68441cff5561319a3d5a1d5a"
+  },
+  "surveyor": {
+    "$oid": "68441d5c5561319a3d5a1d61"
+  }
+},
+{
+  "_id": {
+    "$oid": "68443278fd6401c594c4f734"
+  },
+  "district": "THIRUVANANTHAPURAM",
+  "block": "KILIMANOOR",
+  "route": [
+    {
+      "place": "KARAVARAM",
+      "latitude": 8.75261,
+      "longitude": 76.8143,
+      "type": "GP"
+    },
+    {
+      "place": "KILIMANOOR",
+      "latitude": 8.77318,
+      "longitude": 76.85772,
+      "type": "GP"
+    },
+    {
+      "place": "MADAVOOR",
+      "latitude": 8.82411,
+      "longitude": 76.82041,
+      "type": "GP"
+    },
+    {
+      "place": "NAGAROOR",
+      "latitude": 8.75497,
+      "longitude": 76.85788,
+      "type": "GP"
+    },
+    {
+      "place": "NAVAIKULAM",
+      "latitude": 8.77684,
+      "longitude": 76.7862,
+      "type": "GP"
+    },
+    {
+      "place": "PALLICKAL",
+      "latitude": 8.82411,
+      "longitude": 76.80989,
+      "type": "GP"
+    },
+    {
+      "place": "PAZHAYAKUNNUMMEL",
+      "latitude": 8.77334,
+      "longitude": 76.88062,
+      "type": "GP"
+    },
+    {
+      "place": "PULIMATH",
+      "latitude": 8.73153,
+      "longitude": 76.89803,
+      "type": "GP"
+    },
+    {
+      "place": "KILIMANOOR TE",
+      "latitude": 8.766098,
+      "longitude": 76.875047,
+      "type": "BHQ"
+    }
+  ],
+  "status": 4,
+  "updated_on": {
+    "$date": "2025-06-26T06:45:08.375Z"
+  },
+  "createdAt": {
+    "$date": "2025-06-07T12:37:12.248Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-26T06:45:08.376Z"
+  },
+  "__v": 0,
+  "assigned_to": {
+    "$oid": "68441d5c5561319a3d5a1d61"
+  },
+  "due_date": {
+    "$date": "2025-06-11T00:00:00.000Z"
+  },
+  "supervisor": {
+    "$oid": "68441cff5561319a3d5a1d5a"
+  },
+  "surveyor": {
+    "$oid": "68441d5c5561319a3d5a1d61"
+  }
+},
+{
+  "_id": {
+    "$oid": "68485a2cfd6401c594c4ff1f"
+  },
+  "district": "abc",
+  "block": "a",
+  "route": [
+    {
+      "place": "m",
+      "latitude": 8.5241,
+      "longitude": 76.9366,
+      "type": "GP"
+    },
+    {
+      "place": "lulu",
+      "latitude": 8.51528,
+      "longitude": 76.89861,
+      "type": "BHQ"
+    },
+    {
+      "place": "Added Point 1750575265384",
+      "latitude": 8.513965844534512,
+      "longitude": 76.92743469848637,
+      "type": "others"
+    },
+    {
+      "place": "Added Point 1751009607137",
+      "latitude": 8.518789135223406,
+      "longitude": 76.92412926487567,
+      "type": "others"
+    },
+    {
+      "place": "Added Point 1751009635644",
+      "latitude": 8.516044231861963,
+      "longitude": 76.93382081015517,
+      "type": "others"
+    }
+  ],
+  "status": 2,
+  "updated_on": {
+    "$date": "2025-06-27T07:33:56.028Z"
+  },
+  "createdAt": {
+    "$date": "2025-06-10T16:15:40.108Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-27T07:33:56.028Z"
+  },
+  "__v": 0,
+  "assigned_to": {
+    "$oid": "68406f755561319a3d5a1ae6"
+  },
+  "due_date": {
+    "$date": "2025-06-23T00:00:00.000Z"
+  },
+  "supervisor": {
+    "$oid": "68406f025561319a3d5a1adf"
+  },
+  "surveyor": {
+    "$oid": "68406f755561319a3d5a1ae6"
+  }
+},
+{
+  "_id": {
+    "$oid": "685654655edbc15b5524c3ce"
+  },
+  "district": "Kolkata",
+  "block": "Dharmatala",
+  "route": [
+    {
+      "place": "PNP Office",
+      "latitude": 22.516111,
+      "longitude": 88.392462,
+      "type": "BHQ"
+    },
+    {
+      "place": "Sarat Park",
+      "latitude": 22.51791,
+      "longitude": 88.391881,
+      "type": "GP"
+    },
+    {
+      "place": "Rashbehari",
+      "latitude": 22.514499,
+      "longitude": 88.392767,
+      "type": "GP"
+    },
+    {
+      "place": "Dindli Basti",
+      "latitude": 22.514858,
+      "longitude": 88.390334,
+      "type": "GP"
+    },
+    {
+      "place": "A34",
+      "latitude": 22.516758,
+      "longitude": 88.390184,
+      "type": "GP"
+    },
+    {
+      "place": "Rajdanga",
+      "latitude": 22.517888,
+      "longitude": 88.393278,
+      "type": "GP"
+    },
+    {
+      "place": "Added Point 1750578854768",
+      "latitude": 22.51770601741968,
+      "longitude": 88.39458487039182,
+      "type": "others"
+    },
+    {
+      "place": "Added Point 1751010079508",
+      "latitude": 22.5161186907159,
+      "longitude": 88.3942512921818,
+      "type": "others"
+    },
+    {
+      "place": "Added Point 1751010104832",
+      "latitude": 22.512838475179194,
+      "longitude": 88.39523790530137,
+      "type": "others"
+    },
+    {
+      "place": "Added Point 1751010124846",
+      "latitude": 22.51316267437144,
+      "longitude": 88.3900678465961,
+      "type": "others"
+    },
+    {
+      "place": "Added Point 1751010139247",
+      "latitude": 22.51737341601139,
+      "longitude": 88.38750849731447,
+      "type": "others"
+    }
+  ],
+  "status": 5,
+  "updated_on": {
+    "$date": "2025-06-27T07:42:19.700Z"
+  },
+  "createdAt": {
+    "$date": "2025-06-21T06:42:45.322Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-27T07:42:19.700Z"
+  },
+  "__v": 0,
+  "assigned_to": {
+    "$oid": "68406f755561319a3d5a1ae6"
+  },
+  "due_date": {
+    "$date": "2025-06-21T00:00:00.000Z"
+  },
+  "supervisor": {
+    "$oid": "68406f025561319a3d5a1adf"
+  },
+  "surveyor": {
+    "$oid": "68406f755561319a3d5a1ae6"
+  },
+  "comments": "Change the survey names properly."
+},
+{
+  "_id": {
+    "$oid": "68580813cd8145e02e3b5e0f"
+  },
+  "district": "Kolkata",
+  "block": "Nirmala Apartment",
+  "route": [
+    {
+      "place": "PNP Home",
+      "latitude": 22.522067,
+      "longitude": 88.386153,
+      "type": "BHQ"
+    },
+    {
+      "place": "GP1",
+      "latitude": 22.521799,
+      "longitude": 88.385613,
+      "type": "GP"
+    },
+    {
+      "place": "GP2",
+      "latitude": 22.521256,
+      "longitude": 88.385629,
+      "type": "GP"
+    },
+    {
+      "place": "GP3",
+      "latitude": 22.52166,
+      "longitude": 88.38626,
+      "type": "GP"
+    }
+  ],
+  "status": 3,
+  "updated_on": {
+    "$date": "2025-06-23T03:31:17.003Z"
+  },
+  "createdAt": {
+    "$date": "2025-06-22T13:41:39.389Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-23T03:31:17.004Z"
+  },
+  "__v": 0,
+  "assigned_to": {
+    "$oid": "68406f755561319a3d5a1ae6"
+  },
+  "due_date": {
+    "$date": "2025-06-22T00:00:00.000Z"
+  },
+  "supervisor": {
+    "$oid": "68406f025561319a3d5a1adf"
+  },
+  "surveyor": {
+    "$oid": "68406f755561319a3d5a1ae6"
+  }
+},
+{
+  "_id": {
+    "$oid": "685ceececd8145e02e3b663a"
+  },
+  "district": "ALAPPUZHA",
+  "block": "AMBALAPUZHA",
+  "route": [
+    {
+      "place": "AMBALAPUZHA EXCHANGE",
+      "latitude": 9.38293,
+      "longitude": 76.35572,
+      "type": "BHQ"
+    },
+    {
+      "place": "AMBALAPPUZHA ( NORTH )",
+      "latitude": 9.406471,
+      "longitude": 76.351239,
+      "type": "GP"
+    },
+    {
+      "place": "AMBALAPPUZHA(SOUTH)",
+      "latitude": 9.383151,
+      "longitude": 76.355935,
+      "type": "GP"
+    },
+    {
+      "place": "PUNNAPRA (NORTH)",
+      "latitude": 9.451026,
+      "longitude": 76.342258,
+      "type": "GP"
+    },
+    {
+      "place": "PUNNAPRA(SOUTH)",
+      "latitude": 9.43257,
+      "longitude": 76.345147,
+      "type": "GP"
+    },
+    {
+      "place": "PURAKKAD",
+      "latitude": 9.353287,
+      "longitude": 76.365585,
+      "type": "GP"
+    },
+    {
+      "place": "FPOI",
+      "latitude": 9.382788,
+      "longitude": 76.355816,
+      "type": "others"
+    },
+    {
+      "place": "FPOI",
+      "latitude": 9.452594,
+      "longitude": 76.341264,
+      "type": "others"
+    },
+    {
+      "place": "FPOI",
+      "latitude": 9.436428,
+      "longitude": 76.344446,
+      "type": "others"
+    },
+    {
+      "place": "FPOI",
+      "latitude": 9.34602867,
+      "longitude": 76.36854114,
+      "type": "others"
+    }
+  ],
+  "status": 1,
+  "updated_on": {
+    "$date": "2025-06-26T06:57:05.542Z"
+  },
+  "createdAt": {
+    "$date": "2025-06-26T06:55:10.933Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-26T06:57:05.544Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "685cf9becd8145e02e3b6651"
+  },
+  "district": "PATHANAMTHITTA",
+  "block": "KONNI",
+  "route": [
+    {
+      "place": "KONNI EXCHANGE",
+      "latitude": 9.228053,
+      "longitude": 76.851663,
+      "type": "BHQ"
+    },
+    {
+      "place": "KONNI",
+      "latitude": 9.227813,
+      "longitude": 76.851394,
+      "type": "GP"
+    },
+    {
+      "place": "MALAYALAPUZHA",
+      "latitude": 9.288524,
+      "longitude": 76.822553,
+      "type": "GP"
+    },
+    {
+      "place": "ARUVAPULAM",
+      "latitude": 9.209971,
+      "longitude": 76.872704,
+      "type": "GP"
+    },
+    {
+      "place": "MYLAPRA",
+      "latitude": 9.290823,
+      "longitude": 76.798154,
+      "type": "GP"
+    },
+    {
+      "place": "PRAMADOM",
+      "latitude": 9.227124,
+      "longitude": 76.817224,
+      "type": "GP"
+    },
+    {
+      "place": "THANNITHODU",
+      "latitude": 9.272955,
+      "longitude": 76.928493,
+      "type": "GP"
+    },
+    {
+      "place": "VALLICODE",
+      "latitude": 9.22108349,
+      "longitude": 76.78064336,
+      "type": "GP"
+    }
+  ],
+  "status": 3,
+  "updated_on": {
+    "$date": "2025-06-27T10:23:12.214Z"
+  },
+  "createdAt": {
+    "$date": "2025-06-26T07:41:50.567Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-27T10:23:12.215Z"
+  },
+  "__v": 0,
+  "assigned_to": {
+    "$oid": "685e33cfa495ef1701f7d6c8"
+  },
+  "due_date": {
+    "$date": "2025-06-27T00:00:00.000Z"
+  },
+  "supervisor": {
+    "$oid": "68406f025561319a3d5a1adf"
+  },
+  "surveyor": {
+    "$oid": "685e33cfa495ef1701f7d6c8"
+  }
+},
+{
+  "_id": {
+    "$oid": "685fae41cd8145e02e3b6c39"
+  },
+  "district": "THIRUVANANTHAPURAM",
+  "block": "BharatNet BSNL",
+  "route": [
+    {
+      "place": "Medical college Exg",
+      "latitude": 8.522077962543081,
+      "longitude": 76.93111433800135,
+      "type": "GP"
+    },
+    {
+      "place": "CGMT Office",
+      "latitude": 8.510143754128812,
+      "longitude": 76.94799237748107,
+      "type": "BHQ"
+    },
+    {
+      "place": "CTO Statue",
+      "latitude": 8.49699715030878,
+      "longitude": 76.94952046148745,
+      "type": "GP"
+    },
+    {
+      "place": "Kaithamukku Exg",
+      "latitude": 8.490023319270295,
+      "longitude": 76.9326073573557,
+      "type": "GP"
+    }
+  ],
+  "status": 5,
+  "updated_on": {
+    "$date": "2025-06-28T11:57:07.250Z"
+  },
+  "createdAt": {
+    "$date": "2025-06-28T08:56:33.221Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-28T11:57:07.251Z"
+  },
+  "__v": 0,
+  "assigned_to": {
+    "$oid": "68441d5c5561319a3d5a1d61"
+  },
+  "due_date": {
+    "$date": "2025-06-29T00:00:00.000Z"
+  },
+  "supervisor": {
+    "$oid": "685f8bbaa495ef1701f7d6ec"
+  },
+  "surveyor": {
+    "$oid": "68441d5c5561319a3d5a1d61"
+  }
+}]

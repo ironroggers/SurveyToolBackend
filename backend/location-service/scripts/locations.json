@@ -2,10 +2,9 @@
   {
     "state": "Kerala",
     "state_code": "KL",
-    "serial_number": 1,
     "district": "ALAPPUZHA",
     "district_code": "dummy_code",
-    "district_address": "dummy_address",
+    "block_address": "dummy_address",
     "block": "HARIPPAD",
     "route": [
       {
@@ -79,10 +78,9 @@
   {
     "state": "Kerala",
     "state_code": "KL",
-    "serial_number": 2,
     "district": "Alappuzha",
     "district_code": "dummy_code",
-    "district_address": "dummy_address",
+    "block_address": "dummy_address",
     "block": "MUTHUKULAM",
     "route": [
       {
@@ -138,10 +136,9 @@
   {
     "state": "Kerala",
     "state_code": "KL",
-    "serial_number": 3,
     "district": "Ernakulam",
     "district_code": "dummy_code",
-    "district_address": "dummy_address",
+    "block_address": "dummy_address",
     "block": "EDAPPALLY",
     "route": [
       {
@@ -191,10 +188,9 @@
   {
     "state": "Kerala",
     "state_code": "KL",
-    "serial_number": 4,
     "district": "Ernakulam",
     "district_code": "dummy_code",
-    "district_address": "dummy_address",
+    "block_address": "dummy_address",
     "block": "PALLURUTHY",
     "route": [
       {
@@ -244,10 +240,9 @@
   {
     "state": "Kerala",
     "state_code": "KL",
-    "serial_number": 5,
     "district": "Ernakulam",
     "district_code": "dummy_code",
-    "district_address": "dummy_address",
+    "block_address": "dummy_address",
     "block": "PARAVUR",
     "route": [
       {
@@ -303,10 +298,9 @@
   {
     "state": "Kerala",
     "state_code": "KL",
-    "serial_number": 6,
     "district": "Ernakulam",
     "district_code": "dummy_code",
-    "district_address": "dummy_address",
+    "block_address": "dummy_address",
     "block": "VYPEEN",
     "route": [
       {
@@ -356,10 +350,9 @@
   {
     "state": "Kerala",
     "state_code": "KL",
-    "serial_number": 7,
     "district": "Kannur",
     "district_code": "dummy_code",
-    "district_address": "dummy_address",
+    "block_address": "dummy_address",
     "block": "KANNUR",
     "route": [
       {
@@ -421,10 +414,9 @@
   {
     "state": "Kerala",
     "state_code": "KL",
-    "serial_number": 8,
     "district": "Kollam",
     "district_code": "dummy_code",
-    "district_address": "dummy_address",
+    "block_address": "dummy_address",
     "block": "CHAVARA",
     "route": [
       {
@@ -480,10 +472,9 @@
   {
     "state": "Kerala",
     "state_code": "KL",
-    "serial_number": 9,
     "district": "Kollam",
     "district_code": "dummy_code",
-    "district_address": "dummy_address",
+    "block_address": "dummy_address",
     "block": "CHITTUMALA",
     "route": [
       {
@@ -557,10 +548,9 @@
   {
     "state": "Kerala",
     "state_code": "KL",
-    "serial_number": 10,
     "district": "Kollam",
     "district_code": "dummy_code",
-    "district_address": "dummy_address",
+    "block_address": "dummy_address",
     "block": "MUKHATHALA",
     "route": [
       {
@@ -622,10 +612,9 @@
   {
     "state": "Kerala",
     "state_code": "KL",
-    "serial_number": 11,
     "district": "Kollam",
     "district_code": "dummy_code",
-    "district_address": "dummy_address",
+    "block_address": "dummy_address",
     "block": "SASTHAMCOTTAH",
     "route": [
       {
@@ -693,10 +682,9 @@
   {
     "state": "Kerala",
     "state_code": "KL",
-    "serial_number": 12,
     "district": "Malappuram",
     "district_code": "dummy_code",
-    "district_address": "dummy_address",
+    "block_address": "dummy_address",
     "block": "PONNANI",
     "route": [
       {
@@ -752,10 +740,9 @@
   {
     "state": "Kerala",
     "state_code": "KL",
-    "serial_number": 13,
     "district": "Malappuram",
     "district_code": "dummy_code",
-    "district_address": "dummy_address",
+    "block_address": "dummy_address",
     "block": "TANUR",
     "route": [
       {
@@ -841,10 +828,9 @@
   {
     "state": "Kerala",
     "state_code": "KL",
-    "serial_number": 14,
     "district": "Malappuram",
     "district_code": "dummy_code",
-    "district_address": "dummy_address",
+    "block_address": "dummy_address",
     "block": "VENGARA",
     "route": [
       {
@@ -924,10 +910,9 @@
   {
     "state": "Kerala",
     "state_code": "KL",
-    "serial_number": 15,
     "district": "Thrissur",
     "district_code": "dummy_code",
-    "district_address": "dummy_address",
+    "block_address": "dummy_address",
     "block": "CHERPU",
     "route": [
       {
@@ -977,10 +962,9 @@
   {
     "state": "Kerala",
     "state_code": "KL",
-    "serial_number": 16,
     "district": "Thrissur",
     "district_code": "dummy_code",
-    "district_address": "dummy_address",
+    "block_address": "dummy_address",
     "block": "MULLASSERY",
     "route": [
       {
@@ -1036,10 +1020,9 @@
   {
     "state": "Kerala",
     "state_code": "KL",
-    "serial_number": 17,
     "district": "Thrissur",
     "district_code": "dummy_code",
-    "district_address": "dummy_address",
+    "block_address": "dummy_address",
     "block": "PUZHAKKAL",
     "route": [
       {
@@ -1101,10 +1084,9 @@
   {
     "state": "Kerala",
     "state_code": "KL",
-    "serial_number": 18,
     "district": "Thrissur",
     "district_code": "dummy_code",
-    "district_address": "dummy_address",
+    "block_address": "dummy_address",
     "block": "VELLANGALLUR",
     "route": [
       {
@@ -1166,10 +1148,9 @@
   {
     "state": "Kerala",
     "state_code": "KL",
-    "serial_number": 19,
     "district": "Idukki",
     "district_code": "dummy_code",
-    "district_address": "dummy_address",
+    "block_address": "dummy_address",
     "block": "ELEMDESAM",
     "route": [
       {
@@ -1237,10 +1218,9 @@
   {
     "state": "Kerala",
     "state_code": "KL",
-    "serial_number": 20,
     "district": "Idukki",
     "district_code": "dummy_code",
-    "district_address": "dummy_address",
+    "block_address": "dummy_address",
     "block": "NEDUMKANDOM",
     "route": [
       {
@@ -1308,10 +1288,9 @@
   {
     "state": "Kerala",
     "state_code": "KL",
-    "serial_number": 21,
     "district": "Idukki",
     "district_code": "dummy_code",
-    "district_address": "dummy_address",
+    "block_address": "dummy_address",
     "block": "THODUPUZHA",
     "route": [
       {
@@ -1373,10 +1352,9 @@
   {
     "state": "Kerala",
     "state_code": "KL",
-    "serial_number": 22,
     "district": "Kannur",
     "district_code": "dummy_code",
-    "district_address": "dummy_address",
+    "block_address": "dummy_address",
     "block": "IRITTY",
     "route": [
       {
@@ -1450,10 +1428,9 @@
   {
     "state": "Kerala",
     "state_code": "KL",
-    "serial_number": 23,
     "district": "Kannur",
     "district_code": "dummy_code",
-    "district_address": "dummy_address",
+    "block_address": "dummy_address",
     "block": "PAYYANNUR",
     "route": [
       {
@@ -1521,10 +1498,9 @@
   {
     "state": "Kerala",
     "state_code": "KL",
-    "serial_number": 24,
     "district": "Ernakulam",
     "district_code": "dummy_code",
-    "district_address": "dummy_address",
+    "block_address": "dummy_address",
     "block": "ALANGAD",
     "route": [
       {
@@ -1574,10 +1550,9 @@
   {
     "state": "Kerala",
     "state_code": "KL",
-    "serial_number": 25,
     "district": "Ernakulam",
     "district_code": "dummy_code",
-    "district_address": "dummy_address",
+    "block_address": "dummy_address",
     "block": "KOOVAPPADY",
     "route": [
       {
@@ -1639,10 +1614,9 @@
   {
     "state": "Kerala",
     "state_code": "KL",
-    "serial_number": 26,
     "district": "Ernakulam",
     "district_code": "dummy_code",
-    "district_address": "dummy_address",
+    "block_address": "dummy_address",
     "block": "KOTHAMANGALAM",
     "route": [
       {
@@ -1728,10 +1702,9 @@
   {
     "state": "Kerala",
     "state_code": "KL",
-    "serial_number": 27,
     "district": "Ernakulam",
     "district_code": "dummy_code",
-    "district_address": "dummy_address",
+    "block_address": "dummy_address",
     "block": "MUVATTUPUZHA",
     "route": [
       {
@@ -1805,10 +1778,9 @@
   {
     "state": "Kerala",
     "state_code": "KL",
-    "serial_number": 28,
     "district": "Kannur",
     "district_code": "dummy_code",
-    "district_address": "dummy_address",
+    "block_address": "dummy_address",
     "block": "IRIKKUR",
     "route": [
       {
@@ -1888,10 +1860,9 @@
   {
     "state": "Kerala",
     "state_code": "KL",
-    "serial_number": 29,
     "district": "Kottayam",
     "district_code": "dummy_code",
-    "district_address": "dummy_address",
+    "block_address": "dummy_address",
     "block": "KADUTHURUTHY",
     "route": [
       {
@@ -2001,10 +1972,9 @@
   {
     "state": "Kerala",
     "state_code": "KL",
-    "serial_number": 30,
     "district": "Kozhikode",
     "district_code": "dummy_code",
-    "district_address": "dummy_address",
+    "block_address": "dummy_address",
     "block": "BALUSSERI",
     "route": [
       {
@@ -2072,10 +2042,9 @@
   {
     "state": "Kerala",
     "state_code": "KL",
-    "serial_number": 31,
     "district": "Palakkad",
     "district_code": "dummy_code",
-    "district_address": "dummy_address",
+    "block_address": "dummy_address",
     "block": "CHITTUR",
     "route": [
       {
@@ -2143,10 +2112,9 @@
   {
     "state": "Kerala",
     "state_code": "KL",
-    "serial_number": 32,
     "district": "Thrissur",
     "district_code": "dummy_code",
-    "district_address": "dummy_address",
+    "block_address": "dummy_address",
     "block": "CHALAKKUDY",
     "route": [
       {
@@ -2208,10 +2176,9 @@
   {
     "state": "Kerala",
     "state_code": "KL",
-    "serial_number": 33,
     "district": "Kannur",
     "district_code": "dummy_code",
-    "district_address": "dummy_address",
+    "block_address": "dummy_address",
     "block": "EDAKKAD",
     "route": [
       {
@@ -2285,10 +2252,9 @@
   {
     "state": "Kerala",
     "state_code": "KL",
-    "serial_number": 34,
     "district": "Kollam",
     "district_code": "dummy_code",
-    "district_address": "dummy_address",
+    "block_address": "dummy_address",
     "block": "ANCHAL",
     "route": [
       {
@@ -2362,10 +2328,9 @@
   {
     "state": "Kerala",
     "state_code": "KL",
-    "serial_number": 35,
     "district": "Kollam",
     "district_code": "dummy_code",
-    "district_address": "dummy_address",
+    "block_address": "dummy_address",
     "block": "CHADAYAMANGALAM",
     "route": [
       {
@@ -2439,10 +2404,9 @@
   {
     "state": "Kerala",
     "state_code": "KL",
-    "serial_number": 36,
     "district": "Kottayam",
     "district_code": "dummy_code",
-    "district_address": "dummy_address",
+    "block_address": "dummy_address",
     "block": "ETTUMANOOR",
     "route": [
       {
@@ -2510,10 +2474,9 @@
   {
     "state": "Kerala",
     "state_code": "KL",
-    "serial_number": 37,
     "district": "Kozhikode",
     "district_code": "dummy_code",
-    "district_address": "dummy_address",
+    "block_address": "dummy_address",
     "block": "CHELANNUR",
     "route": [
       {
@@ -2581,10 +2544,9 @@
   {
     "state": "Kerala",
     "state_code": "KL",
-    "serial_number": 38,
     "district": "Malappuram",
     "district_code": "dummy_code",
-    "district_address": "dummy_address",
+    "block_address": "dummy_address",
     "block": "AREAKODE",
     "route": [
       {
@@ -2658,10 +2620,9 @@
   {
     "state": "Kerala",
     "state_code": "KL",
-    "serial_number": 39,
     "district": "Pathanamthitta",
     "district_code": "dummy_code",
-    "district_address": "dummy_address",
+    "block_address": "dummy_address",
     "block": "ELANTHOOR",
     "route": [
       {
@@ -2729,10 +2690,9 @@
   {
     "state": "Kerala",
     "state_code": "KL",
-    "serial_number": 40,
     "district": "Trivandrum",
     "district_code": "dummy_code",
-    "district_address": "dummy_address",
+    "block_address": "dummy_address",
     "block": "ATHIYANNOOR",
     "route": [
       {
@@ -2788,10 +2748,9 @@
   {
     "state": "Kerala",
     "state_code": "KL",
-    "serial_number": 41,
     "district": "Alappuzha",
     "district_code": "dummy_code",
-    "district_address": "dummy_address",
+    "block_address": "dummy_address",
     "block": "AMBALAPPUZHA",
     "route": [
       {
@@ -2841,10 +2800,9 @@
   {
     "state": "Kerala",
     "state_code": "KL",
-    "serial_number": 42,
     "district": "Alappuzha",
     "district_code": "dummy_code",
-    "district_address": "dummy_address",
+    "block_address": "dummy_address",
     "block": "ARYAD",
     "route": [
       {
@@ -2894,10 +2852,9 @@
   {
     "state": "Kerala",
     "state_code": "KL",
-    "serial_number": 43,
     "district": "Alappuzha",
     "district_code": "dummy_code",
-    "district_address": "dummy_address",
+    "block_address": "dummy_address",
     "block": "BHARANICAVU",
     "route": [
       {
@@ -2959,10 +2916,9 @@
   {
     "state": "Kerala",
     "state_code": "KL",
-    "serial_number": 44,
     "district": "Alappuzha",
     "district_code": "dummy_code",
-    "district_address": "dummy_address",
+    "block_address": "dummy_address",
     "block": "KANJIKKUZHY",
     "route": [
       {
@@ -3024,10 +2980,9 @@
   {
     "state": "Kerala",
     "state_code": "KL",
-    "serial_number": 45,
     "district": "Alappuzha",
     "district_code": "dummy_code",
-    "district_address": "dummy_address",
+    "block_address": "dummy_address",
     "block": "PATTANAKKAD",
     "route": [
       {
@@ -3107,10 +3062,9 @@
   {
     "state": "Kerala",
     "state_code": "KL",
-    "serial_number": 46,
     "district": "Alappuzha",
     "district_code": "dummy_code",
-    "district_address": "dummy_address",
+    "block_address": "dummy_address",
     "block": "THYCATTUSSERY",
     "route": [
       {
@@ -3160,10 +3114,9 @@
   {
     "state": "Kerala",
     "state_code": "KL",
-    "serial_number": 47,
     "district": "Alappuzha",
     "district_code": "dummy_code",
-    "district_address": "dummy_address",
+    "block_address": "dummy_address",
     "block": "VELIYANAD",
     "route": [
       {
@@ -3219,10 +3172,9 @@
   {
     "state": "Kerala",
     "state_code": "KL",
-    "serial_number": 48,
     "district": "Ernakulam",
     "district_code": "dummy_code",
-    "district_address": "dummy_address",
+    "block_address": "dummy_address",
     "block": "ANGAMALI",
     "route": [
       {
@@ -3296,10 +3248,9 @@
   {
     "state": "Kerala",
     "state_code": "KL",
-    "serial_number": 49,
     "district": "Ernakulam",
     "district_code": "dummy_code",
-    "district_address": "dummy_address",
+    "block_address": "dummy_address",
     "block": "MULANTHURUTHY",
     "route": [
       {
@@ -3361,10 +3312,9 @@
   {
     "state": "Kerala",
     "state_code": "KL",
-    "serial_number": 50,
     "district": "Kannur",
     "district_code": "dummy_code",
-    "district_address": "dummy_address",
+    "block_address": "dummy_address",
     "block": "PANOOR",
     "route": [
       {
@@ -3450,10 +3400,9 @@
   {
     "state": "Kerala",
     "state_code": "KL",
-    "serial_number": 51,
     "district": "Kollam",
     "district_code": "dummy_code",
-    "district_address": "dummy_address",
+    "block_address": "dummy_address",
     "block": "ITHIKKARA",
     "route": [
       {
@@ -3509,10 +3458,9 @@
   {
     "state": "Kerala",
     "state_code": "KL",
-    "serial_number": 52,
     "district": "Kollam",
     "district_code": "dummy_code",
-    "district_address": "dummy_address",
+    "block_address": "dummy_address",
     "block": "KOTTARAKKARA",
     "route": [
       {
@@ -3580,10 +3528,9 @@
   {
     "state": "Kerala",
     "state_code": "KL",
-    "serial_number": 53,
     "district": "Kasargod",
     "district_code": "dummy_code",
-    "district_address": "dummy_address",
+    "block_address": "dummy_address",
     "block": "NILESHWAR",
     "route": [
       {
@@ -3645,10 +3592,9 @@
   {
     "state": "Kerala",
     "state_code": "KL",
-    "serial_number": 55,
     "district": "Kottayam",
     "district_code": "dummy_code",
-    "district_address": "dummy_address",
+    "block_address": "dummy_address",
     "block": "KANJIRAPPALLY",
     "route": [
       {
@@ -3716,10 +3662,9 @@
   {
     "state": "Kerala",
     "state_code": "KL",
-    "serial_number": 56,
     "district": "Kottayam",
     "district_code": "dummy_code",
-    "district_address": "dummy_address",
+    "block_address": "dummy_address",
     "block": "PALLOM",
     "route": [
       {
@@ -3775,10 +3720,9 @@
   {
     "state": "Kerala",
     "state_code": "KL",
-    "serial_number": 57,
     "district": "Kottayam",
     "district_code": "dummy_code",
-    "district_address": "dummy_address",
+    "block_address": "dummy_address",
     "block": "UZHAVOOR",
     "route": [
       {
@@ -3852,10 +3796,9 @@
   {
     "state": "Kerala",
     "state_code": "KL",
-    "serial_number": 58,
     "district": "Palakkad",
     "district_code": "dummy_code",
-    "district_address": "dummy_address",
+    "block_address": "dummy_address",
     "block": "ALATHUR",
     "route": [
       {
