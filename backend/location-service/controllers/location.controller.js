@@ -6,15 +6,18 @@ import { BadRequestError, NotFoundError } from "../utils/errors.js";
 export const createLocation = async (req, res, next) => {
   try {
     console.log("Create Location - Request Body:", JSON.stringify(req.body));
-    
+
     const locationData = {
       ...req.body,
       status: req.body.status || 1, // Default to "Released" if not provided
-      updated_on: new Date()
+      updated_on: new Date(),
     };
-    
-    console.log("Create Location - Processed Data:", JSON.stringify(locationData));
-    
+
+    console.log(
+      "Create Location - Processed Data:",
+      JSON.stringify(locationData)
+    );
+
     try {
       const location = await Location.create(locationData);
       console.log("Location created successfully:", location._id);
@@ -36,31 +39,31 @@ export const createLocation = async (req, res, next) => {
 // Get all locations with filtering and pagination
 export const getLocations = async (req, res, next) => {
   try {
-    const { 
-      page = 1, 
-      limit = 10, 
-      district, 
-      block, 
-      status, 
-      assigned_to, 
-      surveyor, 
+    const {
+      page = 1,
+      limit = 10,
+      district,
+      block,
+      status,
+      assigned_to,
+      surveyor,
       supervisor,
-      search 
+      search,
     } = req.query;
-    
+
     const query = {};
 
     // Basic filters
-    if (district) query.district = { $regex: district, $options: 'i' };
-    if (block) query.block = { $regex: block, $options: 'i' };
+    if (district) query.district = { $regex: district, $options: "i" };
+    if (block) query.block = { $regex: block, $options: "i" };
     if (assigned_to) query.assigned_to = assigned_to;
     if (surveyor) query.surveyor = surveyor;
     if (supervisor) query.supervisor = supervisor;
-    
+
     // Handle status filter
     if (status) {
-      if (status.includes(',')) {
-        const statusArray = status.split(',').map(s => parseInt(s.trim()));
+      if (status.includes(",")) {
+        const statusArray = status.split(",").map((s) => parseInt(s.trim()));
         query.status = { $in: statusArray };
       } else {
         query.status = parseInt(status);
@@ -70,11 +73,11 @@ export const getLocations = async (req, res, next) => {
     // Search functionality
     if (search) {
       query.$or = [
-        { district: { $regex: search, $options: 'i' } },
-        { block: { $regex: search, $options: 'i' } },
-        { 'route.place': { $regex: search, $options: 'i' } },
-        { 'route.type': { $regex: search, $options: 'i' } },
-        { comments: { $regex: search, $options: 'i' } }
+        { district: { $regex: search, $options: "i" } },
+        { block: { $regex: search, $options: "i" } },
+        { "route.place": { $regex: search, $options: "i" } },
+        { "route.type": { $regex: search, $options: "i" } },
+        { comments: { $regex: search, $options: "i" } },
       ];
     }
 
@@ -83,19 +86,19 @@ export const getLocations = async (req, res, next) => {
       limit: parseInt(limit),
       sort: { createdAt: -1 },
       populate: [
-        { path: 'assigned_to', select: 'name email' },
-        { path: 'surveyor', select: 'name email' },
-        { path: 'supervisor', select: 'name email' }
-      ]
+        { path: "assigned_to", select: "name email" },
+        { path: "surveyor", select: "name email" },
+        { path: "supervisor", select: "name email" },
+      ],
     };
 
     const locations = await Location.find(query)
-      .skip((parseInt(page) - 1) * parseInt(limit))
-      .limit(parseInt(limit))
+      // .skip((parseInt(page) - 1) * parseInt(limit))
+      // .limit(parseInt(limit))
       .sort({ createdAt: -1 })
-      .populate('assigned_to', 'name email')
-      .populate('surveyor', 'name email')
-      .populate('supervisor', 'name email');
+      .populate("assigned_to", "name email")
+      .populate("surveyor", "name email")
+      .populate("supervisor", "name email");
 
     const count = await Location.countDocuments(query);
 
@@ -104,7 +107,7 @@ export const getLocations = async (req, res, next) => {
       data: locations,
       totalPages: Math.ceil(count / limit),
       currentPage: parseInt(page),
-      total: count
+      total: count,
     });
   } catch (error) {
     console.error("Get Locations Error:", error);
@@ -116,9 +119,9 @@ export const getLocations = async (req, res, next) => {
 export const getLocationById = async (req, res, next) => {
   try {
     const location = await Location.findById(req.params.id)
-      .populate('assigned_to', 'name email')
-      .populate('surveyor', 'name email')
-      .populate('supervisor', 'name email');
+      .populate("assigned_to", "name email")
+      .populate("surveyor", "name email")
+      .populate("supervisor", "name email");
 
     if (!location) {
       throw new NotFoundError("Location not found");
@@ -137,10 +140,18 @@ export const getLocationById = async (req, res, next) => {
 // Update location
 export const updateLocation = async (req, res, next) => {
   try {
-    const { status, surveyor, assigned_to, supervisor, due_date, comments, route } = req.body;
-    
+    const {
+      status,
+      surveyor,
+      assigned_to,
+      supervisor,
+      due_date,
+      comments,
+      route,
+    } = req.body;
+
     const updateData = {
-      updated_on: new Date()
+      updated_on: new Date(),
     };
 
     // Add fields only if provided
@@ -154,14 +165,18 @@ export const updateLocation = async (req, res, next) => {
       console.log("Updating route with data:", JSON.stringify(route));
       updateData.route = route;
     }
-    
 
-    const location = await Location.findByIdAndUpdate(req.params.id, updateData, {
-      new: true,
-      runValidators: true,
-    }).populate('assigned_to', 'name email')
-      .populate('surveyor', 'name email')
-      .populate('supervisor', 'name email');
+    const location = await Location.findByIdAndUpdate(
+      req.params.id,
+      updateData,
+      {
+        new: true,
+        runValidators: true,
+      }
+    )
+      .populate("assigned_to", "name email")
+      .populate("surveyor", "name email")
+      .populate("supervisor", "name email");
 
     if (!location) {
       throw new NotFoundError("Location not found");
@@ -200,7 +215,7 @@ export const deleteLocation = async (req, res, next) => {
 export const assignLocation = async (req, res, next) => {
   try {
     const { userId, due_date } = req.body;
-    
+
     if (!userId) {
       throw new BadRequestError("User ID is required");
     }
@@ -208,22 +223,23 @@ export const assignLocation = async (req, res, next) => {
     if (!due_date) {
       throw new BadRequestError("Due date is required");
     }
-    
+
     const location = await Location.findByIdAndUpdate(
-      req.params.id, 
+      req.params.id,
       {
         assigned_to: userId,
         status: 2, // Assigned status
         due_date: new Date(due_date),
-        updated_on: new Date()
+        updated_on: new Date(),
       },
       {
         new: true,
-        runValidators: true
+        runValidators: true,
       }
-    ).populate('assigned_to', 'name email')
-     .populate('surveyor', 'name email')
-     .populate('supervisor', 'name email');
+    )
+      .populate("assigned_to", "name email")
+      .populate("surveyor", "name email")
+      .populate("supervisor", "name email");
 
     if (!location) {
       throw new NotFoundError("Location not found");
@@ -243,20 +259,25 @@ export const assignLocation = async (req, res, next) => {
 export const changeLocationStatus = async (req, res, next) => {
   try {
     const { status } = req.body;
-    
-    if (status === undefined || ![1, 2, 3, 4, 5, 6].includes(parseInt(status))) {
+
+    if (
+      status === undefined ||
+      ![1, 2, 3, 4, 5, 6].includes(parseInt(status))
+    ) {
       throw new BadRequestError("Valid status is required (1-6)");
     }
-    
+
     const updateData = {
       status: parseInt(status),
-      updated_on: new Date()
+      updated_on: new Date(),
     };
-    
+
     // Add additional fields based on status change
-    if (parseInt(status) === 3) { // If changing to Active
+    if (parseInt(status) === 3) {
+      // If changing to Active
       updateData.start_date = new Date();
-    } else if (parseInt(status) === 4) { // If changing to Accepted
+    } else if (parseInt(status) === 4) {
+      // If changing to Accepted
       updateData.end_date = new Date();
       // Calculate time_taken if start_date exists
       const location = await Location.findById(req.params.id);
@@ -267,17 +288,18 @@ export const changeLocationStatus = async (req, res, next) => {
         updateData.time_taken = minutesTaken;
       }
     }
-    
+
     const updatedLocation = await Location.findByIdAndUpdate(
       req.params.id,
       updateData,
       {
         new: true,
-        runValidators: true
+        runValidators: true,
       }
-    ).populate('assigned_to', 'name email')
-     .populate('surveyor', 'name email')
-     .populate('supervisor', 'name email');
+    )
+      .populate("assigned_to", "name email")
+      .populate("surveyor", "name email")
+      .populate("supervisor", "name email");
 
     if (!updatedLocation) {
       throw new NotFoundError("Location not found");
@@ -297,15 +319,15 @@ export const changeLocationStatus = async (req, res, next) => {
 export const getLocationsByStatus = async (req, res, next) => {
   try {
     const { status } = req.params;
-    
+
     if (!status || ![1, 2, 3, 4, 5, 6].includes(parseInt(status))) {
       throw new BadRequestError("Valid status is required (1-6)");
     }
-    
+
     const locations = await Location.find({ status: parseInt(status) })
-      .populate('assigned_to', 'name email')
-      .populate('surveyor', 'name email')
-      .populate('supervisor', 'name email')
+      .populate("assigned_to", "name email")
+      .populate("surveyor", "name email")
+      .populate("supervisor", "name email")
       .sort({ updatedAt: -1 });
 
     res.status(200).json({
@@ -323,22 +345,30 @@ export const getLocationsByStatus = async (req, res, next) => {
 export const addRouteToLocation = async (req, res, next) => {
   try {
     const { routeData } = req.body;
-    
-    if (!routeData || !routeData.place || !routeData.latitude || !routeData.longitude || !routeData.type) {
-      throw new BadRequestError("Route data with place, latitude, longitude, and type is required");
+
+    if (
+      !routeData ||
+      !routeData.place ||
+      !routeData.latitude ||
+      !routeData.longitude ||
+      !routeData.type
+    ) {
+      throw new BadRequestError(
+        "Route data with place, latitude, longitude, and type is required"
+      );
     }
-    
+
     const location = await Location.findById(req.params.id);
-    
+
     if (!location) {
       throw new NotFoundError("Location not found");
     }
-    
+
     location.route.push(routeData);
     location.updated_on = new Date();
-    
+
     await location.save();
-    
+
     res.status(200).json({
       success: true,
       data: location,
