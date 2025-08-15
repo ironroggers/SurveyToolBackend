@@ -8,9 +8,13 @@ import {
   assignLocation,
   changeLocationStatus,
   getLocationsByStatus,
-  addRouteToLocation
+  addRouteToLocation,
+  updateLocationKML,
 } from "../controllers/location.controller.js";
-import { validateLocation, validateLocationUpdate } from "../middleware/validation.middleware.js";
+import {
+  validateLocation,
+  validateLocationUpdate,
+} from "../middleware/validation.middleware.js";
 import { body } from "express-validator";
 import { validateRequest } from "../utils/validator.js";
 
@@ -20,8 +24,10 @@ const router = express.Router();
 const validateLocationStatusUpdate = [
   body("status")
     .isInt({ min: 1, max: 6 })
-    .withMessage("Status must be a number between 1-6 (1: Released, 2: Assigned, 3: Active, 4: Completed, 5: Accepted ,6: Reverted)"),
-  
+    .withMessage(
+      "Status must be a number between 1-6 (1: Released, 2: Assigned, 3: Active, 4: Completed, 5: Accepted ,6: Reverted)"
+    ),
+
   validateRequest,
 ];
 
@@ -39,6 +45,7 @@ router.post("/", validateLocation, createLocation);
 
 // Update location
 router.put("/:id", validateLocationUpdate, updateLocation);
+router.put("/kml/:id", updateLocationKML);
 
 // Delete location
 router.delete("/:id", deleteLocation);

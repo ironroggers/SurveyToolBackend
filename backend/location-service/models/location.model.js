@@ -109,6 +109,17 @@ const locationSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
+    kml_urls: {
+      type: [
+        {
+          name: String,
+          content: String,
+          _id: false,
+        },
+      ],
+      trim: true,
+      default: [],
+    },
   },
   {
     timestamps: true,
