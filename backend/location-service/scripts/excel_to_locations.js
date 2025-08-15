@@ -61,7 +61,7 @@ const main = async () => {
         place: row.GP_name,
         latitude: parseFloat(row.Latitude),
         longitude: parseFloat(row.Longitude),
-        type: 'gp'
+        type: 'GP'
       });
       
       // Add BHQ (only if not already added)
@@ -70,7 +70,7 @@ const main = async () => {
           place: row.BHQ,
           latitude: parseFloat(row['BHQ Latitude']),
           longitude: parseFloat(row['BHQ Longitude']),
-          type: 'bhq'
+          type: 'BHQ'
         };
       }
     });
