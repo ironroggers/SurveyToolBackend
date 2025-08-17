@@ -61,7 +61,8 @@ export const markAttendance = async (req, res, next) => {
 // Check out (end of day)
 export const checkOut = async (req, res, next) => {
   try {
-    const { location, userId } = req.body;
+    const { userId } = req.body;
+    const checkoutLocation = req.body.checkoutLocation || req.body.location;
     
     if (!userId) {
       return res.status(400).json({
@@ -113,7 +114,7 @@ export const checkOut = async (req, res, next) => {
       }
     });
     attendance.workHours = parseFloat((totalMs / (1000 * 60 * 60)).toFixed(2));
-    attendance.location = location || attendance.location;
+    attendance.checkoutLocation = checkoutLocation || attendance.checkoutLocation;
     await attendance.save();
     return res.status(200).json({
       success: true,

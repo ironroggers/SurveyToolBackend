@@ -40,6 +40,48 @@ export const checkInValidation = [
   validate
 ];
 
+// Attendance check-out validation
+export const checkOutValidation = [
+  body('userId')
+    .isString()
+    .notEmpty()
+    .withMessage('User ID is required'),
+  body('checkoutLocation')
+    .optional()
+    .isObject()
+    .withMessage('CheckoutLocation must be an object'),
+  body('checkoutLocation.latitude')
+    .optional()
+    .isFloat()
+    .withMessage('Latitude must be a number'),
+  body('checkoutLocation.longitude')
+    .optional()
+    .isFloat()
+    .withMessage('Longitude must be a number'),
+  body('checkoutLocation.address')
+    .optional()
+    .isString()
+    .withMessage('Address must be a string'),
+  // Allow legacy `location` as a fallback input for checkout
+  body('location')
+    .optional()
+    .isObject()
+    .withMessage('Location must be an object'),
+  body('location.latitude')
+    .optional()
+    .isFloat()
+    .withMessage('Latitude must be a number'),
+  body('location.longitude')
+    .optional()
+    .isFloat()
+    .withMessage('Longitude must be a number'),
+  body('location.address')
+    .optional()
+    .isString()
+    .withMessage('Address must be a string'),
+  validate
+];
+
 // Justification validation
 export const justificationValidation = [
   body('userId')
