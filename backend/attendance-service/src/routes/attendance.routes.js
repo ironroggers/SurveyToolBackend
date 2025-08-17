@@ -16,14 +16,15 @@ import {
   historyQueryValidation,
   adminQueryValidation,
   todayAttendanceValidation,
-  isUserPresentValidation
+  isUserPresentValidation,
+  checkOutValidation
 } from '../utils/validation.js';
 
 const router = express.Router();
 
 // User routes
 router.post('/check-in', checkInValidation, markAttendance);
-router.post('/check-out', checkInValidation, checkOut);
+router.post('/check-out', checkOutValidation, checkOut);
 router.get('/history', historyQueryValidation, getMyAttendanceHistory);
 router.get('/today', todayAttendanceValidation, getTodayAttendance);
 router.post('/justify', justificationValidation, submitJustification);
