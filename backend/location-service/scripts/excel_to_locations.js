@@ -1,112 +1,116 @@
-// import fs from "fs";
-// import path from "path";
-// import xlsx from "xlsx";
-// import { fileURLToPath } from "url";
+import fs from 'fs';
+import path from 'path';
 
-// /**
-//  * Usage:
-//  *   node scripts/excel_to_locations.js <path-to-excel-file> [output-json-file]
-//  *
-//  * The script reads the first worksheet of the given Excel workbook and converts
-//  * each District/Block group into a Location-compatible JSON object (see
-//  * backend/location-service/models/location.model.js).
-//  *
-//  * For every distinct District + Block combination we create a location object
-//  * with a `route` array populated from the "From" column.
-//  *   – The first "From" entry per block is marked with type "BHQ".
-//  *   – All subsequent entries are marked with type "GP".
-//  * The latitude and longitude columns are expected to be named "Lat" and
-//  * "Long" (case-sensitive). Empty cells for District or Block are filled using
-//  * the last known non-empty value, because the sheet uses merged cells.
-//  */
+const csvToJSON = (csvText) => {
+  const lines = csvText.trim().split('\n');
+  const headers = lines[0].split(',');
+  
+  return lines.slice(1).map(line => {
+    const values = line.split(',');
+    const obj = {};
+    headers.forEach((header, index) => {
+      obj[header.trim()] = values[index] ? values[index].trim() : '';
+    });
+    return obj;
+  });
+};
 
-// // Helper to get current directory in ESM
-// const __filename = fileURLToPath(import.meta.url);
-// const __dirname = path.dirname(__filename);
+const main = async () => {
+  try {
+    // Read the main locations CSV
+    const locationsCSV = fs.readFileSync(
+      path.join(process.cwd(), 'scripts/Copy of KeralaLocations - Sheet 1.csv'), 
+      'utf8'
+    );
+    const locationsData = csvToJSON(locationsCSV);
+    
+    // Read the block codes CSV
+    const blockCodesCSV = fs.readFileSync(
+      path.join(process.cwd(), 'scripts/Untitled spreadsheet - Sheet1.csv'), 
+      'utf8'
+    );
+    const blockCodesData = csvToJSON(blockCodesCSV);
+    
+    // Create a lookup for block codes
+    const blockCodeLookup = {};
+    blockCodesData.forEach(row => {
+      const key = `${row['District Name']}_${row['Block Name']}`;
+      blockCodeLookup[key] = {
+        district_code: row['District code'],
+        block_code: row['Block Code']
+      };
+    });
+    
+    // Group data by district + block
+    const groupedData = {};
+    locationsData.forEach(row => {
+      const key = `${row.District}_${row.Block}`;
+      if (!groupedData[key]) {
+        groupedData[key] = {
+          state: row.State,
+          state_code: row['State Code'],
+          district: row.District,
+          block: row.Block,
+          gps: [],
+          bhq: null
+        };
+      }
+      
+      // Add GP
+      groupedData[key].gps.push({
+        place: row.GP_name,
+        latitude: parseFloat(row.Latitude),
+        longitude: parseFloat(row.Longitude),
+        type: 'GP'
+      });
+      
+      // Add BHQ (only if not already added)
+      if (!groupedData[key].bhq) {
+        groupedData[key].bhq = {
+          place: row.BHQ,
+          latitude: parseFloat(row['BHQ Latitude']),
+          longitude: parseFloat(row['BHQ Longitude']),
+          type: 'BHQ'
+        };
+      }
+    });
+    
+    // Create location documents
+    const locationDocuments = [];
+    Object.keys(groupedData).forEach(key => {
+      const data = groupedData[key];
+      const lookupKey = `${data.district}_${data.block}`;
+      const codes = blockCodeLookup[lookupKey] || { district_code: '', block_code: '' };
+      
+      const route = [];
+      if (data.bhq) {
+        route.push(data.bhq);
+      }
+      route.push(...data.gps);
+      
+      locationDocuments.push({
+        state: data.state,
+        state_code: data.state_code,
+        district: data.district,
+        district_code: codes.district_code,
+        block: data.block,
+        block_code: codes.block_code,
+        block_address: '',
+        route: route
+      });
+    });
+    
+    // Write to JSON file
+    const outputPath = path.join(process.cwd(), 'scripts/kerala_locations.json');
+    fs.writeFileSync(outputPath, JSON.stringify(locationDocuments, null, 2));
+    
+    console.log(`✅ Successfully created ${locationDocuments.length} location documents`);
+    console.log(`📁 Output saved to: ${outputPath}`);
+    console.log(`📊 Total GPs processed: ${locationsData.length}`);
+    
+  } catch (error) {
+    console.error('❌ Error processing CSV files:', error);
+  }
+};
 
-// function main() {
-//   // CLI: node scripts/excel_to_locations.js <excel-file> [output-json-file]
-//   // If excel-file is omitted we default to the XLSX that sits next to this script.
-
-//   const [cliExcelPath, cliOutputPath] = process.argv.slice(2);
-
-//   const defaultExcel = path.join(
-//     __dirname,
-//     "Bharat Net Phase - III Kerala 58 Blocks Length.xlsx"
-//   );
-//   const defaultOutput = path.join(__dirname, "locations.json");
-
-//   const excelFile = cliExcelPath ? path.resolve(cliExcelPath) : defaultExcel;
-//   const outFile = cliOutputPath ? path.resolve(cliOutputPath) : defaultOutput;
-
-//   if (!fs.existsSync(excelFile)) {
-//     console.error(`Excel file not found: ${excelFile}`);
-//     process.exit(1);
-//   }
-
-//   const workbook = xlsx.readFile(excelFile);
-//   const sheetName = workbook.SheetNames[0];
-//   const worksheet = workbook.Sheets[sheetName];
-
-//   // Read the sheet into JSON while preserving empty cells (defval: "").
-//   const rows = xlsx.utils.sheet_to_json(worksheet, { defval: "" });
-
-//   const locationMap = {};
-//   let currentDistrict = "";
-//   let currentBlock = "";
-
-//   rows.forEach((row) => {
-//     // Propagate merged-cell values.
-//     if (row["District"]) currentDistrict = String(row["District"]).trim();
-//     if (row["Block"]) currentBlock = String(row["Block"]).trim();
-
-//     const district = currentDistrict;
-//     const block = currentBlock;
-//     if (!district || !block) return; // Skip rows until both are defined.
-
-//     const place = String(row["From"] || row["from"] || "").trim();
-//     if (!place) return; // Skip rows without a "From" value.
-
-//     const latitude = parseFloat(row["Lat"] || row["lat"]);
-//     const longitude = parseFloat(row["Long"] || row["long"]);
-//     if (Number.isNaN(latitude) || Number.isNaN(longitude)) return; // skip invalid
-
-//     const key = `${district}__${block}`;
-//     if (!locationMap[key]) {
-//       locationMap[key] = {
-//         state: "Kerala",
-//         state_code: "KL",
-//         district,
-//         district_code: "dummy_code",
-//         block,
-//         block_code: "dummy_code",
-//         block_address: "dummy_address",
-//         route: [],
-//       };
-//     }
-
-//     const routeType = locationMap[key].route.length === 0 ? "BHQ" : "GP";
-
-//     locationMap[key].route.push({
-//       place,
-//       latitude,
-//       longitude,
-//       type: routeType,
-//     });
-//   });
-
-//   // Append the first route point as the last point (to close the loop)
-//   const locations = Object.values(locationMap);
-//   // locations.forEach((loc) => {
-//   //   if (loc.route && loc.route.length > 0) {
-//   //     loc.route.push({ ...loc.route[0] });
-//   //   }
-//   // });
-
-//   const json = JSON.stringify(locations, null, 2);
-
-//   fs.writeFileSync(outFile, json, "utf8");
-//     console.log(`Wrote ${locations.length} locations to ${outFile}`);
-// }
-
-// main();
+main();

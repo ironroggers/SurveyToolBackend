@@ -1,6 +1,7 @@
 import Location from "../models/location.model.js";
 import User from "../models/user.model.js";
 import { BadRequestError, NotFoundError } from "../utils/errors.js";
+import deleteUrlFromS3 from "../utils/deleteUrlFromS3.js";
 
 // Create a new location
 export const createLocation = async (req, res, next) => {
@@ -189,6 +190,50 @@ export const updateLocation = async (req, res, next) => {
   } catch (error) {
     console.error("Update Location Error:", error);
     next(error);
+  }
+};
+
+export const updateLocationKML = async (req, res, next) => {
+  try {
+    const { content, name, index, deleteOrAdd } = req.body;
+
+    const location = await Location.findById(req.params.id);
+    if (!location) {
+      throw new NotFoundError("Location not found");
+    }
+
+    if (deleteOrAdd === "add") {
+      await Location.updateOne(
+        { _id: req.params.id },
+        {
+          $push: {
+            kml_urls: { name: name, content: content },
+          },
+        }
+      );
+    } else if (deleteOrAdd === "delete") {
+      const kmlUrl = location.kml_urls[index]?.content;
+      if (kmlUrl) {
+        await Location.updateOne(
+          { _id: req.params.id },
+          {
+            $pull: { kml_urls: location.kml_urls[index] },
+          }
+        );
+        await deleteUrlFromS3(kmlUrl);
+      }
+    }
+
+    res.status(200).json({
+      success: true,
+      data: location,
+    });
+  } catch (error) {
+    console.error("Update Location KML Error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to update location KML",
+    });
   }
 };
 
