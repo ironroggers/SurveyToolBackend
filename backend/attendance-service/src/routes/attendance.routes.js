@@ -1,14 +1,14 @@
-import express from 'express';
-import { 
-  markAttendance, 
-  checkOut, 
-  getMyAttendanceHistory, 
-  getTodayAttendance, 
+import express from "express";
+import {
+  markAttendance,
+  checkOut,
+  getMyAttendanceHistory,
+  getTodayAttendance,
   submitJustification,
   getAllAttendance,
   processJustification,
-  isUserPresentNow
-} from '../controllers/attendance.controller.js';
+  isUserPresentNow,
+} from "../controllers/attendance.controller.js";
 import {
   checkInValidation,
   justificationValidation,
@@ -31,7 +31,11 @@ router.post('/justify', justificationValidation, submitJustification);
 router.get('/is-present', isUserPresentValidation, isUserPresentNow);
 
 // Admin routes
-router.get('/all', adminQueryValidation, getAllAttendance);
-router.patch('/justification/:attendanceId', processJustificationValidation, processJustification);
+router.get("/all", adminQueryValidation, getAllAttendance);
+router.patch(
+  "/justification/:attendanceId",
+  processJustificationValidation,
+  processJustification
+);
 
-export default router; 
+export default router;
