@@ -11,7 +11,7 @@ const generateToken = (user) => {
 
 export const register = async (req, res, next) => {
   try {
-    const { username, email, password, role, reportingTo, designation } = req.body;
+    const { username, email, password, role, reportingTo, designation, project } = req.body;
 
     const userExists = await User.findOne({ $or: [{ email }, { username }] });
     if (userExists) {
@@ -36,6 +36,7 @@ export const register = async (req, res, next) => {
       role,
       designation,
       reportingTo: role === 'ADMIN' ? null : reportingTo,
+      project,
     });
 
     const token = generateToken(user);
@@ -50,6 +51,7 @@ export const register = async (req, res, next) => {
           role: user.role,
           designation: user.designation,
           reportingTo: user.reportingTo,
+          project: user.project,
         },
         token,
       },
@@ -104,11 +106,11 @@ export const getProfile = async (req, res, next) => {
 
 export const updateProfile = async (req, res, next) => {
   try {
-    const { username, email, phone, designation } = req.body;
+    const { username, email, phone, designation, project } = req.body;
 
     const user = await User.findByIdAndUpdate(
       req.user._id,
-      { username, email, phone, designation },
+      { username, email, phone, designation, project },
       { new: true, runValidators: true }
     ).select("-password");
 
@@ -201,7 +203,7 @@ export const deleteUser = async (req, res, next) => {
 export const updateUser = async (req, res, next) => {
   try {
     const userId = req.params.id;
-    const { username, email, role, reportingTo, designation, password } = req.body;
+    const { username, email, role, reportingTo, designation, password, project } = req.body;
 
     // Check if user exists
     const user = await User.findById(userId);
@@ -223,7 +225,8 @@ export const updateUser = async (req, res, next) => {
       email,
       role,
       designation,
-      reportingTo: role === 'ADMIN' ? null : reportingTo
+      reportingTo: role === 'ADMIN' ? null : reportingTo,
+      project,
     };
 
     // Only update password if provided

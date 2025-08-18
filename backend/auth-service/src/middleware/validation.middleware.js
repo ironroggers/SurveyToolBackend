@@ -1,5 +1,6 @@
 import { body } from "express-validator";
 import { validateRequest } from "../utils/validator.js";
+import { PROJECT_OPTIONS } from "../utils/constants.js";
 
 export const validateRegister = [
   body("username")
@@ -13,6 +14,10 @@ export const validateRegister = [
   body("role")
     .isIn(["SURVEYOR", "SUPERVISOR", "ADMIN"])
     .withMessage("Invalid role"),
+  body("project")
+    .optional()
+    .isIn(PROJECT_OPTIONS)
+    .withMessage("Invalid project"),
   body("designation")
     .optional()
     .trim()
@@ -37,6 +42,10 @@ export const validateUpdate = [
     .optional()
     .isEmail()
     .withMessage("Please provide a valid email"),
+  body("project")
+    .optional()
+    .isIn(PROJECT_OPTIONS)
+    .withMessage("Invalid project"),
   body("designation")
     .optional()
     .trim()
