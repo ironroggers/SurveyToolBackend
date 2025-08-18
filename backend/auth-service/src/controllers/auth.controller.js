@@ -215,67 +215,58 @@ export const updateUser = async (req, res, next) => {
     const password = normalize(req.body.password);
     const project = normalize(req.body.project);
 
-    // Check if user exists
+    // Load existing user document
     const user = await User.findById(userId);
     if (!user) {
       throw new NotFoundError('User not found');
     }
 
-    // Prepare update object only with provided fields
-    const updateData = {};
-    if (typeof username !== 'undefined') updateData.username = username;
-    if (typeof email !== 'undefined') updateData.email = email;
-    if (typeof designation !== 'undefined') updateData.designation = designation;
-    if (typeof project !== 'undefined') updateData.project = project;
+    // Apply simple fields if provided
+    if (typeof username !== 'undefined') user.username = username;
+    if (typeof email !== 'undefined') user.email = email;
+    if (typeof designation !== 'undefined') user.designation = designation;
+    if (typeof project !== 'undefined') user.project = project;
 
-    // Handle role/reportingTo updates safely
+    // Handle role + reportingTo logic
     if (typeof role !== 'undefined') {
-      updateData.role = role;
-
+      user.role = role;
       if (role === 'ADMIN') {
-        // Admins should not have a reporting manager
-        updateData.reportingTo = null;
+        user.reportingTo = null;
       } else if (typeof reportingTo !== 'undefined') {
-        // Validate reportingTo only if explicitly provided for non-admin roles
-        const reportingManager = await User.findById(reportingTo);
-        if (!reportingManager) {
+        // Validate provided reportingTo for non-admin roles
+        const manager = await User.findById(reportingTo);
+        if (!manager) {
           throw new BadRequestError('Invalid reporting manager');
         }
-        updateData.reportingTo = reportingTo;
+        user.reportingTo = reportingTo;
       }
-      // If role is non-admin and reportingTo not provided, leave existing reportingTo unchanged
+      // If non-admin and reportingTo not provided, leave as is
     } else if (typeof reportingTo !== 'undefined') {
-      // Role not being changed, but reportingTo provided: validate if current role requires it
+      // Role not changed; respect current role
       if (user.role !== 'ADMIN') {
-        const reportingManager = await User.findById(reportingTo);
-        if (!reportingManager) {
+        const manager = await User.findById(reportingTo);
+        if (!manager) {
           throw new BadRequestError('Invalid reporting manager');
         }
-        updateData.reportingTo = reportingTo;
+        user.reportingTo = reportingTo;
       } else {
-        // Current role is ADMIN; ignore any provided reportingTo
-        updateData.reportingTo = null;
+        user.reportingTo = null;
       }
     }
 
-    // Only update password if provided and non-empty
+    // Password update
     if (password) {
       const hashedPassword = await bcrypt.hash(password, 12);
-      updateData.password = hashedPassword;
+      user.password = hashedPassword;
     }
 
-    const updatedUser = await User.findByIdAndUpdate(
-      userId,
-      updateData,
-      { new: true, runValidators: true }
-    ).select('-password');
+    // Save document to trigger validators with correct context
+    const saved = await user.save();
+    const sanitized = saved.toObject();
+    delete sanitized.password;
 
-    res.status(200).json({
-      success: true,
-      data: updatedUser,
-    });
+    res.status(200).json({ success: true, data: sanitized });
   } catch (error) {
-    // Handle duplicate key errors (e.g., email uniqueness)
     if (error && (error.code === 11000 || error.code === '11000')) {
       return next(new BadRequestError('Email already in use'));
     }
