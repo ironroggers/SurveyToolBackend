@@ -203,7 +203,17 @@ export const deleteUser = async (req, res, next) => {
 export const updateUser = async (req, res, next) => {
   try {
     const userId = req.params.id;
-    const { username, email, role, reportingTo, designation, password, project } = req.body;
+
+    // Normalize incoming values: treat empty strings as undefined
+    const normalize = (value) => (typeof value === 'string' && value.trim() === '' ? undefined : value);
+
+    const username = normalize(req.body.username);
+    const email = normalize(req.body.email);
+    const role = normalize(req.body.role);
+    const reportingTo = normalize(req.body.reportingTo);
+    const designation = normalize(req.body.designation);
+    const password = normalize(req.body.password);
+    const project = normalize(req.body.project);
 
     // Check if user exists
     const user = await User.findById(userId);
@@ -265,6 +275,10 @@ export const updateUser = async (req, res, next) => {
       data: updatedUser,
     });
   } catch (error) {
+    // Handle duplicate key errors (e.g., email uniqueness)
+    if (error && (error.code === 11000 || error.code === '11000')) {
+      return next(new BadRequestError('Email already in use'));
+    }
     next(error);
   }
 };
