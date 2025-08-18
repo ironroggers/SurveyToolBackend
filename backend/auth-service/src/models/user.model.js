@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
+import { PROJECT_OPTIONS } from "../utils/constants.js";
 
 const userSchema = new mongoose.Schema(
   {
@@ -38,6 +39,10 @@ const userSchema = new mongoose.Schema(
         // Make reportingTo required for all roles except ADMIN
         return this.role !== 'ADMIN';
       }
+    },
+    project: {
+      type: String,
+      enum: PROJECT_OPTIONS,
     },
     lastLogin: Date,
     status: {
