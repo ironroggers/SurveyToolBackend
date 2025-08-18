@@ -211,25 +211,44 @@ export const updateUser = async (req, res, next) => {
       throw new NotFoundError('User not found');
     }
 
-    // Validate reportingTo if provided and role is not ADMIN
-    if (role && role !== 'ADMIN' && reportingTo) {
-      const reportingManager = await User.findById(reportingTo);
-      if (!reportingManager) {
-        throw new BadRequestError('Invalid reporting manager');
+    // Prepare update object only with provided fields
+    const updateData = {};
+    if (typeof username !== 'undefined') updateData.username = username;
+    if (typeof email !== 'undefined') updateData.email = email;
+    if (typeof designation !== 'undefined') updateData.designation = designation;
+    if (typeof project !== 'undefined') updateData.project = project;
+
+    // Handle role/reportingTo updates safely
+    if (typeof role !== 'undefined') {
+      updateData.role = role;
+
+      if (role === 'ADMIN') {
+        // Admins should not have a reporting manager
+        updateData.reportingTo = null;
+      } else if (typeof reportingTo !== 'undefined') {
+        // Validate reportingTo only if explicitly provided for non-admin roles
+        const reportingManager = await User.findById(reportingTo);
+        if (!reportingManager) {
+          throw new BadRequestError('Invalid reporting manager');
+        }
+        updateData.reportingTo = reportingTo;
+      }
+      // If role is non-admin and reportingTo not provided, leave existing reportingTo unchanged
+    } else if (typeof reportingTo !== 'undefined') {
+      // Role not being changed, but reportingTo provided: validate if current role requires it
+      if (user.role !== 'ADMIN') {
+        const reportingManager = await User.findById(reportingTo);
+        if (!reportingManager) {
+          throw new BadRequestError('Invalid reporting manager');
+        }
+        updateData.reportingTo = reportingTo;
+      } else {
+        // Current role is ADMIN; ignore any provided reportingTo
+        updateData.reportingTo = null;
       }
     }
 
-    // Prepare update object
-    const updateData = {
-      username,
-      email,
-      role,
-      designation,
-      reportingTo: role === 'ADMIN' ? null : reportingTo,
-      project,
-    };
-
-    // Only update password if provided
+    // Only update password if provided and non-empty
     if (password) {
       const hashedPassword = await bcrypt.hash(password, 12);
       updateData.password = hashedPassword;
