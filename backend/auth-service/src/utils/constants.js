@@ -2,11 +2,12 @@ export const PROJECT_OPTIONS = [
   "BharatNet Kerala",
   "NFS",
   "BUIDCO",
-  "JUCDO",
+  "JUDCO",
   "MPUDC",
   "KMC",
   "DEL Office",
   "HDD",
   "GAIL",
+  "SIDCL",
   "Others",
 ]; 
