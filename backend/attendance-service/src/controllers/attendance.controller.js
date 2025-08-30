@@ -25,15 +25,76 @@ export const markAttendance = async (req, res, next) => {
       },
     });
 
-    // Initialize attendance record for today
+    // Initialize attendance record for today if it doesn't exist
     if (!attendance) {
       attendance = new Attendance({
         userId,
         date: today,
-        status: "present",
+        status: "present", // Default status, will be updated based on first check-in time
         location,
       });
     }
+
+    // Determine status based on check-in time and day - ONLY for first check-in
+    let status = attendance.status; // Keep existing status for subsequent check-ins
+    let message = "Checked in successfully";
+    
+    // Only calculate status if this is the first check-in of the day
+    if (attendance.sessions.length === 0) {
+      // Get current time in IST
+      const now = new Date();
+      const istOffset = 5.5 * 60 * 60 * 1000; // IST is UTC+5:30
+      const istTime = new Date(now.getTime() + istOffset);
+      
+      // Check if today is Sunday (0 = Sunday)
+      const isSunday = istTime.getDay() === 0;
+      
+      // Debug logging
+      console.log('First Check-in Debug Info:', {
+        utcTime: now.toISOString(),
+        istTime: istTime.toISOString(),
+        istHour: istTime.getHours(),
+        istMinute: istTime.getMinutes(),
+        isSunday: isSunday,
+        dayOfWeek: istTime.getDay(),
+        isFirstCheckin: true
+      });
+      
+      if (isSunday) {
+        status = "overtime";
+        message = "Checked in for overtime work on Sunday";
+      } else {
+        // Check if check-in is after 10 AM IST
+        const tenAM = new Date(istTime);
+        tenAM.setHours(10, 0, 0, 0);
+        
+        console.log('Late check debug:', {
+          istTime: istTime.toISOString(),
+          tenAM: tenAM.toISOString(),
+          isAfter10AM: istTime > tenAM
+        });
+        
+        if (istTime > tenAM) {
+          status = "late";
+          message = "Checked in late (after 10:00 AM IST)";
+        } else {
+          status = "present";
+          message = "Checked in on time";
+        }
+      }
+      
+      // Update the attendance status for first check-in
+      attendance.status = status;
+    } else {
+      // For subsequent check-ins, don't change status
+      console.log('Subsequent Check-in Debug Info:', {
+        existingStatus: attendance.status,
+        sessionCount: attendance.sessions.length,
+        isFirstCheckin: false
+      });
+      message = `Checked in again (Status remains: ${attendance.status})`;
+    }
+    
     // Prevent new check-in if the last session is still open
     const lastSession = attendance.sessions.length
       ? attendance.sessions[attendance.sessions.length - 1]
@@ -44,14 +105,16 @@ export const markAttendance = async (req, res, next) => {
         message: "You must check out before checking in again.",
       });
     }
+    
     // Start a new session
     attendance.sessions.push({ checkInTime: new Date() });
     attendance.location = location || attendance.location;
     await attendance.save();
+    
     return res.status(200).json({
       success: true,
       data: attendance,
-      message: "Checked in successfully",
+      message: message,
     });
   } catch (error) {
     next(error);
