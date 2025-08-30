@@ -14,7 +14,7 @@ const attendanceSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ['present', 'absent', 'late'],
+      enum: ['present', 'absent', 'late', 'overtime'],
       default: 'present'
     },
     // Track multiple check-in/check-out sessions for the day
