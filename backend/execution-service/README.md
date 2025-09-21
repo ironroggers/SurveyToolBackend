@@ -18,9 +18,14 @@ Health: `GET /health`
 Base: `/api/execution`
 
 ## Environment
-- `PORT` (default 3006)
+- `PORT` (default 3010)
 - `MONGODB_URI`
 - `JWT_SECRET`
+- `AWS_REGION`
+- `AWS_ACCESS_KEY_ID`
+- `AWS_SECRET_ACCESS_KEY`
+- `S3_BUCKET`
+- `S3_PREFIX` (optional)
 
 ## Docker
 ```bash

@@ -14,6 +14,8 @@ import "./src/models/trenching.model.js";
 import sectionRoutes from "./src/routes/section.routes.js";
 import subSectionRoutes from "./src/routes/subsection.routes.js";
 import trenchingRoutes from "./src/routes/trenching.routes.js";
+import uploadRoutes from "./src/routes/upload.routes.js";
+import aiRoutes from "./src/routes/ai.routes.js";
 
 dotenv.config();
 
@@ -39,6 +41,8 @@ app.get("/health", (req, res) => {
 app.use("/api/sections", sectionRoutes);
 app.use("/api/subsections", subSectionRoutes);
 app.use("/api/trenchings", trenchingRoutes);
+app.use("/api/uploads", uploadRoutes);
+app.use("/api/ai", aiRoutes);
 
 // Global 404
 app.use((req, res) => {

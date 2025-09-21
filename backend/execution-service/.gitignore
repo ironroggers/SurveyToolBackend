@@ -1,5 +1,6 @@
 node_modules
 .env
+.DS_Store
 dist
 logs
 *.log
@@ -12,6 +13,7 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
+package-lock.json
 *.local
 *.swp
 *.swo
