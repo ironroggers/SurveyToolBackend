@@ -12,7 +12,7 @@ export const validateRegister = [
     .isLength({ min: 6 })
     .withMessage("Password must be at least 6 characters long"),
   body("role")
-    .isIn(["SURVEYOR", "SUPERVISOR", "ADMIN", "PERFORMER", "VIEWER"])
+    .isIn(["SURVEYOR", "SUPERVISOR", "ADMIN", "EXECUTION ENGINEER", "VIEWER"])
     .withMessage("Invalid role"),
   body("project")
     .optional()
