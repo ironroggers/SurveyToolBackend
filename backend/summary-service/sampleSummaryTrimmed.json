@@ -1,0 +1,147 @@
+{
+  "Status": "success",
+  "Version": "1.02",
+  "GeneratedAt": "2025-10-12T06:24:56.6931605Z",
+  "Params": { "Limit": 0, "Offset": 0 },
+  "Summary": {
+    "State": "Himachal Pradesh",
+    "Gps": { "Operational": null },
+    "Deployed_Teams": { "Frt_Teams": 4, "Patrollers": 13 },
+    "Hoto": { "Total_Gps": 258, "Completed": 258 },
+    "Desktop_Survey": { "Submitted": 3615, "Approved": 3615 },
+    "Physical_Survey": { "Submitted": 1177, "Approved": 410 },
+    "Row": { "Applied": 0, "Approved": 0 },
+    "Boq": { "Submitted": 29, "Approved": 10 },
+    "Hdd": { "Deployed": null },
+    "Block_Routers": { "Deployed": 1 },
+    "Gp_Routers": { "Deployed": 2 },
+    "Snoc": { "Deployed": null },
+    "Invoice": { "Submitted": null, "Approved": null }
+  },
+  "Data": {
+    "Gps": { "Operational": null, "List": null },
+    "Deployed_Teams": {
+      "Frt_Teams": { "Count": 4, "List": null },
+      "Patrollers": { "Count": 13, "List": null } // {project: /Bharat/, role: /SUR/} send list username, email, designation
+    },
+    "Hoto": {
+      "Total_Gps": 258,
+      "Completed_Gps_Count": 258,
+      "Completed_Gps_List": []
+    },
+    "Desktop_Survey": {
+      // submitted : 4, approved : 5
+      "Submitted": {
+        "Count": 3615,
+        "List": [
+          {
+            "District_Name": "BILASPUR",
+            "Block_Name": "BILASPUR SADAR",
+            "Block_Code": "135",
+            "Lgd_Code": "235970",
+            "Gp_Name": "BALH BHALWANA"
+          },
+          {
+            "District_Name": "BILASPUR",
+            "Block_Name": "BILASPUR SADAR",
+            "Block_Code": "135",
+            "Lgd_Code": "7526",
+            "Gp_Name": "BAMTA"
+          }
+        ]
+      },
+      "Approved": {
+        "Count": 3615,
+        "List": [
+          {
+            "District_Name": "BILASPUR",
+            "Block_Name": "BILASPUR SADAR",
+            "Block_Code": "135",
+            "Lgd_Code": "235970",
+            "Gp_Name": "BALH BHALWANA"
+          },
+          {
+            "District_Name": "BILASPUR",
+            "Block_Name": "BILASPUR SADAR",
+            "Block_Code": "135",
+            "Lgd_Code": "7526",
+            "Gp_Name": "BAMTA"
+          }
+        ]
+      }
+    },
+    "Physical_Survey": {
+      // submitted : 4, approved : 5
+      "Submitted": {
+        "Count": 1177,
+        "List": [
+          {
+            "District_Name": "BILASPUR",
+            "Block_Name": "BILASPUR SADAR",
+            "Block_Code": "135",
+            "Lgd_Code": "235970",
+            "Gp_Name": "BALH BHALWANA"
+          },
+          {
+            "District_Name": "BILASPUR",
+            "Block_Name": "BILASPUR SADAR",
+            "Block_Code": "135",
+            "Lgd_Code": "7526",
+            "Gp_Name": "BAMTA"
+          }
+        ]
+      },
+      "Approved": {
+        "Count": 410,
+        "List": [
+          {
+            "District_Name": "BILASPUR",
+            "Block_Name": "BILASPUR SADAR",
+            "Block_Code": "135",
+            "Lgd_Code": "235970",
+            "Gp_Name": "BALH BHALWANA"
+          },
+          {
+            "District_Name": "BILASPUR",
+            "Block_Name": "BILASPUR SADAR",
+            "Block_Code": "135",
+            "Lgd_Code": "7526",
+            "Gp_Name": "BAMTA"
+          }
+        ]
+      }
+    },
+    "Row": {
+      "Applied": { "Count": 0, "List": [] },
+      "Approved": { "Count": 0, "List": [] }
+    },
+    "Boq": {
+      "Submitted": {
+        "Count": 29,
+        "List": []
+      },
+      "Approved": {
+        "Count": 10,
+        "List": []
+      }
+    },
+    "Hdd": { "Deployed": { "Count": null, "List": null } },
+    "Block_Routers": {
+      "Deployed": {
+        "Count": 1,
+        "List": []
+      }
+    },
+    "Gp_Routers": {
+      "Deployed": {
+        "Count": 2,
+        "List": []
+      }
+    },
+    "Snoc": { "Visible": { "Gps_Count": null, "Gps_List": null } },
+    "Invoice": {
+      "Submitted": { "Count": null, "List": null },
+      "Approved": { "Count": null, "List": null }
+    }
+  }
+}
