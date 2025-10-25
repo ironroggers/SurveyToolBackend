@@ -1,0 +1,139 @@
+{
+  "Program": "Amended Bharatnet Program",
+  "Location": "Kerala - Package -16",
+  "Report Date": "21-Oct-2025",
+  "Parameters": [
+    {
+      "Sl no": 1,
+      "Parameter": "GPs Status",
+      "Report": {
+        "Operational": 1107,
+        ">= 98%": 879
+      }
+    },
+    {
+      "Sl no": 2,
+      "Parameter": "Teams Deployed",
+      "Report": {
+        "FRT": 135,
+        "Patroller": 109
+      }
+    },
+    {
+      "Sl no": 3,
+      "Parameter": "HOTO",
+      "Report": {
+        "Total GPs": 1129,
+        "Completed": 1129
+      }
+    },
+    {
+      "Sl no": 4.1,
+      "Parameter": "Desktop Survey (Blocks)",
+      "Report": {
+        "Submitted": 152,
+        "Approved": 129
+      }
+    },
+    {
+      "Sl no": 4.2,
+      "Parameter": "Desktop Survey (GP)",
+      "Report": {
+        "Submitted": 978,
+        "Approved": 824
+      }
+    },
+    {
+      "Sl no": 5.1,
+      "Parameter": "Physical Survey (Blocks)",
+      "Report": {
+        "Submitted": 9,
+        "Approved": 0
+      }
+    },
+    {
+      "Sl no": 5.2,
+      "Parameter": "Physical Survey (GP)",
+      "Report": {
+        "Submitted": 50,
+        "Approved": 0
+      }
+    },
+    {
+      "Sl no": 6.1,
+      "Parameter": "ROW (Nos)",
+      "Report": {
+        "Applied": 0,
+        "Approved": 0
+      }
+    },
+    {
+      "Sl no": 6.2,
+      "Parameter": "ROW (Km)",
+      "Report": {
+        "Applied": 0,
+        "Approved": 0
+      }
+    },
+    {
+      "Sl no": 7.1,
+      "Parameter": "BOQ (Blocks)",
+      "Report": {
+        "Submitted": 9,
+        "Approved": 0
+      }
+    },
+    {
+      "Sl no": 7.2,
+      "Parameter": "BOQ (GP)",
+      "Report": {
+        "Submitted": 50,
+        "Approved": 0
+      }
+    },
+    {
+      "Sl no": 8,
+      "Parameter": "HDD",
+      "Report": {
+        "Deployed": 15
+      }
+    },
+    {
+      "Sl no": 9,
+      "Parameter": "Block Routers",
+      "Report": {
+        "Deployed": 0
+      }
+    },
+    {
+      "Sl no": 10,
+      "Parameter": "GP Routers",
+      "Report": {
+        "Deployed": 0
+      }
+    },
+    {
+      "Sl no": 11,
+      "Parameter": "SNOC (GP Visibility in SNOC)",
+      "Report": {
+        "Deployed": 0
+      }
+    },
+    {
+      "Sl no": 12.1,
+      "Parameter": "Invoice (Nos)",
+      "Report": {
+        "Submitted": "₹ 0.00",
+        "Approved": "₹ 0.00"
+      }
+    },
+    {
+      "Sl no": 12.2,
+      "Parameter": "Invoice (Amount in Cr)",
+      "Report": {
+        "Submitted": "₹ 0.00",
+        "Approved": "₹ 0.00"
+      }
+    }
+  ]
+}

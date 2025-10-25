@@ -1,0 +1,49 @@
+"Amended Bharatnet Program
+Kerala - Package -16
+PM Tool Dashboard as on 21st Oct 2025",,,
+Sl no,Parameters,Report,
+1,GPs Status,Operational,>= 98%
+,,1107,879
+2,Teams Deployed,FRT,Patroller
+,,135,109
+3,HOTO,Total GPs,Completed
+,,1129,1129
+4.1,"Desktop Survey
+(Blocks)",Submitted,Approved
+,,152,129
+4.2,"Desktop Survey
+(GP)",Submitted,Approved
+,,978,824
+5.1,"Physical Survey
+(Blocks)",Submitted,Approved
+,,9,0
+5.2,"Physical Survey
+(GP)",Submitted,Approved
+,,50,0
+6.1,"ROW
+(Nos)",Applied,Approved
+,,0,0
+6.2,"ROW
+(Km)",Applied,Approved
+,,0,0
+7.1,"BOQ 
+(Blocks)",Submitted,Approved
+,,9,0
+7.2,"BOQ
+(GP)",Submitted,Approved
+,,50,0
+8,HDD,Deployed,
+,,15,
+9,Block Routers,Deployed,
+,,0,
+10,GP Routers,Deployed,
+,,0,
+11,"SNOC 
+(GP Visibility in SNOC)",Deployed,
+,,0,
+12.1,"Invoice
+(Nos)",Submitted,Approved
+,,₹ 0.00,₹ 0.00
+12.2,"Invoice
+(Amount in Cr)",Submitted,Approved
+,,₹ 0.00,₹ 0.00
