@@ -39,10 +39,20 @@ export async function getSummary() {
         ).length,
       },
       Desktop_Survey: {
-        Submitted: desktopSurveys.filter((survey) => survey.Submitted === "Yes")
-          .length,
-        Approved: desktopSurveys.filter((survey) => survey.Approved === "Yes")
-          .length,
+        Submitted: [
+          ...new Set(
+            desktopSurveys
+              .filter((survey) => survey.Submitted === "Yes")
+              .map((survey) => survey.Block_Code)
+          ),
+        ].length,
+        Approved: [
+          ...new Set(
+            desktopSurveys
+              .filter((survey) => survey.Approved === "Yes")
+              .map((survey) => survey.Block_Code)
+          ),
+        ].length,
       },
       Physical_Survey: {
         Submitted: desktopSurveys.filter(
@@ -97,14 +107,36 @@ export async function getSummary() {
       },
       Desktop_Survey: {
         Submitted: {
-          Count: desktopSurveys.filter((survey) => survey.Submitted === "Yes")
-            .length,
-          List: desktopSurveys.filter((survey) => survey.Submitted === "Yes"),
+          Count: [
+            ...new Set(
+              desktopSurveys
+                .filter((survey) => survey.Submitted === "Yes")
+                .map((survey) => survey.Block_Code)
+            ),
+          ].length,
+          List: [
+            ...new Map(
+              desktopSurveys
+                .filter((survey) => survey.Submitted === "Yes")
+                .map((survey) => [survey.Block_Code, survey])
+            ).values(),
+          ],
         },
         Approved: {
-          Count: desktopSurveys.filter((survey) => survey.Approved === "Yes")
-            .length,
-          List: desktopSurveys.filter((survey) => survey.Approved === "Yes"),
+          Count: [
+            ...new Set(
+              desktopSurveys
+                .filter((survey) => survey.Approved === "Yes")
+                .map((survey) => survey.Block_Code)
+            ),
+          ].length,
+          List: [
+            ...new Map(
+              desktopSurveys
+                .filter((survey) => survey.Approved === "Yes")
+                .map((survey) => [survey.Block_Code, survey])
+            ).values(),
+          ],
         },
       },
       Physical_Survey: {
@@ -131,25 +163,24 @@ export async function getSummary() {
       },
       Boq: {
         Submitted: {
-          Count: desktopSurveys.filter(
-            (survey) => survey.Boq_Submitted === "Yes"
-          ).length,
-          List: desktopSurveys.filter(
-            (survey) => survey.Boq_Submitted === "Yes"
-          ),
+          Count: 1,
+          List: [],
         },
         Approved: {
-          Count: desktopSurveys.filter(
-            (survey) => survey.Boq_Approved === "Yes"
-          ).length,
-          List: desktopSurveys.filter(
-            (survey) => survey.Boq_Approved === "Yes"
-          ),
+          Count: 1,
+          List: [],
         },
       },
       Hdd: { Deployed: { Count: hddMachines.length, List: hddMachines } },
       Block_Routers: {
-        Deployed: { Count: blockRouters.length, List: blockRouters },
+        Deployed: {
+          Count: blockRouters.filter(
+            (router) => router.Block_Router_Installed === "Yes"
+          ).length,
+          List: blockRouters.filter(
+            (router) => router.Block_Router_Installed === "Yes"
+          ),
+        },
       },
       Gp_Routers: {
         Deployed: {
