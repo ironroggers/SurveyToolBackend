@@ -9,7 +9,7 @@ const __dirname = path.dirname(__filename);
 export function getHddMachines() {
   try {
     // Read the CSV file
-    const csvFilePath = path.join(__dirname, "../../HDD_Machines.csv");
+    const csvFilePath = path.join(__dirname, "./sheetData/HDD_Machines.csv");
     const csvContent = fs.readFileSync(csvFilePath, "utf-8");
 
     // Parse CSV

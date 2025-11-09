@@ -9,7 +9,7 @@ const __dirname = path.dirname(__filename);
 export function getDeployedTeams() {
   try {
     // Read the CSV file
-    const csvFilePath = path.join(__dirname, "../../deployed_teams.csv");
+    const csvFilePath = path.join(__dirname, "./sheetData/deployed_teams.csv");
     const csvContent = fs.readFileSync(csvFilePath, "utf-8");
 
     // Parse CSV

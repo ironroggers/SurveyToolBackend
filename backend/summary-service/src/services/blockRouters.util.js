@@ -9,7 +9,7 @@ const __dirname = path.dirname(__filename);
 export function getBlockRouters() {
   try {
     // Read the CSV file
-    const csvFilePath = path.join(__dirname, "../../Block_Routers.csv");
+    const csvFilePath = path.join(__dirname, "./sheetData/Block_Routers.csv");
     const csvContent = fs.readFileSync(csvFilePath, "utf-8");
 
     // Parse CSV

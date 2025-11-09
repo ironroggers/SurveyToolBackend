@@ -9,7 +9,7 @@ const __dirname = path.dirname(__filename);
 export function getDesktopSurveys() {
   try {
     // Read the CSV file
-    const csvFilePath = path.join(__dirname, "../../desktop_surveys.csv");
+    const csvFilePath = path.join(__dirname, "./sheetData/desktop_surveys.csv");
     const csvContent = fs.readFileSync(csvFilePath, "utf-8");
 
     // Parse CSV

@@ -11,7 +11,7 @@ export function getGpsOperationalData() {
     // Read the CSV file
     const csvFilePath = path.join(
       __dirname,
-      "../../Kerala Project_ PM tool Dashboard - GP Operational Status.csv"
+      "./sheetData/Gp_operational.csv"
     );
     const csvContent = fs.readFileSync(csvFilePath, "utf-8");
 
