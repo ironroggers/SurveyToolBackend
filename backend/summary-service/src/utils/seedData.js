@@ -26,7 +26,9 @@ function parseCSV(filePath) {
     if (values.length > 0) {
       const rowData = {};
       headers.forEach((header, index) => {
-        rowData[header] = values[index] || "";
+        const value = values[index] || "";
+        rowData[header] =
+          typeof value === "string" ? value.trim() : String(value).trim();
       });
       rows.push(rowData);
     }
@@ -158,25 +160,15 @@ async function processCsvFile(filePath, sheetName) {
 
   console.log(`   Found ${rows.length} rows and ${headers.length} columns`);
 
-  console.log(`   Analyzing field types...`);
-  const fields = generateFieldDefinitions(headers, rows);
-
   console.log(`   Creating documents...`);
   const documents = rows.map((row, index) => {
     if (rows.length > 500 && (index + 1) % 200 === 0) {
       process.stdout.write(`   Progress: ${index + 1}/${rows.length} rows\r`);
     }
 
-    const typedRowData = {};
-    headers.forEach((header, i) => {
-      const fieldType = fields[i].fieldType;
-      const values = Object.values(row);
-      typedRowData[header] = convertValue(values[i], fieldType);
-    });
-
     return {
       sheetName: sheetName,
-      rowData: typedRowData,
+      rowData: row,
       rowNumber: index + 1,
       others: {
         source: path.basename(filePath),
