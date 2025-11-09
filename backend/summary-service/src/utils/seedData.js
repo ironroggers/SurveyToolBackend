@@ -7,8 +7,7 @@ import Summary from "../models/summaryModel.js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const MONGODB_URI =
-  process.env.MONGODB_URI || "mongodb://localhost:27017/surveydb";
+const MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost:27017/";
 
 function parseCSV(filePath) {
   const fileContent = fs.readFileSync(filePath, "utf-8");
