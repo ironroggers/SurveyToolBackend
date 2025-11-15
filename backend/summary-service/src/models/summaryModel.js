@@ -39,4 +39,10 @@ summarySchema.statics.getSheetData = function (sheetName) {
 
 const Summary = mongoose.model("Summary", summarySchema, "Summary");
 
+// Also expose a model for lowercase collection name, if data exists there
+const SummaryLower =
+  mongoose.models.SummaryLower ||
+  mongoose.model("SummaryLower", summarySchema, "summary");
+
+export { SummaryLower };
 export default Summary;
