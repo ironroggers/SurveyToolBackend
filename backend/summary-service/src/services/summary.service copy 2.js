@@ -1,168 +1,17 @@
-import Summary, { SummaryLower } from "../models/summaryModel.js";
-
-const SHEET_NAMES = {
-  GP_OPERATIONAL: "GP Operational Data",
-  DEPLOYED_TEAMS: "Deployed Teams",
-  DESKTOP_SURVEYS: "Desktop Surveys",
-  HDD_MACHINES: "HDD Machines",
-  BLOCK_ROUTERS: "Block Routers",
-};
-
-const YES_VALUES = new Set(["yes", "y", "true", "1"]);
-const NO_VALUES = new Set(["no", "n", "false", "0"]);
-const DEFAULT_HOTO_DATE = new Date("2025-07-31").toISOString().split("T")[0];
-
-async function fetchSheetRows(sheetName) {
-  const [primaryResult, fallbackResult] = await Promise.allSettled([
-    Summary.find({ sheetName }).select("rowData").lean(),
-    SummaryLower.find({ sheetName }).select("rowData").lean(),
-  ]);
-
-  const primaryRows =
-    primaryResult.status === "fulfilled" ? primaryResult.value : [];
-  if (primaryRows.length > 0) {
-    return primaryRows.map((doc) => doc?.rowData || {});
-  }
-
-  const fallbackRows =
-    fallbackResult.status === "fulfilled" ? fallbackResult.value : [];
-  return fallbackRows.map((doc) => doc?.rowData || {});
-}
-
-function safeString(value) {
-  if (value === null || value === undefined) {
-    return "";
-  }
-  if (typeof value === "number") {
-    return Number.isFinite(value) ? String(value) : "";
-  }
-  return String(value).trim();
-}
-
-function normalizeYesNo(value) {
-  const str = safeString(value);
-  if (!str) {
-    return "";
-  }
-  const lower = str.toLowerCase();
-  if (YES_VALUES.has(lower)) {
-    return "Yes";
-  }
-  if (NO_VALUES.has(lower)) {
-    return "No";
-  }
-  return str;
-}
-
-function normalizeDate(value, fallback = DEFAULT_HOTO_DATE) {
-  if (!value) {
-    return fallback;
-  }
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) {
-    return fallback;
-  }
-  return date.toISOString().split("T")[0];
-}
-
-function mapGpsOperationalRow(row = {}) {
-  return {
-    District_Name: safeString(row["DISTRICT"]),
-    Block_Name: safeString(row["BLOCK"]),
-    Block_Code: safeString(row["Block Code"]),
-    lgd_code:
-      safeString(row["LOCATION CODE"]) ||
-      safeString(row["LGD Code"]) ||
-      safeString(row["LGD CODE"]),
-    gp_name: safeString(row["ONT LOCATION NAME"]),
-    ONT_Availability: safeString(row["ONT AVAILABILITY(%)"]),
-    Hoto_Status: safeString(row["HOTO Status"]),
-    Hoto_Date: normalizeDate(row["HOTO Date"]),
-    GP_Router_Installed: normalizeYesNo(row["GP Router Installed(Yes/No)"]),
-    Visibility_in_SNOC: normalizeYesNo(row["Visibility in SNOC(Yes/ No)"]),
-  };
-}
-
-function mapDeployedTeamRow(row = {}) {
-  return {
-    project: safeString(row["PROJECT"]),
-    payroll: safeString(row["PAY ROLL"]),
-    emp_code: safeString(row["EMP. CODE"]),
-    name: safeString(row["NAME OF EMPLOYEE"]),
-    designation: safeString(row["Designation"]),
-    role: safeString(row["Role"]),
-    head: safeString(row["HEAD"]),
-  };
-}
-
-function mapDesktopSurveyRow(row = {}) {
-  return {
-    District_Name: safeString(row["District name"]),
-    Block_Name: safeString(row["BLOCK NAME"]),
-    Block_Code: safeString(row["Block LGD Code"]),
-    Lgd_Code:
-      safeString(row["LGD CODE"]) ||
-      safeString(row["LGD Code"]) ||
-      safeString(row["LGD code"]),
-    Gp_Name:
-      safeString(row["GP Name"]) ||
-      safeString(row["GP NAME"]) ||
-      safeString(row["GP Name as per Desktop Survey"]),
-    Submitted: normalizeYesNo(
-      row["KML Submitted to BSNL through mail (Yes/No)"]
-    ),
-    Approved: normalizeYesNo(row["BSNL KML Acceptance"]),
-    Physical_Survey_Status: normalizeYesNo(row["Physical survey status"]),
-    Physical_Survey_Approved: normalizeYesNo(
-      row["Physical Survey Approved (Yes/No)"]
-    ),
-    Boq_Submitted: normalizeYesNo(row["BOQ Submitted"]),
-    Boq_Approved: normalizeYesNo(row["BOQ Approved"]),
-  };
-}
-
-function mapHddMachineRow(row = {}) {
-  return {
-    deployment_date: safeString(row["Deployment Date"]),
-    hdd_machine_id: safeString(row["HDD NO"]),
-    operator_name: safeString(row["Under Supervision & Number"]),
-  };
-}
-
-function mapBlockRouterRow(row = {}) {
-  return {
-    District_Name: safeString(row["District"]),
-    Block_Name: safeString(row["Block"]),
-    Block_Code: safeString(row["Block Code"]),
-    Block_Router_Installed: normalizeYesNo(
-      row["Block Router Installed (Yes/No)"]
-    ),
-  };
-}
+import { getGpsOperationalData } from "./gpsOperationalData.util.js";
+import { getDeployedTeams } from "./deployedTeams.util.js";
+import { getDesktopSurveys } from "./desktopSurveys.util.js";
+import { getHddMachines } from "./hddMachines.util.js";
+import { getBlockRouters } from "./blockRouters.util.js";
 
 export async function getSummary() {
-  const [
-    gpsOperationalRows,
-    deployedTeamRows,
-    desktopSurveyRows,
-    hddMachineRows,
-    blockRouterRows,
-  ] = await Promise.all([
-    fetchSheetRows(SHEET_NAMES.GP_OPERATIONAL),
-    fetchSheetRows(SHEET_NAMES.DEPLOYED_TEAMS),
-    fetchSheetRows(SHEET_NAMES.DESKTOP_SURVEYS),
-    fetchSheetRows(SHEET_NAMES.HDD_MACHINES),
-    fetchSheetRows(SHEET_NAMES.BLOCK_ROUTERS),
-  ]);
-
-  const gpsOperationalData = gpsOperationalRows.map(mapGpsOperationalRow);
-  const deployedTeams = deployedTeamRows.map(mapDeployedTeamRow);
-  const desktopSurveys = desktopSurveyRows.map(mapDesktopSurveyRow);
-  const hddMachines = hddMachineRows.map(mapHddMachineRow);
-  const blockRouters = blockRouterRows.map(mapBlockRouterRow);
-
+  const gpsOperationalData = getGpsOperationalData();
+  const deployedTeams = getDeployedTeams();
   const frtTeams = deployedTeams.filter((team) => team.head === "FRT");
   const patrollers = deployedTeams.filter((team) => team.head === "Patroller");
+  const desktopSurveys = getDesktopSurveys();
+  const hddMachines = getHddMachines();
+  const blockRouters = getBlockRouters();
 
   const response = {
     Status: "success",
