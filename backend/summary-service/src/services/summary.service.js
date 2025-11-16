@@ -78,8 +78,14 @@ function mapGpsOperationalRow(row = {}) {
     ONT_Availability: safeString(row["ONT AVAILABILITY(%)"]),
     Hoto_Status: safeString(row["HOTO Status"]),
     Hoto_Date: normalizeDate(row["HOTO Date"]),
-    GP_Router_Installed: normalizeYesNo(row["GP Router Installed(Yes/No)"]),
-    Visibility_in_SNOC: normalizeYesNo(row["Visibility in SNOC(Yes/ No)"]),
+    GP_Router_Installed: normalizeYesNo(
+      row["GP Router Installed(Yes/No)"] ||
+      row['"GP Router Installed(Yes/No)"']
+    ),
+    Visibility_in_SNOC: normalizeYesNo(
+      row["Visibility in SNOC(Yes/ No)"] ||
+      row['"Visibility in SNOC(Yes/ No)"']
+    ),
   };
 }
 
@@ -135,7 +141,8 @@ function mapBlockRouterRow(row = {}) {
     Block_Name: safeString(row["Block"]),
     Block_Code: safeString(row["Block Code"]),
     Block_Router_Installed: normalizeYesNo(
-      row["Block Router Installed (Yes/No)"]
+      row["Block Router Installed (Yes/No)"] ||
+      row['"Block Router Installed (Yes/No)"']
     ),
   };
 }
@@ -223,11 +230,21 @@ export async function getSummary() {
         ).length,
       },
       Hdd: { Deployed: hddMachines.length },
-      Block_Routers: { Deployed: blockRouters.length },
+      Block_Routers: {
+        Installed: blockRouters.filter(
+          (router) => router.Block_Router_Installed === "Yes"
+        ).length,
+        Commissioned: blockRouters.filter(
+          (router) => router.Block_Router_Installed === "Yes"
+        ).length, // Assuming commissioned = installed for now
+      },
       Gp_Routers: {
-        Deployed: gpsOperationalData.filter(
+        Installed: gpsOperationalData.filter(
           (data) => data.GP_Router_Installed === "Yes"
         ).length,
+        Commissioned: gpsOperationalData.filter(
+          (data) => data.GP_Router_Installed === "Yes"
+        ).length, // Assuming commissioned = installed for now
       },
       Snoc: {
         Deployed: gpsOperationalData.filter(
