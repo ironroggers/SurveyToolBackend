@@ -79,12 +79,14 @@ function mapGpsOperationalRow(row = {}) {
     Hoto_Status: safeString(row["HOTO Status"]),
     Hoto_Date: normalizeDate(row["HOTO Date"]),
     GP_Router_Installed: normalizeYesNo(
-      row["GP Router Installed(Yes/No)"] ||
-      row['"GP Router Installed(Yes/No)"']
+      row["GP Router Installed (Yes/No)"] ||
+        row["GP Router Installed(Yes/No)"] ||
+        row['"GP Router Installed(Yes/No)"']
     ),
     Visibility_in_SNOC: normalizeYesNo(
-      row["Visibility in SNOC(Yes/ No)"] ||
-      row['"Visibility in SNOC(Yes/ No)"']
+      row["Visibility in SNOC (Yes/ No)"] ||
+        row["Visibility in SNOC(Yes/ No)"] ||
+        row['"Visibility in SNOC(Yes/ No)"']
     ),
   };
 }
@@ -142,7 +144,7 @@ function mapBlockRouterRow(row = {}) {
     Block_Code: safeString(row["Block Code"]),
     Block_Router_Installed: normalizeYesNo(
       row["Block Router Installed (Yes/No)"] ||
-      row['"Block Router Installed (Yes/No)"']
+        row['"Block Router Installed (Yes/No)"']
     ),
   };
 }

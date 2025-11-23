@@ -4,7 +4,11 @@ import mongoose from "mongoose";
 
 const UNCATEGORIZED = "Uncategorized";
 const missingSheetQuery = {
-  $or: [{ sheetName: { $exists: false } }, { sheetName: null }, { sheetName: "" }],
+  $or: [
+    { sheetName: { $exists: false } },
+    { sheetName: null },
+    { sheetName: "" },
+  ],
 };
 
 export async function getSummaryController(req, res, next) {
@@ -22,10 +26,18 @@ export async function listSheetNames(req, res, next) {
     const [upper, lower, upperMissing, lowerMissing] = await Promise.all([
       Summary.getSheetNames().catch(() => []),
       SummaryLower.distinct("sheetName").catch(() => []),
-      Summary.findOne(missingSheetQuery).select("_id").lean().catch(() => null),
-      SummaryLower.findOne(missingSheetQuery).select("_id").lean().catch(() => null),
+      Summary.findOne(missingSheetQuery)
+        .select("_id")
+        .lean()
+        .catch(() => null),
+      SummaryLower.findOne(missingSheetQuery)
+        .select("_id")
+        .lean()
+        .catch(() => null),
     ]);
-    const namesSet = new Set([...(upper || []), ...(lower || [])].filter(Boolean));
+    const namesSet = new Set(
+      [...(upper || []), ...(lower || [])].filter(Boolean)
+    );
     if (upperMissing || lowerMissing) {
       namesSet.add(UNCATEGORIZED);
     }
@@ -49,8 +61,12 @@ export async function getSheetDataController(req, res, next) {
       sheetName === UNCATEGORIZED ? missingSheetQuery : { sheetName };
     const sort = { rowNumber: 1 };
     const [upperRows, lowerRows] = await Promise.all([
-      Summary.find(query).sort(sort).catch(() => []),
-      SummaryLower.find(query).sort(sort).catch(() => []),
+      Summary.find(query)
+        .sort(sort)
+        .catch(() => []),
+      SummaryLower.find(query)
+        .sort(sort)
+        .catch(() => []),
     ]);
     const rows = [...(upperRows || []), ...(lowerRows || [])];
     res.json({ success: true, data: rows });
@@ -72,8 +88,12 @@ export async function listSummaryDocs(req, res, next) {
     const numericPage = Math.max(1, Number(page) || 1);
 
     const [upperItems, lowerItems] = await Promise.all([
-      Summary.find(query).sort({ createdAt: -1 }).catch(() => []),
-      SummaryLower.find(query).sort({ createdAt: -1 }).catch(() => []),
+      Summary.find(query)
+        .sort({ createdAt: -1 })
+        .catch(() => []),
+      SummaryLower.find(query)
+        .sort({ createdAt: -1 })
+        .catch(() => []),
     ]);
     const combined = [...upperItems, ...lowerItems].sort(
       (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
@@ -113,6 +133,16 @@ export async function createSummaryDoc(req, res, next) {
       others,
     });
     res.status(201).json({ success: true, data: doc });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function createSummaryBulk(req, res, next) {
+  try {
+    const { sheetName, rows } = req.body;
+    const docs = await Summary.insertMany(rows);
+    res.json({ success: true, data: docs });
   } catch (err) {
     next(err);
   }
@@ -186,6 +216,16 @@ export async function deleteSummaryDocById(req, res, next) {
       });
     }
     res.json({ success: true, data: { deleted: true, id } });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function deleteSummarySheet(req, res, next) {
+  try {
+    const { sheetName } = req.params;
+    await Summary.deleteMany({ sheetName });
+    res.json({ success: true, message: "Sheet deleted successfully" });
   } catch (err) {
     next(err);
   }

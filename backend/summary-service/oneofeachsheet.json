@@ -1,0 +1,166 @@
+[
+  {
+    "sheetName": "Block Routers",
+    "doc": {
+      "_id": "6922fd050ae68f170f7b1d97",
+      "sheetName": "Block Routers",
+      "rowData": {
+        "District": "Wayanad",
+        "Block": "MANANTHAVADY",
+        "Block Router Installed (Yes/No)": "No",
+        "Block Router Installation Date": "",
+        "Block Code": 6404
+      },
+      "rowNumber": 144,
+      "__v": 0,
+      "createdAt": "2025-11-23T12:24:37.163Z",
+      "updatedAt": "2025-11-23T12:24:37.163Z"
+    }
+  },
+  {
+    "sheetName": "Deployed Teams",
+    "doc": {
+      "_id": "6922fd140ae68f170f7b1e7b",
+      "sheetName": "Deployed Teams",
+      "rowData": {
+        "PROJECT": "BHARATNET PH-3 KERALA",
+        "PAY ROLL": "APL",
+        "EMP. CODE": "OFF ROLL",
+        "NAME OF EMPLOYEE": "AMAL T",
+        "Designation": "PATROLLER",
+        "Role": "Patroller",
+        "HEAD": "Patroller",
+        "Location": ""
+      },
+      "rowNumber": 202,
+      "__v": 0,
+      "createdAt": "2025-11-23T12:24:52.173Z",
+      "updatedAt": "2025-11-23T12:24:52.173Z"
+    }
+  },
+  {
+    "sheetName": "Desktop Surveys",
+    "doc": {
+      "_id": "6922fd250ae68f170f7b228c",
+      "sheetName": "Desktop Surveys",
+      "rowData": {
+        "Zone Name": "North Zone",
+        "BA Name": "MALAPPURAM",
+        "District name": "MALAPPURAM",
+        "District LGD Code": 517,
+        "BLOCK NAME": "TIRURANGADI",
+        "Block LGD Code": 6352,
+        "GP Name": "TIRURANGADI",
+        "GP NAME": "TIRURANGADI",
+        "LGD CODE": "O221588",
+        "Router Location Name": "TIRURANGADI",
+        "GP Nos": 1,
+        "Convert to Municipality (GP COUNT)": "Yes",
+        "GP Count ammendment": "",
+        "BSNL OFC SCOPE (AS PER RFP) (KM)": 51.92,
+        "OFC SCOPE (AS PER RFP)": 60.71,
+        "Block KML ASSIGNED": "Akash Chandra",
+        "Proposed KML Submission Date": "20-08-2025",
+        "KML Received (Yes/No)": "Yes",
+        "KML received date": "20-08-2025",
+        "KML Submitted to BSNL through mail (Yes/No)": "Yes",
+        "Block KML Submitted to BSNL through mail date": "20-08-2025",
+        "Length as per KML (Proposed)": 72.066,
+        "Length as per KML (Incremental)": "",
+        "BSNL Feedback": "",
+        "Resubmission of ammedmend date": "",
+        "BSNL KML Acceptance": "",
+        "BSNL KML Acceptance Date": "",
+        "KML Length After approval": 70.613,
+        "GP Name as per Desktop Survey": "",
+        "Block Router Location Name as per Desktop Survey": "",
+        "ICP Name as per Desktop Survey": "",
+        "Reffered for documentation work": "",
+        "Reffered for documentation date": "",
+        "Document Ready for Submission": "",
+        "Document Ready for Submission date": "",
+        "No of GP's as per Desktop Survey": "",
+        "Route Length as per Desktop Survey as per documentation (In Km)": "",
+        "Document Submission to BSNL": "",
+        "Signoff from BSNL authority date": "",
+        "Physical survey proposed date": "",
+        "Physical survey Start date": "",
+        "Physical survey End date": "",
+        "Representative from APL Side": "",
+        "Representative from IE Side": "",
+        "Representative from BSNL Side": "",
+        "Videography of the Route Satatus": "",
+        "Physical Survey WIP": "",
+        "Physical survey status": "",
+        "No of Rings": "",
+        "Total route length as per physical survey": "",
+        "Existing Incremental in this Block (KM)": 2.304,
+        "BSNL Leased OFC (KM)": 48.265,
+        "Incremental Route length to be use in new Ring (KM)": "",
+        "New OFC to be laid (KM)": "",
+        "Row identify kn": "",
+        "Row Pending KM": "",
+        "Infra Report Received from SRIT": "",
+        "Survey Report Preparation Status": "",
+        "Report Submission Date": "",
+        "Final KML after Physical Survey": 0,
+        "Physical Survey Approved (Yes/No)": "",
+        "BOQ Prepared": 0,
+        "BOQ Submitted": 0,
+        "BOQ Submition date": 0,
+        "BOQ Approved": 0
+      },
+      "rowNumber": 970,
+      "__v": 0,
+      "createdAt": "2025-11-23T12:25:09.315Z",
+      "updatedAt": "2025-11-23T12:25:09.315Z"
+    }
+  },
+  {
+    "sheetName": "GP Operational Data",
+    "doc": {
+      "_id": "6922fd490ae68f170f7b26fc",
+      "sheetName": "GP Operational Data",
+      "rowData": {
+        "DISTRICT": "THRISSUR",
+        "BLOCK": "MULLASSERY",
+        "Block Code": 6396,
+        "ONT LOCATION NAME": "VENKITANGU",
+        "LOCATION CODE": "KL-THR-MUL-221875",
+        "ONT AVAILABILITY(%)": 100,
+        "REMARKS": "98-100%",
+        "HOTO Status": "Completed",
+        "GP Router Installed (Yes/No)": "No",
+        "GP Router Installation Date": "",
+        "Visibility in SNOC (Yes/ No)": "No",
+        "Visibility in SNOC (Date)": "",
+        "LGD Code": "KL-THR-MUL-221875"
+      },
+      "rowNumber": 1101,
+      "__v": 0,
+      "createdAt": "2025-11-23T12:25:45.016Z",
+      "updatedAt": "2025-11-23T12:25:45.016Z"
+    }
+  },
+  {
+    "sheetName": "HDD Machines",
+    "doc": {
+      "_id": "6922fd5c0ae68f170f7b2729",
+      "sheetName": "HDD Machines",
+      "rowData": {
+        "HDD NO": "HDD No_33",
+        "Model & Ton": "XCMG_32 Ton",
+        "Model Number": "QSB59.9-C210-30",
+        "DOMFG": 45876.00011574074,
+        "Engine No": 93492694,
+        "Location": "Ernakulam werehouse",
+        "Under Supervision & Number": "Rajkumar Pandey - 8292439249",
+        "Deployment Date": 45901.00011574074
+      },
+      "rowNumber": 1,
+      "__v": 0,
+      "createdAt": "2025-11-23T12:26:04.561Z",
+      "updatedAt": "2025-11-23T12:26:04.561Z"
+    }
+  }
+]

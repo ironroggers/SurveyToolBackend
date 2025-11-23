@@ -8,6 +8,8 @@ import {
   getSummaryDocById,
   updateSummaryDocById,
   deleteSummaryDocById,
+  deleteSummarySheet,
+  createSummaryBulk,
 } from "../controllers/summary.controller.js";
 
 export const summaryRouter = Router();
@@ -21,6 +23,8 @@ summaryRouter.get("/sheets/:sheetName", getSheetDataController);
 
 summaryRouter.get("/records", listSummaryDocs);
 summaryRouter.post("/records", createSummaryDoc);
+summaryRouter.post("/records/bulk", createSummaryBulk);
 summaryRouter.get("/records/:id", getSummaryDocById);
 summaryRouter.put("/records/:id", updateSummaryDocById);
 summaryRouter.delete("/records/:id", deleteSummaryDocById);
+summaryRouter.delete("/sheets/:sheetName", deleteSummarySheet);
