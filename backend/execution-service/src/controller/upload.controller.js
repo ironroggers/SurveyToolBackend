@@ -16,15 +16,21 @@ export const createPresignUrl = async (req, res) => {
   try {
     console.log('[uploads] presign request body:', req.body);
     const { filename, contentType = 'image/jpeg' } = req.body || {};
+    // Other services (e.g. hoto-service) use AWS_S3_BUCKET, so accept either name
+    const bucket = process.env.S3_BUCKET || process.env.AWS_S3_BUCKET;
+    if (!bucket) {
+      console.error('[uploads] presign error: S3_BUCKET is not configured');
+      return res.status(500).json({ message: 'S3 bucket is not configured on the server (set S3_BUCKET)' });
+    }
     const key = `${process.env.S3_PREFIX || 'uploads'}/${uuidv4()}-${filename || 'image.jpg'}`;
     const command = new PutObjectCommand({
-      Bucket: process.env.S3_BUCKET,
+      Bucket: bucket,
       Key: key,
       ContentType: contentType,
       // Do not set ACL here; many buckets have ACLs disabled. Use bucket policy instead.
     });
     const uploadUrl = await getSignedUrl(s3, command, { expiresIn: 60 * 5 });
-    const publicUrl = `https://${process.env.S3_BUCKET}.s3.${process.env.AWS_REGION}.amazonaws.com/${key}`;
+    const publicUrl = `https://${bucket}.s3.${process.env.AWS_REGION}.amazonaws.com/${key}`;
     console.log('[uploads] presign success key:', key);
     res.json({ uploadUrl, publicUrl, contentType });
   } catch (error) {
