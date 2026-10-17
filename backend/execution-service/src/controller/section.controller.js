@@ -1,8 +1,40 @@
+import mongoose from "mongoose";
 import Section from "../models/section.model.js";
+import BlockProfile, { GEOGRAPHY_FIELDS } from "../models/blockProfile.model.js";
+import { findBlockNode, formatLatLong } from "../utils/blockNodes.js";
+
+const toNodeRef = ({ type, code, name }) => ({ type, code, name });
+
+// Sections under a block profile take its names and LGD codes, as location sections
+// take them from the Location. They run from one of the block's nodes (BHQ or GP) to
+// another, and their end coordinates come from those nodes. The ends are required on
+// create; an update without them leaves them as they are.
+const withBlockProfile = async (payload, { isCreate }) => {
+  if (!payload?.blockProfile) return payload;
+  const profile = await BlockProfile.findById(payload.blockProfile);
+  if (!profile) throw new Error("Block profile not found");
+  const geography = Object.fromEntries(GEOGRAPHY_FIELDS.map((field) => [field, profile[field] ?? ""]));
+  const result = { ...payload, ...geography };
+
+  if (isCreate || payload.fromNode || payload.toNode) {
+    const from = findBlockNode(profile, payload.fromNode);
+    const to = findBlockNode(profile, payload.toNode);
+    if (!from) throw new Error("From must be this block's BHQ or one of its GPs");
+    if (!to) throw new Error("To must be this block's BHQ or one of its GPs");
+    if (from.type === to.type && from.code === to.code) throw new Error("From and To must be different");
+    Object.assign(result, {
+      fromNode: toNodeRef(from),
+      toNode: toNodeRef(to),
+      fromLatLong: formatLatLong(from),
+      toLatLong: formatLatLong(to),
+    });
+  }
+  return result;
+};
 
 export const createSection = async (req, res) => {
   try {
-    const payload = req.body;
+    const payload = await withBlockProfile(req.body, { isCreate: true });
     const section = await Section.create(payload);
     res.status(201).json(section);
   } catch (error) {
@@ -12,8 +44,15 @@ export const createSection = async (req, res) => {
 
 export const getSections = async (req, res) => {
   try {
-    const { page = 1, limit = 20, q } = req.query;
+    const { page = 1, limit = 20, q, blockProfile, location } = req.query;
     const filter = {};
+    for (const [key, value] of Object.entries({ blockProfile, location })) {
+      if (!value) continue;
+      if (!mongoose.isValidObjectId(value)) {
+        return res.status(400).json({ message: `Invalid ${key} id` });
+      }
+      filter[key] = value;
+    }
     if (q) {
       filter.$or = [
         { name: { $regex: q, $options: "i" } },
@@ -46,7 +85,7 @@ export const getSectionById = async (req, res) => {
 export const updateSection = async (req, res) => {
   try {
     const { id } = req.params;
-    const updates = req.body;
+    const updates = await withBlockProfile(req.body, { isCreate: false });
     const updated = await Section.findByIdAndUpdate(id, updates, { new: true });
     if (!updated) return res.status(404).json({ message: "Section not found" });
     res.json(updated);

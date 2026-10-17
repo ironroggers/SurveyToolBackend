@@ -1,23 +1,15 @@
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import { PutObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { v4 as uuidv4 } from 'uuid';
 import sharp from 'sharp';
 import Tesseract from 'tesseract.js';
-
-const s3 = new S3Client({
-  region: process.env.AWS_REGION,
-  credentials: process.env.AWS_ACCESS_KEY_ID ? {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-  } : undefined,
-});
+import { getS3Bucket, getS3Client } from '../utils/s3.js';
 
 export const createPresignUrl = async (req, res) => {
   try {
     console.log('[uploads] presign request body:', req.body);
     const { filename, contentType = 'image/jpeg' } = req.body || {};
-    // Other services (e.g. hoto-service) use AWS_S3_BUCKET, so accept either name
-    const bucket = process.env.S3_BUCKET || process.env.AWS_S3_BUCKET;
+    const bucket = getS3Bucket();
     if (!bucket) {
       console.error('[uploads] presign error: S3_BUCKET is not configured');
       return res.status(500).json({ message: 'S3 bucket is not configured on the server (set S3_BUCKET)' });
@@ -29,10 +21,11 @@ export const createPresignUrl = async (req, res) => {
       ContentType: contentType,
       // Do not set ACL here; many buckets have ACLs disabled. Use bucket policy instead.
     });
-    const uploadUrl = await getSignedUrl(s3, command, { expiresIn: 60 * 5 });
+    const uploadUrl = await getSignedUrl(getS3Client(), command, { expiresIn: 60 * 5 });
     const publicUrl = `https://${bucket}.s3.${process.env.AWS_REGION}.amazonaws.com/${key}`;
     console.log('[uploads] presign success key:', key);
-    res.json({ uploadUrl, publicUrl, contentType });
+    // key lets callers delete the object later (block profile KML files store it as s3Key)
+    res.json({ uploadUrl, publicUrl, contentType, key });
   } catch (error) {
     console.error('[uploads] presign error:', error);
     res.status(500).json({ message: error.message });

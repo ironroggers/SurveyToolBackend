@@ -1,4 +1,26 @@
 import mongoose from "mongoose";
+import { NODE_TYPES } from "../utils/blockNodes.js";
+
+// One end of a block section: the block's BHQ or one of its GPs (code is the LGD code for a GP)
+const sectionEndSchema = new mongoose.Schema(
+        {
+                type: {
+                        type: String,
+                        enum: NODE_TYPES,
+                        required: true
+                },
+                code: {
+                        type: String,
+                        trim: true,
+                        required: true
+                },
+                name: {
+                        type: String,
+                        trim: true
+                }
+        },
+        { _id: false }
+);
 
 const sectionSchema = new mongoose.Schema({
         name: {
@@ -33,9 +55,27 @@ const sectionSchema = new mongoose.Schema({
                 type: String,
                 trim: true
         },
+        // Older sections hang off a Location; new ones belong to a BlockProfile
         location: {
                 type: mongoose.Schema.Types.ObjectId,
-                required: [true, "Form ID is required"]
+                required: [
+                        function () {
+                                return !this.blockProfile;
+                        },
+                        "Location or block profile is required"
+                ]
+        },
+        blockProfile: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "BlockProfile",
+                index: true
+        },
+        // Block sections only. fromLatLong / toLatLong are then filled from these nodes.
+        fromNode: {
+                type: sectionEndSchema
+        },
+        toNode: {
+                type: sectionEndSchema
         },
         fromLatLong: {
                 type: String,
