@@ -94,6 +94,11 @@ const sectionSchema = new mongoose.Schema({
                 type: Number,
                 default: 1
         },
+        // Last sequence number given to an execution subsection (incremented atomically)
+        subSectionSeq: {
+                type: Number,
+                default: 0
+        },
         others : {
                 type: mongoose.Schema.Types.Mixed,
         }

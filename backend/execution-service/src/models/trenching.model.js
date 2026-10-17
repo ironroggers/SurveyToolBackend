@@ -1,43 +1,7 @@
 import mongoose from "mongoose";
-const mediaFileSchema = new mongoose.Schema({
-    url: {
-        type: String,
-        required: [true, "Media file URL is required"]
-    },
-    fileType: {
-        type: String,
-        required: [true, "File type is required"],
-        enum: ["IMAGE", "VIDEO", "DOCUMENT", "AUDIO"]
-    },
-    description: {
-        type: String,
-        trim: true
-    },
-    latitude: {
-        type: String,
-        required: [true, "Latitude is required for media file"]
-    },
-    longitude: {
-        type: String,
-        required: [true, "Longitude is required for media file"]
-    },
-    deviceName: {
-        type: String,
-        trim: true
-    },
-    accuracy: {
-        type: Number
-    },
-    place: {
-        type: String,
-        trim: true
-    },
-    uploadedAt: {
-        type: Date,
-        default: Date.now,
-        required: [true, "Upload date is required"]
-    }
-}, { _id: true });
+import { EXECUTION_TYPES } from "../config/executionTypes.js";
+import { mediaFileSchema } from "./mediaFile.schema.js";
+import { actorSchema } from "./execution.schemas.js";
 
 const trenchingSchema = new mongoose.Schema({
     subSection: {
@@ -73,7 +37,8 @@ const trenchingSchema = new mongoose.Schema({
     protectionType: {
         type: String,
         trim: true,
-        enum: ["DWC", "GI with PCC","other"],
+        // Old values kept; the rest are the execution options
+        enum: ["DWC", "GI with PCC", "other", "GI", "DWC PCC", "GI PCC", "RCC"],
     },
     mediaFiles : [mediaFileSchema],
     status: {
@@ -82,6 +47,42 @@ const trenchingSchema = new mongoose.Schema({
     },
     others : {
         type: mongoose.Schema.Types.Mixed,
-    }
+    },
+
+    // ---- OFC execution entries (trenchLength / trenchDepth hold length and depth,
+    // trenchLatLong the "lat,lng" text, mediaFiles[0] the optional photo)
+    entryType: {
+        type: String,
+        enum: Object.keys(EXECUTION_TYPES)
+    },
+    offset: Number,
+    side: {
+        type: String,
+        trim: true
+    },
+    landmark: {
+        type: String,
+        trim: true
+    },
+    clampOn: {
+        type: String,
+        trim: true
+    },
+    clampMethod: {
+        type: String,
+        trim: true
+    },
+    remarks: {
+        type: String,
+        trim: true
+    },
+    latitude: Number,
+    longitude: Number,
+    accuracy: Number,
+    accuracyAboveLimit: Boolean,
+    capturedAt: Date,
+    createdBy: actorSchema
+}, {
+    timestamps: true
 })
 export default mongoose.model("Trenching", trenchingSchema, "Trenching");

@@ -1,4 +1,14 @@
 import mongoose from "mongoose";
+import { EXECUTION_TYPES, STATUS_ORDER } from "../config/executionTypes.js";
+import {
+    actorSchema,
+    approvalSchema,
+    executionPointSchema,
+    historySchema,
+    initialConditionSchema,
+    withVersion,
+} from "./execution.schemas.js";
+
 const rowSchema = new mongoose.Schema({
     rowOwnership: {
         type: String,
@@ -112,6 +122,48 @@ const subSectionSchema = new mongoose.Schema({
     },
     others : {
         type: mongoose.Schema.Types.Mixed,
-    }
+    },
+
+    // ---- OFC execution (subsections created by the execution wizard). Legacy
+    // subsections have no typeOfWork and keep using the fields above only.
+    typeOfWork: {
+        type: String,
+        enum: Object.keys(EXECUTION_TYPES)
+    },
+    // Per-section counter behind the generated name; never reused
+    seq: {
+        type: Number
+    },
+    // Separate from the numeric `status` above, which stays untouched
+    executionStatus: {
+        type: String,
+        enum: STATUS_ORDER,
+        default: function () {
+            return this.typeOfWork ? "NOT_STARTED" : undefined;
+        }
+    },
+    initialCondition: initialConditionSchema,
+    start: executionPointSchema,
+    end: executionPointSchema,
+    approval: approvalSchema,
+    history: {
+        type: [historySchema],
+        default: undefined
+    },
+    createdBy: actorSchema,
+    updatedBy: actorSchema
+}, {
+    timestamps: true,
+    // Every save bumps __v and fails if someone saved in between (sent to clients as `version`)
+    optimisticConcurrency: true,
+    toJSON: withVersion
 })
+
+subSectionSchema.index({ section: 1, executionStatus: 1, typeOfWork: 1 });
+// Generated names are unique per section; legacy names (no seq) are free text and may repeat
+subSectionSchema.index(
+    { section: 1, name: 1 },
+    { unique: true, partialFilterExpression: { seq: { $exists: true } } }
+);
+
 export default mongoose.model("SubSection", subSectionSchema, "SubSection");

@@ -3,6 +3,7 @@ import Section from "../models/section.model.js";
 import { PERMISSIONS, normalizeRole, permissionsForRole } from "../config/permissions.js";
 import { deleteS3Object } from "../utils/s3.js";
 import { findBlockNode, formatLatLong } from "../utils/blockNodes.js";
+import { blockProgress } from "../services/progress.service.js";
 
 // Fields clients may set on create/update. KML files have their own routes.
 const EDITABLE_FIELDS = [
@@ -63,9 +64,15 @@ const sectionStats = async (ids) => {
   return new Map(rows.map((row) => [String(row._id), row]));
 };
 
-const withStats = (profile, stats) => {
+// `progress` is the execution progress behind the Blocks list's three marks
+const withStats = (profile, stats, progress) => {
   const row = stats.get(String(profile._id));
-  return { ...profile.toJSON(), sectionCount: row?.sectionCount || 0, sectionLength: row?.sectionLength || 0 };
+  return {
+    ...profile.toJSON(),
+    sectionCount: row?.sectionCount || 0,
+    sectionLength: row?.sectionLength || 0,
+    progress: progress?.get(String(profile._id)),
+  };
 };
 
 // Sections copy their end nodes' names and coordinates, so refresh them after the
@@ -86,8 +93,8 @@ const syncSectionEnds = async (profile) => {
 };
 
 const respondWithProfile = async (res, profile, status = 200) => {
-  const stats = await sectionStats([profile._id]);
-  res.status(status).json(withStats(profile, stats));
+  const [stats, progress] = await Promise.all([sectionStats([profile._id]), blockProgress([profile])]);
+  res.status(status).json(withStats(profile, stats, progress));
 };
 
 export const getBlockProfilePermissions = (req, res) => {
@@ -100,27 +107,44 @@ export const getBlockProfilePermissions = (req, res) => {
 
 export const getBlockProfiles = async (req, res) => {
   try {
-    const { page = 1, limit = 20, q, status } = req.query;
+    const { page = 1, limit = 20, q, status, district } = req.query;
     const filter = {};
     // Deactivated profiles stay hidden unless asked for; status=ALL returns everything
     if (!status) filter.status = { $ne: "INACTIVE" };
     else if (status !== "ALL") filter.status = status;
+    if (district && district !== "ALL") filter.district = district;
     if (q) {
       const pattern = { $regex: escapeRegex(q), $options: "i" };
-      filter.$or = [{ block: pattern }, { district: pattern }, { blockCode: pattern }];
+      filter.$or = [
+        { block: pattern },
+        { district: pattern },
+        { blockCode: pattern },
+        { "gps.name": pattern },
+        { "gps.lgdCode": pattern },
+      ];
     }
     const skip = (Number(page) - 1) * Number(limit);
     const [profiles, total] = await Promise.all([
       BlockProfile.find(filter).sort({ district: 1, block: 1 }).skip(skip).limit(Number(limit)),
       BlockProfile.countDocuments(filter),
     ]);
-    const stats = await sectionStats(profiles.map((profile) => profile._id));
+    const [stats, progress] = await Promise.all([sectionStats(profiles.map((profile) => profile._id)), blockProgress(profiles)]);
     res.json({
-      items: profiles.map((profile) => withStats(profile, stats)),
+      items: profiles.map((profile) => withStats(profile, stats, progress)),
       total,
       page: Number(page),
       limit: Number(limit),
     });
+  } catch (error) {
+    sendError(res, error);
+  }
+};
+
+// GET /api/block-profiles/districts — for the Blocks list's district filter
+export const getDistricts = async (req, res) => {
+  try {
+    const districts = await BlockProfile.distinct("district", { status: { $ne: "INACTIVE" } });
+    res.json({ items: districts.filter(Boolean).sort((a, b) => a.localeCompare(b)) });
   } catch (error) {
     sendError(res, error);
   }

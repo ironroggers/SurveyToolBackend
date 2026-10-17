@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import Section from "../models/section.model.js";
 import BlockProfile, { GEOGRAPHY_FIELDS } from "../models/blockProfile.model.js";
 import { findBlockNode, formatLatLong } from "../utils/blockNodes.js";
+import { sectionExecutionSummaries } from "../services/progress.service.js";
 
 const toNodeRef = ({ type, code, name }) => ({ type, code, name });
 
@@ -65,7 +66,18 @@ export const getSections = async (req, res) => {
       Section.find(filter).skip(skip).limit(Number(limit)),
       Section.countDocuments(filter),
     ]);
-    res.json({ items, total, page: Number(page), limit: Number(limit) });
+    // Block sections also carry subsection counts by execution status and the restoration state
+    const blockSections = items.filter((s) => s.blockProfile);
+    const summaries = await sectionExecutionSummaries(blockSections.map((s) => s._id));
+    res.json({
+      items: items.map((s) => {
+        const summary = summaries.get(String(s._id));
+        return summary ? { ...s.toJSON(), counts: summary.counts, restoration: summary.restoration } : s;
+      }),
+      total,
+      page: Number(page),
+      limit: Number(limit),
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

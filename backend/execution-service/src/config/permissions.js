@@ -1,9 +1,11 @@
-// Who can do what with block profiles. This is the only copy of the matrix:
-// the web portal and the mobile app read it from GET /api/block-profiles/permissions,
-// so moving to L1–L4 roles means changing the role keys here.
+// Who can do what with block profiles and OFC execution. This is the only copy of
+// the matrix: the web portal and the mobile app read it from GET /api/permissions
+// (or /api/block-profiles/permissions), so moving to L1–L4 roles means changing the
+// role keys here.
 //
 // Not enforced on the server yet. Auth is still off for every execution-service
 // route; once it lands, routes check these same actions against req.user.
+// (Each route is commented with the action it needs.)
 
 export const ROLES = ["ADMIN", "SUPERVISOR", "EXECUTION ENGINEER", "SURVEYOR", "VIEWER"];
 
@@ -40,6 +42,34 @@ export const PERMISSIONS = {
     ADMIN: "all",
     SUPERVISOR: "all",
     "EXECUTION ENGINEER": "all",
+  },
+
+  // OFC execution
+  viewExecution: {
+    ADMIN: "all",
+    SUPERVISOR: "all",
+    "EXECUTION ENGINEER": "assigned",
+    VIEWER: "all",
+  },
+  captureInfra: {
+    ADMIN: "all",
+    SUPERVISOR: "all",
+    "EXECUTION ENGINEER": "all",
+  },
+  // Create, start, entries, end, reopen
+  executeSubsection: {
+    ADMIN: "all",
+    SUPERVISOR: "all",
+    "EXECUTION ENGINEER": "all",
+  },
+  executeRestoration: {
+    ADMIN: "all",
+    SUPERVISOR: "all",
+    "EXECUTION ENGINEER": "all",
+  },
+  // Approve or reject subsections and restorations. Add SUPERVISOR: "all" to let supervisors approve.
+  approveExecution: {
+    ADMIN: "all",
   },
 };
 
