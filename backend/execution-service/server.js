@@ -12,6 +12,7 @@ import "./src/models/trenching.model.js";
 import "./src/models/blockProfile.model.js";
 import "./src/models/restoration.model.js";
 import "./src/models/infraCapture.model.js";
+import "./src/models/mediaStamp.model.js";
 
 // Routes
 import sectionRoutes from "./src/routes/section.routes.js";
@@ -21,6 +22,8 @@ import uploadRoutes from "./src/routes/upload.routes.js";
 import aiRoutes from "./src/routes/ai.routes.js";
 import blockProfileRoutes from "./src/routes/blockProfile.routes.js";
 import workRoutes from "./src/routes/work.routes.js";
+import mediaRoutes from "./src/routes/media.routes.js";
+import { startStampWorker } from "./src/services/stampQueue.service.js";
 import { readActor } from "./src/midddleware/actor.middleware.js";
 
 dotenv.config();
@@ -52,6 +55,7 @@ app.use("/api/trenchings", trenchingRoutes);
 app.use("/api/uploads", uploadRoutes);
 app.use("/api/ai", aiRoutes);
 app.use("/api/block-profiles", blockProfileRoutes);
+app.use("/api/media", mediaRoutes);
 app.use("/api", workRoutes);
 
 // Global 404
@@ -70,6 +74,8 @@ mongoose
     app.listen(PORT, () => {
       console.log(`Execution service running on port ${PORT}`);
     });
+    // Burns the location stamp into uploaded photos and videos in the background
+    startStampWorker().catch((err) => console.error("[stamp] worker didn't start:", err.message));
   })
   .catch((err) => {
     console.error("MongoDB connection error:", err);

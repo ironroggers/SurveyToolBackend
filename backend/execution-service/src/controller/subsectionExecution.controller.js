@@ -20,6 +20,7 @@ import {
 } from "../services/execution.service.js";
 import { sectionExecutionSummaries } from "../services/progress.service.js";
 import { jobCard } from "../services/views.service.js";
+import { queueStampsFor } from "../services/stampQueue.service.js";
 
 // The OFC execution flow for one subsection. Rules are in services/execution.service.js.
 
@@ -85,6 +86,7 @@ export const createExecutionSubsection = async (req, res) => {
       createdBy: actorOf(req),
       updatedBy: actorOf(req),
     });
+    queueStampsFor(sub);
     await respond(res, sub, 201);
   } catch (error) {
     sendError(res, error);
@@ -115,6 +117,7 @@ export const startSubsection = async (req, res) => {
     sub.history.push(historyEntry(req, "started", startedText(sub.typeOfWork)));
     sub.updatedBy = actorOf(req);
     await sub.save();
+    queueStampsFor(sub);
     await respond(res, sub);
   } catch (error) {
     sendError(res, error);
@@ -138,6 +141,7 @@ export const addEntry = async (req, res) => {
     const sub = await loadExecutionSub(req.params.id);
     assertEntriesOpen(sub);
     const entry = await Trenching.create(buildEntry(req, sub));
+    queueStampsFor(entry);
     await respond(res, await touch(req, sub), 201, { entryId: entry._id });
   } catch (error) {
     sendError(res, error);
@@ -155,6 +159,7 @@ export const updateEntry = async (req, res) => {
     const { capturedAt: _capturedAt, createdBy: _createdBy, ...changes } = buildEntry(req, sub);
     entry.set(changes);
     await entry.save();
+    queueStampsFor(entry);
     await respond(res, await touch(req, sub));
   } catch (error) {
     sendError(res, error);
@@ -189,6 +194,7 @@ export const endSubsection = async (req, res) => {
     sub.history.push(historyEntry(req, "ended", endedText(sub.typeOfWork)));
     sub.updatedBy = actorOf(req);
     await sub.save();
+    queueStampsFor(sub);
     await respond(res, sub);
   } catch (error) {
     sendError(res, error);

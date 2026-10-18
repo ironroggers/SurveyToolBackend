@@ -1,5 +1,6 @@
 import Trenching from "../models/trenching.model.js";
 import { assertTrenchingAllowed } from "./subsectionExecution.controller.js";
+import { queueStampsFor } from "../services/stampQueue.service.js";
 
 // Entries of execution subsections can only change while they're in progress
 const guardFails = async (res, subSectionId) => {
@@ -16,6 +17,7 @@ export const createTrenching = async (req, res) => {
   try {
     if (await guardFails(res, req.body?.subSection)) return;
     const doc = await Trenching.create(req.body);
+    queueStampsFor(doc);
     res.status(201).json(doc);
   } catch (error) {
     res.status(400).json({ message: error.message });
@@ -54,6 +56,7 @@ export const updateTrenching = async (req, res) => {
     if (current && (await guardFails(res, current.subSection))) return;
     const updated = await Trenching.findByIdAndUpdate(req.params.id, req.body, { new: true });
     if (!updated) return res.status(404).json({ message: "Trenching not found" });
+    queueStampsFor(updated);
     res.json(updated);
   } catch (error) {
     res.status(400).json({ message: error.message });

@@ -4,6 +4,7 @@ import { MEDIA_RULES } from "../config/executionTypes.js";
 import { conflict, failIfErrors, notFound, sendError } from "../utils/httpError.js";
 import { distanceM, pointOf, round } from "../utils/geo.js";
 import { actorOf, checkVersion, cleanFix, cleanMedia } from "../services/execution.service.js";
+import { queueStampsFor } from "../services/stampQueue.service.js";
 
 // Block HQ and GP infra: a GPS location and 1–4 photos, each with an optional description.
 // Editable after saving.
@@ -52,10 +53,14 @@ const save = async (req, filter) => {
   if (existing) {
     checkVersion(existing, req.body?.version);
     existing.set({ ...values, updatedBy: actorOf(req) });
-    return existing.save();
+    const saved = await existing.save();
+    queueStampsFor(saved);
+    return saved;
   }
   try {
-    return await InfraCapture.create({ ...filter, ...values, capturedBy: actorOf(req), updatedBy: actorOf(req) });
+    const created = await InfraCapture.create({ ...filter, ...values, capturedBy: actorOf(req), updatedBy: actorOf(req) });
+    queueStampsFor(created);
+    return created;
   } catch (error) {
     // Someone else saved the first capture at the same moment
     if (error.code === 11000) throw conflict("This was updated on another device", "STALE");

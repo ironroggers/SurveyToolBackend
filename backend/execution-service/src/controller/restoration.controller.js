@@ -5,6 +5,7 @@ import { ENDED_STATUSES, MEDIA_RULES } from "../config/executionTypes.js";
 import { badRequest, conflict, notFound, sendError } from "../utils/httpError.js";
 import { actorOf, checkVersion, cleanMediaSet, historyEntry, roleLabel } from "../services/execution.service.js";
 import { deriveRestorationStatus } from "../services/progress.service.js";
+import { queueStampsFor } from "../services/stampQueue.service.js";
 
 // One restoration per section: an after photo + video for every subsection once the
 // area is restored. LOCKED / READY are derived from the subsections.
@@ -114,6 +115,7 @@ export const saveRestorationItem = async (req, res) => {
         throw error;
       }
     }
+    queueStampsFor(item);
     res.json(view(await loadState(req.params.id)));
   } catch (error) {
     sendError(res, error);
