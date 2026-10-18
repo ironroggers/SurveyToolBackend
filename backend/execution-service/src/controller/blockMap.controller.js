@@ -1,0 +1,179 @@
+import BlockProfile from "../models/blockProfile.model.js";
+import Section from "../models/section.model.js";
+import SubSection from "../models/subSection.model.js";
+import Trenching from "../models/trenching.model.js";
+import InfraCapture from "../models/infraCapture.model.js";
+import Restoration from "../models/restoration.model.js";
+import { notFound, sendError } from "../utils/httpError.js";
+import { parseLatLong, pointOf } from "../utils/geo.js";
+import { sectionExecutionSummaries } from "../services/progress.service.js";
+
+// Everything of a block that has a place on the map, in one response, for the block
+// map's layers: infra captures, sections, subsections (planned line, pits, reference
+// points, entries) and every geotagged photo or video. Points are { lat, lng }.
+
+// A geotagged photo or video, flattened for the map. Media without usable coordinates
+// (or at 0, 0) is left out and only counted.
+const mediaPoint = (m, extra) => {
+  const point = pointOf(m);
+  if (!point || (point.lat === 0 && point.lng === 0)) return null;
+  return {
+    id: String(m._id || `${extra.kind}:${m.url}`),
+    url: m.url,
+    posterUrl: m.posterUrl,
+    fileType: m.fileType,
+    ...point,
+    accuracy: m.accuracy,
+    accuracyAboveLimit: Boolean(m.accuracyAboveLimit),
+    source: m.source || "CAMERA",
+    locationSource: m.locationSource || "GPS",
+    capturedAt: m.capturedAt || m.uploadedAt,
+    deviceName: m.deviceName,
+    place: m.place,
+    description: m.description,
+    ...extra,
+  };
+};
+
+const pitView = (point) => {
+  if (!point) return null;
+  const at = pointOf(point.pit) || pointOf(point);
+  return at
+    ? {
+        ...at,
+        at: point.at,
+        refs: (point.pit?.refs || [])
+          .map((r) => {
+            const p = pointOf(r);
+            return p ? { ...p, description: r.description, tapeDistanceM: r.tapeDistanceM, gpsDistanceM: r.gpsDistanceM } : null;
+          })
+          .filter(Boolean),
+      }
+    : null;
+};
+
+// GET /api/block-profiles/:id/map   (viewExecution)
+export const getBlockMap = async (req, res) => {
+  try {
+    const profile = await BlockProfile.findById(req.params.id).select("block bhq gps").lean();
+    if (!profile) throw notFound("Block profile not found");
+
+    const sections = await Section.find({ blockProfile: profile._id }).select("name fromNode toNode fromLatLong toLatLong sectionLength").lean();
+    const sectionIds = sections.map((s) => s._id);
+    const [subs, captures, restorations, summaries] = await Promise.all([
+      SubSection.find({ section: { $in: sectionIds } })
+        .select("name section typeOfWork executionStatus roadName fromLatLong toLatLong subSectionLength seq initialCondition start end")
+        .sort({ seq: 1, createdAt: 1 })
+        .lean(),
+      InfraCapture.find({ blockProfile: profile._id }).lean(),
+      Restoration.find({ section: { $in: sectionIds } }).select("section items status").lean(),
+      sectionExecutionSummaries(sectionIds),
+    ]);
+    const entries = await Trenching.find({ subSection: { $in: subs.map((s) => s._id) } })
+      .select("subSection latitude longitude trenchLatLong mediaFiles capturedAt createdAt trenchLength")
+      .sort({ capturedAt: 1, createdAt: 1, _id: 1 })
+      .lean();
+
+    const sectionName = new Map(sections.map((s) => [String(s._id), s.name]));
+    const subById = new Map(subs.map((s) => [String(s._id), s]));
+    const gpName = new Map((profile.gps || []).map((gp) => [gp.lgdCode, gp.name]));
+    const media = [];
+    let withoutLocation = 0;
+    const push = (m, extra) => {
+      if (!m) return;
+      const item = mediaPoint(m, extra);
+      if (item) media.push(item);
+      else withoutLocation += 1;
+    };
+    const subExtra = (sub, kind, label) => ({
+      kind,
+      label,
+      subSectionId: String(sub._id),
+      subSectionName: sub.name,
+      sectionId: String(sub.section),
+      sectionName: sectionName.get(String(sub.section)),
+    });
+
+    // ---- infra
+    const infra = captures.map((c) => {
+      const name = c.level === "BLOCK" ? profile.bhq?.name || profile.block : gpName.get(c.gpLgdCode) || c.gpLgdCode;
+      const kind = c.level === "BLOCK" ? "BLOCK_INFRA" : "GP_INFRA";
+      (c.photos || []).forEach((p) =>
+        push(p.media, { kind, label: c.level === "BLOCK" ? "Block infra" : `GP infra · ${name}`, description: p.description || p.media?.description, gpLgdCode: c.gpLgdCode })
+      );
+      const point = pointOf(c);
+      return { _id: String(c._id), level: c.level, gpLgdCode: c.gpLgdCode, name, ...(point || {}), accuracy: c.accuracy, photoCount: c.photos?.length || 0, updatedAt: c.updatedAt };
+    });
+
+    // ---- sections: a line between their nodes (or their stored lat/long text)
+    const sectionViews = sections.map((s) => {
+      const from = pointOf(s.fromNode) || parseLatLong(s.fromLatLong);
+      const to = pointOf(s.toNode) || parseLatLong(s.toLatLong);
+      const summary = summaries.get(String(s._id));
+      return {
+        _id: String(s._id),
+        name: s.name,
+        from,
+        to,
+        fromName: s.fromNode?.name,
+        toName: s.toNode?.name,
+        sectionLength: s.sectionLength,
+        counts: summary?.counts,
+        total: summary?.total || 0,
+        restorationStatus: summary?.restoration?.status,
+      };
+    });
+
+    // ---- entries, grouped per subsection in capture order
+    const entriesBySub = new Map();
+    for (const e of entries) {
+      const key = String(e.subSection);
+      const point = pointOf(e) || parseLatLong(e.trenchLatLong);
+      if (!entriesBySub.has(key)) entriesBySub.set(key, []);
+      if (point) entriesBySub.get(key).push({ ...point, length: e.trenchLength, capturedAt: e.capturedAt || e.createdAt });
+      const sub = subById.get(key);
+      if (sub) (e.mediaFiles || []).forEach((m) => push(m, subExtra(sub, "ENTRY", `Entry · ${sub.name}`)));
+    }
+
+    // ---- subsections
+    const subViews = subs.map((sub) => {
+      const ic = sub.initialCondition || {};
+      [...(ic.photos || []), ic.video].forEach((m) => push(m, subExtra(sub, "SITE", `Site condition · ${sub.name}`)));
+      ["start", "end"].forEach((which) => {
+        const point = sub[which];
+        [...(point?.photos || []), point?.video].forEach((m) =>
+          push(m, subExtra(sub, which === "start" ? "START" : "END", `${which === "start" ? "Start" : "End"} · ${sub.name}`))
+        );
+      });
+      return {
+        _id: String(sub._id),
+        name: sub.name,
+        sectionId: String(sub.section),
+        sectionName: sectionName.get(String(sub.section)),
+        typeOfWork: sub.typeOfWork,
+        executionStatus: sub.executionStatus,
+        legacy: !sub.typeOfWork,
+        roadName: sub.roadName,
+        subSectionLength: sub.subSectionLength,
+        from: parseLatLong(sub.fromLatLong),
+        to: parseLatLong(sub.toLatLong),
+        start: pitView(sub.start),
+        end: pitView(sub.end),
+        entries: entriesBySub.get(String(sub._id)) || [],
+      };
+    });
+
+    // ---- restoration (after photos and videos)
+    for (const r of restorations) {
+      for (const item of r.items || []) {
+        const sub = subById.get(String(item.subSection));
+        if (!sub) continue;
+        [...(item.photos || []), item.video].forEach((m) => push(m, subExtra(sub, "RESTORATION", `Restoration · ${sub.name}`)));
+      }
+    }
+
+    res.json({ infra, sections: sectionViews, subsections: subViews, media, mediaWithoutLocation: withoutLocation });
+  } catch (error) {
+    sendError(res, error);
+  }
+};

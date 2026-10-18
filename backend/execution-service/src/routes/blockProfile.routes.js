@@ -11,6 +11,7 @@ import {
   getDistricts,
 } from "../controller/blockProfile.controller.js";
 import { getBlockInfra, saveBlockInfra, getGpInfraList, getGpInfra, saveGpInfra } from "../controller/infra.controller.js";
+import { getBlockMap } from "../controller/blockMap.controller.js";
 
 const router = Router();
 
@@ -27,6 +28,7 @@ router.post("/:id/kml", addKmlFile); // manageKml
 router.delete("/:id/kml/:fileId", removeKmlFile); // manageKml
 
 // Block and GP infra
+router.get("/:id/map", getBlockMap); // viewExecution
 router.get("/:id/infra", getBlockInfra); // viewExecution
 router.put("/:id/infra", saveBlockInfra); // captureInfra
 router.get("/:id/gp-infra", getGpInfraList); // viewExecution
