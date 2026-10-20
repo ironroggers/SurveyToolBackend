@@ -117,6 +117,9 @@ export const getBlockMap = async (req, res) => {
         to,
         fromName: s.fromNode?.name,
         toName: s.toNode?.name,
+        // { type: BHQ | GP, code, name } of each end, for the topology diagram
+        fromNode: s.fromNode ? { type: s.fromNode.type, code: s.fromNode.code, name: s.fromNode.name } : null,
+        toNode: s.toNode ? { type: s.toNode.type, code: s.toNode.code, name: s.toNode.name } : null,
         sectionLength: s.sectionLength,
         counts: summary?.counts,
         total: summary?.total || 0,
@@ -155,6 +158,11 @@ export const getBlockMap = async (req, res) => {
         legacy: !sub.typeOfWork,
         roadName: sub.roadName,
         subSectionLength: sub.subSectionLength,
+        seq: sub.seq,
+        // Site condition, for the L14 diagram
+        crossing: ic.crossing,
+        terrain: ic.terrain,
+        ofcSide: ic.ofcSide,
         from: parseLatLong(sub.fromLatLong),
         to: parseLatLong(sub.toLatLong),
         start: pitView(sub.start),
