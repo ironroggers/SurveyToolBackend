@@ -15,7 +15,7 @@ import { DEMO_MEDIA_ROUTE, makeDemoPhoto, makeDemoVideo, resetDemoMediaDir, runP
 // again, so it can be changed freely during a demo and then put back.
 //
 // What it shows:
-//   BHQ + 6 GPs (one with no section, one without infra), router, KML route
+//   BHQ + 6 GPs (two without infra), router, KML route
 //   Block infra and 4 GP infra captures with described photos
 //   S1 Harippad → Karuvatta      every type of work, all approved, restoration approved
 //   S2 Karuvatta → Pallippad     all approved, restoration waiting approval (approve it)
@@ -23,6 +23,7 @@ import { DEMO_MEDIA_ROUTE, makeDemoPhoto, makeDemoVideo, resetDemoMediaDir, runP
 //   S4 Veeyapuram → Harippad     all ended, restoration ready with one item saved (closes a ring)
 //   S5 Harippad → Cheruthana     in progress with entries, not started
 //   S6 Cheruthana → Kumarapuram  no subsections yet (create one)
+//   S7 Karuvatta → Thrikkunnapuzha an existing route (dashed), no work; makes Karuvatta a branch
 
 const DAY = 24 * 60 * 60 * 1000;
 const HOUR = 60 * 60 * 1000;
@@ -282,7 +283,7 @@ export const resetDemoBlock = async ({ baseUrl }) => {
    * One section and its subsections.
    * plan: [{ type, t0, t1, status, crossing?, remark?, flags? }]   (t = share of the way From → To)
    */
-  const buildSection = ({ name, from, to, road, area, daysAgo, plan, restoration }) => {
+  const buildSection = ({ name, from, to, road, area, daysAgo, plan, restoration, routeType = "NEW" }) => {
     const fromNode = node(from);
     const toNode = node(to);
     const a = pointOfNode(fromNode);
@@ -303,6 +304,7 @@ export const resetDemoBlock = async ({ baseUrl }) => {
       fromLatLong: ll(a),
       toLatLong: ll(b),
       sectionLength: Math.round((dist(a, b) * 1.08) / 10) * 10,
+      routeType,
       status: plan.length ? 2 : 1,
       subSectionSeq: plan.length,
       createdAt: t(daysAgo + 2),
@@ -490,6 +492,9 @@ export const resetDemoBlock = async ({ baseUrl }) => {
     ],
   });
   buildSection({ name: "Cheruthana → Kumarapuram", from: "990104", to: "990105", road: "SH 6", area: "Kumarapuram", daysAgo: 4, plan: [] });
+  // An older route reused as it is: no execution work, dashed on the diagrams
+  // Branches off Karuvatta, so the L-14 shows a BJC there
+  buildSection({ name: "Karuvatta → Thrikkunnapuzha", from: "990101", to: "990106", road: "Thrikkunnapuzha Road", area: "Thrikkunnapuzha", daysAgo: 40, plan: [], routeType: "EXISTING" });
 
   // ---- KML of the planned route (one line per section)
   const kml = `<?xml version="1.0" encoding="UTF-8"?>

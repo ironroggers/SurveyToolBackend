@@ -94,6 +94,12 @@ const sectionSchema = new mongoose.Schema({
                 type: Number,
                 default: 1
         },
+        // NEW: OFC laid in this project; EXISTING: an older route reused (dashed on the diagrams)
+        routeType: {
+                type: String,
+                enum: ["NEW", "EXISTING"],
+                default: "NEW"
+        },
         // Last sequence number given to an execution subsection (incremented atomically)
         subSectionSeq: {
                 type: Number,

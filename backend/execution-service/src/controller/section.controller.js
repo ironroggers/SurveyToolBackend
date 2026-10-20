@@ -98,7 +98,7 @@ export const updateSection = async (req, res) => {
   try {
     const { id } = req.params;
     const updates = await withBlockProfile(req.body, { isCreate: false });
-    const updated = await Section.findByIdAndUpdate(id, updates, { new: true });
+    const updated = await Section.findByIdAndUpdate(id, updates, { new: true, runValidators: true });
     if (!updated) return res.status(404).json({ message: "Section not found" });
     res.json(updated);
   } catch (error) {

@@ -58,7 +58,7 @@ export const getBlockMap = async (req, res) => {
     const profile = await BlockProfile.findById(req.params.id).select("block bhq gps").lean();
     if (!profile) throw notFound("Block profile not found");
 
-    const sections = await Section.find({ blockProfile: profile._id }).select("name fromNode toNode fromLatLong toLatLong sectionLength").lean();
+    const sections = await Section.find({ blockProfile: profile._id }).select("name fromNode toNode fromLatLong toLatLong sectionLength routeType").lean();
     const sectionIds = sections.map((s) => s._id);
     const [subs, captures, restorations, summaries] = await Promise.all([
       SubSection.find({ section: { $in: sectionIds } })
@@ -121,6 +121,7 @@ export const getBlockMap = async (req, res) => {
         fromNode: s.fromNode ? { type: s.fromNode.type, code: s.fromNode.code, name: s.fromNode.name } : null,
         toNode: s.toNode ? { type: s.toNode.type, code: s.toNode.code, name: s.toNode.name } : null,
         sectionLength: s.sectionLength,
+        routeType: s.routeType || "NEW",
         counts: summary?.counts,
         total: summary?.total || 0,
         restorationStatus: summary?.restoration?.status,
