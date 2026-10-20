@@ -1,4 +1,7 @@
 import path from "node:path";
+import { createReadStream } from "node:fs";
+import { stat } from "node:fs/promises";
+import { DEMO_MEDIA_DIR, DEMO_MEDIA_ROUTE } from "../demo/demoMedia.js";
 import SubSection from "../models/subSection.model.js";
 import Trenching from "../models/trenching.model.js";
 import InfraCapture from "../models/infraCapture.model.js";
@@ -36,6 +39,27 @@ const safeName = (name, fallback) =>
 export const downloadMedia = async (req, res) => {
   try {
     const url = String(req.query.url || "");
+    // Demo block files are already stamped and live on this server
+    const demoFile = (() => {
+      try {
+        const p = new URL(url).pathname;
+        return p.startsWith(`${DEMO_MEDIA_ROUTE}/`) ? path.basename(p) : null;
+      } catch {
+        return null;
+      }
+    })();
+    if (demoFile) {
+      const file = path.join(DEMO_MEDIA_DIR, demoFile);
+      const info = await stat(file).catch(() => null);
+      if (!info) throw notFound("File not found");
+      const isVideo = file.endsWith(".mp4");
+      const base = safeName(req.query.name, path.parse(demoFile).name).replace(/\.[A-Za-z0-9]+$/, "");
+      res.setHeader("Content-Type", isVideo ? "video/mp4" : "image/jpeg");
+      res.setHeader("Content-Length", String(info.size));
+      res.setHeader("Content-Disposition", `attachment; filename="${base}${path.extname(demoFile)}"`);
+      res.setHeader("Access-Control-Expose-Headers", "Content-Disposition");
+      return createReadStream(file).pipe(res);
+    }
     const key = keyFromUrl(url);
     if (!key) throw badRequest("Only files stored by this service can be downloaded here");
 

@@ -19,3 +19,6 @@ package-lock.json
 *.swo
 *.bak
 *.tmp
+
+# Generated demo block media
+demo-media/

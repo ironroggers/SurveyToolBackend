@@ -4,6 +4,7 @@ import { PERMISSIONS, normalizeRole, permissionsForRole } from "../config/permis
 import { deleteS3Object } from "../utils/s3.js";
 import { findBlockNode, formatLatLong } from "../utils/blockNodes.js";
 import { blockProgress } from "../services/progress.service.js";
+import { demoBlockFilter, seesDemo } from "../demo/demoAccess.js";
 
 // Fields clients may set on create/update. KML files have their own routes.
 const EDITABLE_FIELDS = [
@@ -108,7 +109,7 @@ export const getBlockProfilePermissions = (req, res) => {
 export const getBlockProfiles = async (req, res) => {
   try {
     const { page = 1, limit = 20, q, status, district } = req.query;
-    const filter = {};
+    const filter = { ...demoBlockFilter(req) };
     // Deactivated profiles stay hidden unless asked for; status=ALL returns everything
     if (!status) filter.status = { $ne: "INACTIVE" };
     else if (status !== "ALL") filter.status = status;
@@ -143,7 +144,7 @@ export const getBlockProfiles = async (req, res) => {
 // GET /api/block-profiles/districts — for the Blocks list's district filter
 export const getDistricts = async (req, res) => {
   try {
-    const districts = await BlockProfile.distinct("district", { status: { $ne: "INACTIVE" } });
+    const districts = await BlockProfile.distinct("district", { status: { $ne: "INACTIVE" }, ...demoBlockFilter(req) });
     res.json({ items: districts.filter(Boolean).sort((a, b) => a.localeCompare(b)) });
   } catch (error) {
     sendError(res, error);
@@ -153,7 +154,7 @@ export const getDistricts = async (req, res) => {
 export const getBlockProfileById = async (req, res) => {
   try {
     const profile = await BlockProfile.findById(req.params.id);
-    if (!profile) return res.status(404).json({ message: "Block profile not found" });
+    if (!profile || (profile.isDemo && !seesDemo(req))) return res.status(404).json({ message: "Block profile not found" });
     await respondWithProfile(res, profile);
   } catch (error) {
     sendError(res, error);

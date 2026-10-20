@@ -11,11 +11,11 @@ import sharp from "sharp";
 // device. Same look for both, and for every client.
 
 const require = createRequire(import.meta.url);
-const FONT = require.resolve("dejavu-fonts-ttf/ttf/DejaVuSans.ttf");
-const FONT_BOLD = require.resolve("dejavu-fonts-ttf/ttf/DejaVuSans-Bold.ttf");
+export const FONT = require.resolve("dejavu-fonts-ttf/ttf/DejaVuSans.ttf");
+export const FONT_BOLD = require.resolve("dejavu-fonts-ttf/ttf/DejaVuSans-Bold.ttf");
 const BADGE = "Locus GPS Camera";
 
-const run = (args, timeoutMs) =>
+export const runFfmpeg = (args, timeoutMs) =>
   new Promise((resolve, reject) => {
     execFile(ffmpegPath, args, { timeout: timeoutMs, maxBuffer: 16 * 1024 * 1024 }, (error, stdout, stderr) => {
       if (error) {
@@ -26,7 +26,7 @@ const run = (args, timeoutMs) =>
   });
 
 // Paths inside a filter graph: escape the characters the parser treats specially
-const filterPath = (p) => p.replace(/\\/g, "/").replace(/([:'\[\],;])/g, "\\$1");
+export const filterPath = (p) => p.replace(/\\/g, "/").replace(/([:'\[\],;])/g, "\\$1");
 
 // ---- text
 
@@ -98,7 +98,7 @@ export const stampLines = (meta, maxChars) => {
 
 // ---- geometry: the filter graph for a frame of width W and height H
 
-const buildFilter = async (dir, W, H, meta) => {
+export const buildFilter = async (dir, W, H, meta) => {
   const fs = Math.max(12, Math.round(Math.min(W, H) * 0.03));
   const margin = Math.round(Math.min(W, H) * 0.02);
   const pad = Math.round(fs * 0.7);
@@ -150,7 +150,7 @@ const buildFilter = async (dir, W, H, meta) => {
 const probe = async (file) => {
   let out = "";
   try {
-    out = await run(["-hide_banner", "-i", file], 30000);
+    out = await runFfmpeg(["-hide_banner", "-i", file], 30000);
   } catch (error) {
     // `ffmpeg -i` without an output always exits with an error; the info is in stderr
     out = error.stderr || "";
@@ -173,7 +173,7 @@ export const stampFile = async ({ input, fileType, meta, dir }) => {
     const { W, H } = await probe(input);
     const filter = await buildFilter(dir, W, H, meta);
     const output = path.join(dir, "stamped.mp4");
-    await run(
+    await runFfmpeg(
       ["-hide_banner", "-y", "-i", input, "-vf", filter, "-c:v", "libx264", "-preset", "veryfast", "-crf", "23", "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "128k", "-movflags", "+faststart", output],
       10 * 60 * 1000
     );
@@ -184,7 +184,7 @@ export const stampFile = async ({ input, fileType, meta, dir }) => {
   const info = await sharp(input).rotate().png().toFile(oriented);
   const filter = await buildFilter(dir, info.width, info.height, meta);
   const output = path.join(dir, "stamped.jpg");
-  await run(["-hide_banner", "-y", "-i", oriented, "-vf", filter, "-q:v", "3", output], 2 * 60 * 1000);
+  await runFfmpeg(["-hide_banner", "-y", "-i", oriented, "-vf", filter, "-q:v", "3", output], 2 * 60 * 1000);
   return { output, contentType: "image/jpeg" };
 };
 

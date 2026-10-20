@@ -23,6 +23,8 @@ import aiRoutes from "./src/routes/ai.routes.js";
 import blockProfileRoutes from "./src/routes/blockProfile.routes.js";
 import workRoutes from "./src/routes/work.routes.js";
 import mediaRoutes from "./src/routes/media.routes.js";
+import demoRoutes from "./src/routes/demo.routes.js";
+import { DEMO_MEDIA_DIR, DEMO_MEDIA_ROUTE } from "./src/demo/demoMedia.js";
 import { startStampWorker } from "./src/services/stampQueue.service.js";
 import { readActor } from "./src/midddleware/actor.middleware.js";
 
@@ -56,6 +58,9 @@ app.use("/api/uploads", uploadRoutes);
 app.use("/api/ai", aiRoutes);
 app.use("/api/block-profiles", blockProfileRoutes);
 app.use("/api/media", mediaRoutes);
+app.use("/api/demo", demoRoutes);
+// Generated photos, videos and KML of the demo block; the web portal loads them cross-origin
+app.use(DEMO_MEDIA_ROUTE, express.static(DEMO_MEDIA_DIR, { setHeaders: (res) => res.set("Cross-Origin-Resource-Policy", "cross-origin") }));
 app.use("/api", workRoutes);
 
 // Global 404

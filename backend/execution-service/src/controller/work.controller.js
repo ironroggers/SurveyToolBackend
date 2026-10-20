@@ -8,6 +8,7 @@ import { PERMISSIONS, normalizeRole, permissionsForRole } from "../config/permis
 import { sendError } from "../utils/httpError.js";
 import { sectionExecutionSummaries } from "../services/progress.service.js";
 import { entryStats, sectionContexts, subsectionFlags, subsectionSummary } from "../services/views.service.js";
+import { hiddenDemoSectionIds } from "../demo/demoAccess.js";
 
 // Most recent first; a long list is cut here and the counts say how many there are
 const GROUP_LIMIT = 200;
@@ -46,14 +47,17 @@ const restorationCards = async (restorations, extra = () => ({})) => {
 // GET /api/my-work   (viewExecution) — everyone sees everything
 export const getMyWork = async (req, res) => {
   try {
+    // The demo block's work is shown to ADMIN only
+    const hidden = await hiddenDemoSectionIds(req);
+    const notHidden = hidden.length ? { section: { $nin: hidden } } : {};
     const subsWith = (executionStatus) =>
-      SubSection.find({ executionStatus }).sort({ updatedAt: -1 }).limit(GROUP_LIMIT);
+      SubSection.find({ executionStatus, ...notHidden }).sort({ updatedAt: -1 }).limit(GROUP_LIMIT);
     const [rejected, inProgress, pending, restorations, sectionIds] = await Promise.all([
       subsWith("REJECTED"),
       subsWith("IN_PROGRESS"),
       subsWith("PENDING_APPROVAL"),
-      Restoration.find({ status: { $in: ["REJECTED", "PENDING_APPROVAL"] } }).sort({ updatedAt: -1 }).lean(),
-      SubSection.distinct("section", { typeOfWork: { $exists: true } }),
+      Restoration.find({ status: { $in: ["REJECTED", "PENDING_APPROVAL"] }, ...notHidden }).sort({ updatedAt: -1 }).lean(),
+      SubSection.distinct("section", { typeOfWork: { $exists: true }, ...notHidden }),
     ]);
 
     // Sections whose subsections have all ended and whose restoration isn't submitted yet
@@ -92,6 +96,8 @@ export const getApprovals = async (req, res) => {
   try {
     const { kind, district, blockProfile, typeOfWork } = req.query;
     const sectionFilter = { blockProfile: { $exists: true } };
+    const hidden = await hiddenDemoSectionIds(req);
+    if (hidden.length) sectionFilter._id = { $nin: hidden };
     if (blockProfile && mongoose.isValidObjectId(blockProfile)) sectionFilter.blockProfile = blockProfile;
     if (district) sectionFilter.district = district;
     const sectionIds = (await Section.find(sectionFilter).select("_id").lean()).map((s) => s._id);
