@@ -56,6 +56,12 @@ export const PERMISSIONS = {
     SUPERVISOR: "all",
     "EXECUTION ENGINEER": "all",
   },
+  // Block / GP / misc equipment sheets, filled on the web portal
+  manageInfraEquipment: {
+    ADMIN: "all",
+    SUPERVISOR: "all",
+    "EXECUTION ENGINEER": "all",
+  },
   // Create, start, entries, end, reopen
   executeSubsection: {
     ADMIN: "all",

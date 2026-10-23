@@ -12,6 +12,7 @@ import "./src/models/trenching.model.js";
 import "./src/models/blockProfile.model.js";
 import "./src/models/restoration.model.js";
 import "./src/models/infraCapture.model.js";
+import "./src/models/infraEquipment.model.js";
 import "./src/models/mediaStamp.model.js";
 
 // Routes

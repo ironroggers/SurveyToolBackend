@@ -1,5 +1,6 @@
 import BlockProfile from "../models/blockProfile.model.js";
 import InfraCapture from "../models/infraCapture.model.js";
+import InfraEquipment from "../models/infraEquipment.model.js";
 import { MEDIA_RULES } from "../config/executionTypes.js";
 import { conflict, failIfErrors, notFound, sendError } from "../utils/httpError.js";
 import { distanceM, pointOf, round } from "../utils/geo.js";
@@ -91,12 +92,16 @@ export const saveBlockInfra = async (req, res) => {
 };
 
 // GET /api/block-profiles/:id/gp-infra   (viewExecution)
-// Every GP with its capture state, nearest to the BHQ first
+// Every GP with its capture state and which equipment sheets are filled, nearest to the BHQ first
 export const getGpInfraList = async (req, res) => {
   try {
     const profile = await loadProfile(req.params.id);
-    const captures = await InfraCapture.find({ blockProfile: profile._id, level: "GP" }).select("gpLgdCode photos updatedAt");
+    const [captures, equipment] = await Promise.all([
+      InfraCapture.find({ blockProfile: profile._id, level: "GP" }).select("gpLgdCode photos updatedAt"),
+      InfraEquipment.find({ blockProfile: profile._id, gpLgdCode: { $ne: null } }).select("gpLgdCode form").lean(),
+    ]);
     const byCode = new Map(captures.map((c) => [c.gpLgdCode, c]));
+    const filled = new Set(equipment.map((e) => `${e.form}:${e.gpLgdCode}`));
     const bhq = pointOf(profile.bhq);
     const items = (profile.gps || []).map((gp) => {
       const point = pointOf(gp);
@@ -110,6 +115,8 @@ export const getGpInfraList = async (req, res) => {
         captured: Boolean(capture),
         photoCount: capture?.photos.length || 0,
         savedAt: capture?.updatedAt,
+        gpEquipment: filled.has(`gp:${gp.lgdCode}`),
+        miscEquipment: filled.has(`misc:${gp.lgdCode}`),
       };
     });
     // GPs without coordinates go last

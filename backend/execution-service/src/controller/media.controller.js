@@ -5,6 +5,7 @@ import { DEMO_MEDIA_DIR, DEMO_MEDIA_ROUTE } from "../demo/demoMedia.js";
 import SubSection from "../models/subSection.model.js";
 import Trenching from "../models/trenching.model.js";
 import InfraCapture from "../models/infraCapture.model.js";
+import InfraEquipment from "../models/infraEquipment.model.js";
 import Restoration from "../models/restoration.model.js";
 import { badRequest, conflict, notFound, sendError } from "../utils/httpError.js";
 import { getObjectStream, keyFromUrl } from "../utils/s3.js";
@@ -18,6 +19,7 @@ const findMediaByUrl = async (url) => {
       $or: ["initialCondition.photos", "initialCondition.video", "start.photos", "start.video", "end.photos", "end.video"].map((p) => ({ [`${p}.url`]: url })),
     }).lean(),
     InfraCapture.findOne({ "photos.media.url": url }).lean(),
+    InfraEquipment.findOne({ "geoPhoto.url": url }).lean(),
     Restoration.findOne({ $or: [{ "items.photos.url": url }, { "items.video.url": url }] }).lean(),
   ]);
   for (const doc of docs) {

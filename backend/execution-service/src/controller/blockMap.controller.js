@@ -3,13 +3,14 @@ import Section from "../models/section.model.js";
 import SubSection from "../models/subSection.model.js";
 import Trenching from "../models/trenching.model.js";
 import InfraCapture from "../models/infraCapture.model.js";
+import InfraEquipment from "../models/infraEquipment.model.js";
 import Restoration from "../models/restoration.model.js";
 import { notFound, sendError } from "../utils/httpError.js";
 import { parseLatLong, pointOf } from "../utils/geo.js";
 import { sectionExecutionSummaries } from "../services/progress.service.js";
 
 // Everything of a block that has a place on the map, in one response, for the block
-// map's layers: infra captures, sections, subsections (planned line, pits, reference
+// map's layers: infra captures, equipment sheets, sections, subsections (planned line, pits, reference
 // points, entries) and every geotagged photo or video. Points are { lat, lng }.
 
 // A geotagged photo or video, flattened for the map. Media without usable coordinates
@@ -60,12 +61,13 @@ export const getBlockMap = async (req, res) => {
 
     const sections = await Section.find({ blockProfile: profile._id }).select("name fromNode toNode fromLatLong toLatLong sectionLength routeType").lean();
     const sectionIds = sections.map((s) => s._id);
-    const [subs, captures, restorations, summaries] = await Promise.all([
+    const [subs, captures, equipmentDocs, restorations, summaries] = await Promise.all([
       SubSection.find({ section: { $in: sectionIds } })
         .select("name section typeOfWork executionStatus roadName fromLatLong toLatLong subSectionLength seq initialCondition start end")
         .sort({ seq: 1, createdAt: 1 })
         .lean(),
       InfraCapture.find({ blockProfile: profile._id }).lean(),
+      InfraEquipment.find({ blockProfile: profile._id }).select("-capturedBy -updatedBy -__v").lean(),
       Restoration.find({ section: { $in: sectionIds } }).select("section items status").lean(),
       sectionExecutionSummaries(sectionIds),
     ]);
@@ -103,6 +105,15 @@ export const getBlockMap = async (req, res) => {
       );
       const point = pointOf(c);
       return { _id: String(c._id), level: c.level, gpLgdCode: c.gpLgdCode, name, ...(point || {}), accuracy: c.accuracy, photoCount: c.photos?.length || 0, updatedAt: c.updatedAt };
+    });
+
+    // ---- equipment sheets: every value, for the info window; the geo photo joins the attachments
+    const equipmentLabel = { block: "Block equipment", gp: "GP equipment", misc: "Misc equipment" };
+    const equipment = equipmentDocs.map((e) => {
+      const name = e.gpLgdCode ? gpName.get(e.gpLgdCode) || e.gpLgdCode : profile.block;
+      push(e.geoPhoto, { kind: "EQUIPMENT", label: `${equipmentLabel[e.form]} · ${name}`, gpLgdCode: e.gpLgdCode });
+      const point = pointOf(e);
+      return { ...e, _id: String(e._id), name, ...(point || {}) };
     });
 
     // ---- sections: a line between their nodes (or their stored lat/long text)
@@ -181,7 +192,7 @@ export const getBlockMap = async (req, res) => {
       }
     }
 
-    res.json({ infra, sections: sectionViews, subsections: subViews, media, mediaWithoutLocation: withoutLocation });
+    res.json({ infra, equipment, sections: sectionViews, subsections: subViews, media, mediaWithoutLocation: withoutLocation });
   } catch (error) {
     sendError(res, error);
   }

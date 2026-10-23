@@ -4,6 +4,7 @@ import Section from "../models/section.model.js";
 import SubSection from "../models/subSection.model.js";
 import Trenching from "../models/trenching.model.js";
 import InfraCapture from "../models/infraCapture.model.js";
+import InfraEquipment from "../models/infraEquipment.model.js";
 import Restoration from "../models/restoration.model.js";
 import { EXECUTION_TYPES, isDucting } from "../config/executionTypes.js";
 import { subsectionName } from "../utils/subsectionName.js";
@@ -544,6 +545,7 @@ export const deleteDemoBlock = async () => {
     SubSection.deleteMany({ _id: { $in: subIds } }),
     Restoration.deleteMany({ section: { $in: sectionIds } }),
     InfraCapture.deleteMany({ blockProfile: { $in: blockIds } }),
+    InfraEquipment.deleteMany({ blockProfile: { $in: blockIds } }),
   ]);
   await Section.deleteMany({ _id: { $in: sectionIds } });
   await BlockProfile.deleteMany({ _id: { $in: blockIds } });
