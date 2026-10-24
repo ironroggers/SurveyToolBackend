@@ -13,6 +13,12 @@ const isWholeNumber = (value) => value === undefined || value === null || Number
 
 const COORDINATE_LIMITS = { latitude: 90, longitude: 180 };
 
+// LGD codes have a fixed number of digits: state 2, district 3, block 4, GP 6
+const digits = (count, label) => ({
+        validator: (value) => value === undefined || value === null || value === "" || new RegExp(`^\\d{${count}}$`).test(value),
+        message: `${label} must be ${count} digits`
+});
+
 // Optional coordinate that must come with its pair; `partner` reads the other half
 const coordinate = (kind, label, partner) => {
         const other = kind === "latitude" ? "longitude" : "latitude";
@@ -43,7 +49,8 @@ const gpSchema = new mongoose.Schema(
                 lgdCode: {
                         type: String,
                         trim: true,
-                        required: [true, "GP LGD code is required"]
+                        required: [true, "GP LGD code is required"],
+                        validate: digits(6, "GP LGD code")
                 },
                 latitude: coordinate("latitude", "GP", (gp) => gp.longitude),
                 longitude: coordinate("longitude", "GP", (gp) => gp.latitude),
@@ -115,7 +122,8 @@ const blockProfileSchema = new mongoose.Schema(
                 // LGD code
                 stateCode: {
                         type: String,
-                        trim: true
+                        trim: true,
+                        validate: digits(2, "State LGD code")
                 },
                 district: {
                         type: String,
@@ -124,7 +132,8 @@ const blockProfileSchema = new mongoose.Schema(
                 // LGD code
                 districtCode: {
                         type: String,
-                        trim: true
+                        trim: true,
+                        validate: digits(3, "District LGD code")
                 },
                 // BBNL asset codes use the Census district code, not the LGD one
                 districtCensusCode: {
@@ -141,6 +150,7 @@ const blockProfileSchema = new mongoose.Schema(
                         type: String,
                         trim: true,
                         required: [true, "Block LGD code is required"],
+                        validate: digits(4, "Block LGD code"),
                         unique: true
                 },
                 numberOfGps: {

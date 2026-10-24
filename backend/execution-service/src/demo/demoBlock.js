@@ -102,7 +102,8 @@ const GPS = [
   { name: "THRIKKUNNAPUZHA", lgdCode: "990106" },
 ].map((g) => ({ ...g, p: nodePoint(g.lgdCode) }));
 const gp = (code) => GPS.find((g) => g.lgdCode === code);
-const BLOCK_CODE = "DEMO6265";
+// Block LGD codes are 4 digits; 9999 keeps the demo apart from real blocks
+const BLOCK_CODE = "9999";
 // The block router is the block's head node: { type: ROUTER, code: blockCode }
 const ROUTER_NODE = { type: "ROUTER", code: BLOCK_CODE, name: "Block router", latitude: ROUTER.lat, longitude: ROUTER.lng };
 const node = (code) => (code === "ROUTER" ? ROUTER_NODE : { type: "GP", code, name: gp(code).name, latitude: gp(code).p.lat, longitude: gp(code).p.lng });

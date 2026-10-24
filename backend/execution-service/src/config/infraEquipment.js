@@ -120,10 +120,12 @@ export const MISC_ITEM_FIELDS = {
   serialNo: { column: "ms_eqp_sn", type: "text" },
 };
 
-// SSDDDBBBB + type tag (RA, FD, FT, CC, SP) + the site's LGD code in 6 digits
+// SSDDDBBBB + type tag (RA, FD, FT, CC, SP) + the site's LGD code as it is: the GP's
+// (6 digits), or the block's (4 digits) at block level
 export const miscAssetCode = (profile, lgdCode, type) => {
   const prefix = assetPrefix(profile);
-  return prefix && MISC_TYPE_TAGS[type] ? `${prefix}${MISC_TYPE_TAGS[type]}${pad(lgdCode, 6)}`.toUpperCase().replace(/\s+/g, "") : "";
+  const site = String(lgdCode ?? "").trim();
+  return prefix && site && MISC_TYPE_TAGS[type] ? `${prefix}${MISC_TYPE_TAGS[type]}${site}`.toUpperCase().replace(/\s+/g, "") : "";
 };
 
 // A misc record's items; a sheet saved before items existed has one type at the top level
