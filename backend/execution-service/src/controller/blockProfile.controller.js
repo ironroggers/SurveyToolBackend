@@ -17,6 +17,7 @@ const EDITABLE_FIELDS = [
   "blockCode",
   "numberOfGps",
   "gps",
+  "rings",
   "numberOfRacks",
   "remarks",
   "blockRouter",

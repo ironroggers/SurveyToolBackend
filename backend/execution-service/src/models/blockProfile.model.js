@@ -45,7 +45,26 @@ const gpSchema = new mongoose.Schema(
                         required: [true, "GP LGD code is required"]
                 },
                 latitude: coordinate("latitude", "GP", (gp) => gp.longitude),
-                longitude: coordinate("longitude", "GP", (gp) => gp.latitude)
+                longitude: coordinate("longitude", "GP", (gp) => gp.latitude),
+                // The ring this GP is on: one of the block's ring codes (checked on the block)
+                ringCode: {
+                        type: String,
+                        trim: true,
+                        uppercase: true
+                }
+        },
+        { _id: false }
+);
+
+// One ring of the block's network, named by its ring code
+const ringSchema = new mongoose.Schema(
+        {
+                code: {
+                        type: String,
+                        trim: true,
+                        uppercase: true,
+                        required: [true, "Ring code is required"]
+                }
         },
         { _id: false }
 );
@@ -138,6 +157,15 @@ const blockProfileSchema = new mongoose.Schema(
                                 }
                         }
                 },
+                // The block's rings; each GP names the one it's on (gps.ringCode)
+                rings: {
+                        type: [ringSchema],
+                        default: [],
+                        validate: {
+                                validator: (rings) => new Set(rings.map((r) => r.code)).size === rings.length,
+                                message: "Each ring code can be used once"
+                        }
+                },
                 numberOfRacks: {
                         type: Number,
                         min: [0, "Number of racks can't be negative"],
@@ -200,6 +228,14 @@ const blockProfileSchema = new mongoose.Schema(
                 toObject: { virtuals: true }
         }
 );
+
+// A GP's ring must be one of the block's rings
+blockProfileSchema.pre("validate", function () {
+        const codes = new Set((this.rings || []).map((r) => r.code));
+        (this.gps || []).forEach((gp, index) => {
+                if (gp.ringCode && !codes.has(gp.ringCode)) this.invalidate(`gps.${index}.ringCode`, `Ring ${gp.ringCode} isn't one of the block's rings`);
+        });
+});
 
 // Flag only: the declared count is never corrected to match the GP list
 blockProfileSchema.virtual("gpCountMismatch").get(function () {

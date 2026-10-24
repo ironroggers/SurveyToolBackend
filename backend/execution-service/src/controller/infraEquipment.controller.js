@@ -204,7 +204,8 @@ const gpDefaults = async (profile, gp, formKey) => {
     InfraEquipment.findOne({ blockProfile: profile._id, form: "block" }).select("phase").lean(),
   ]);
   const base = { ...firstPoint(capture, gp), phase: blockRecord?.phase };
-  if (formKey === "gp") return { ...base, locationType: "GP", locationName: gp.name, locationCode: gp.lgdCode };
+  // The ring comes from the block profile, where the GP's ring is picked
+  if (formKey === "gp") return { ...base, locationType: "GP", locationName: gp.name, locationCode: gp.lgdCode, ...(gp.ringCode ? { ringCode: gp.ringCode, ringCount: 1 } : {}) };
   return base;
 };
 

@@ -113,6 +113,7 @@ export const getGpInfraList = async (req, res) => {
       return {
         name: gp.name,
         lgdCode: gp.lgdCode,
+        ringCode: gp.ringCode,
         latitude: gp.latitude,
         longitude: gp.longitude,
         distanceFromRouterM: router && point ? round(distanceM(router, point), 0) : null,
