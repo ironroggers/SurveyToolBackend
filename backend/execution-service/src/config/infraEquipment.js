@@ -76,19 +76,15 @@ export const EQUIPMENT_FORMS = {
       remarks: common.remarks,
     },
   },
+  // One sheet per site holding one item per type of equipment there (MISC_ITEM_FIELDS);
+  // the site's LGD code comes from the GP or block, so the sheet doesn't ask for it
   misc: {
     levels: ["BLOCK", "GP"],
     sheet: "misc_eqpt",
+    items: true,
     fields: {
       phase: common.phase,
-      equipmentType: { column: "type", type: "enum", options: Object.keys(MISC_TYPE_TAGS), required: true },
-      lgdCode: { column: "lgd_code", type: "text" },
-      assetCode: common.assetCode,
-      model: { column: "ms_eq_modl", type: "text" },
-      locationType: { column: "loc_type", type: "enum", options: GP_SITE_TYPES },
-      serialNo: { column: "ms_eqp_sn", type: "text" },
       backhaul: { column: "backhaul", type: "enum", options: BACKHAUL },
-      projectStatus: common.projectStatus,
       remarks: common.remarks,
     },
   },
@@ -110,6 +106,28 @@ export const blockAssetCode = (profile) => {
   const prefix = assetPrefix(profile);
   return prefix ? `${prefix}BHLL`.toUpperCase().replace(/\s+/g, "") : "";
 };
+
+// A misc sheet's items: one per type, each with its generated asset code
+export const MISC_ITEM_FIELDS = {
+  type: { column: "type", type: "enum", options: Object.keys(MISC_TYPE_TAGS) },
+  assetCode: { column: "asset_code", type: "text" },
+  model: { column: "ms_eq_modl", type: "text" },
+  serialNo: { column: "ms_eqp_sn", type: "text" },
+};
+
+// SSDDDBBBB + type tag (RA, FD, FT, CC, SP) + the site's LGD code in 6 digits
+export const miscAssetCode = (profile, lgdCode, type) => {
+  const prefix = assetPrefix(profile);
+  return prefix && MISC_TYPE_TAGS[type] ? `${prefix}${MISC_TYPE_TAGS[type]}${pad(lgdCode, 6)}`.toUpperCase().replace(/\s+/g, "") : "";
+};
+
+// A misc record's items; a sheet saved before items existed has one type at the top level
+export const miscItemsOf = (record) =>
+  record?.items?.length
+    ? record.items
+    : record?.equipmentType
+      ? [{ type: record.equipmentType, assetCode: record.assetCode, model: record.model, serialNo: record.serialNo }]
+      : [];
 
 // Every value key across the forms, with its stored type
 export const EQUIPMENT_VALUE_TYPES = Object.fromEntries(

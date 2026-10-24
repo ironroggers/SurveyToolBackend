@@ -2,7 +2,7 @@ import { isIP } from "node:net";
 import BlockProfile from "../models/blockProfile.model.js";
 import InfraCapture from "../models/infraCapture.model.js";
 import InfraEquipment from "../models/infraEquipment.model.js";
-import { EQUIPMENT_FORMS, blockAssetCode } from "../config/infraEquipment.js";
+import { EQUIPMENT_FORMS, MISC_TYPE_TAGS, assetPrefix, blockAssetCode, miscAssetCode, miscItemsOf } from "../config/infraEquipment.js";
 import { conflict, failIfErrors, notFound, sendError } from "../utils/httpError.js";
 import { pointOf } from "../utils/geo.js";
 import { actorOf, checkVersion, cleanMedia } from "../services/execution.service.js";
@@ -65,8 +65,9 @@ const cleanValue = (field, raw) => {
   }
 };
 
-const buildValues = (form, body = {}) => {
-  const errors = {};
+// extraErrors: problems found before (a misc sheet's items), reported with the rest
+const buildValues = (form, body = {}, extraErrors = {}) => {
+  const errors = { ...extraErrors };
   const values = {};
   for (const [key, field] of Object.entries(form.fields)) {
     const { value, error } = cleanValue(field, body[key]);
@@ -89,9 +90,33 @@ const buildValues = (form, body = {}) => {
 // that a record may hold only the geo photo taken on the mobile app
 const filled = (record) => (record?.assetCode ? record : null);
 
-const assertAssetCodeFree = async (assetCode, filter) => {
-  const other = await InfraEquipment.findOne({ assetCode, $nor: [filter] }).select("_id").lean();
-  if (other) failIfErrors({ assetCode: "This asset code is already used" });
+// A misc sheet's items: one per type, each with its asset code generated from the block
+// profile and the site's LGD code (the GP's, or the block's at block level)
+const buildItems = (input, profile, lgdCode) => {
+  const errors = {};
+  const list = Array.isArray(input) ? input : [];
+  if (!list.length) errors.items = "Pick at least one type";
+  else if (!assetPrefix(profile)) errors.items = "Add the state, district and block LGD codes to the block profile first";
+  const seen = new Set();
+  const text = (value) => String(value ?? "").trim() || undefined;
+  const items = list.map((raw, i) => {
+    const type = String(raw?.type ?? "").trim();
+    if (!MISC_TYPE_TAGS[type]) errors[`items.${i}.type`] = "Pick from the list";
+    else if (seen.has(type)) errors[`items.${i}.type`] = "Each type once";
+    seen.add(type);
+    return { type, assetCode: miscAssetCode(profile, lgdCode, type), model: text(raw?.model), serialNo: text(raw?.serialNo) };
+  });
+  return { items, errors };
+};
+
+// Each code may belong to one sheet only, as a sheet's code or one of its items'
+const assertAssetCodesFree = async (codes, filter, errorKey) => {
+  const list = codes.filter(Boolean);
+  if (!list.length) return;
+  const other = await InfraEquipment.findOne({ $or: [{ assetCode: { $in: list } }, { "items.assetCode": { $in: list } }], $nor: [filter] })
+    .select("_id")
+    .lean();
+  if (other) failIfErrors({ [errorKey]: "This asset code is already used" });
 };
 
 const save = async (req, form, filter, profile) => {
@@ -100,8 +125,26 @@ const save = async (req, form, filter, profile) => {
   if (filter.form === "block" && !body.assetCode) {
     failIfErrors({ assetCode: "Add the state, district and block LGD codes to the block profile first" });
   }
-  const values = buildValues(form, body);
-  await assertAssetCodeFree(values.assetCode, filter);
+  let values;
+  if (form.items) {
+    const { items, errors } = buildItems(req.body?.items, profile, filter.gpLgdCode || profile.blockCode);
+    values = buildValues(form, body, errors);
+    // The sheet's code lists its items' codes; fields from before items are cleared
+    Object.assign(values, {
+      items,
+      assetCode: items.map((i) => i.assetCode).join(", "),
+      equipmentType: undefined,
+      lgdCode: undefined,
+      model: undefined,
+      serialNo: undefined,
+      locationType: undefined,
+      projectStatus: undefined,
+    });
+    await assertAssetCodesFree(items.map((i) => i.assetCode), filter, "items");
+  } else {
+    values = buildValues(form, body);
+    await assertAssetCodesFree([values.assetCode], filter, "assetCode");
+  }
   const existing = await InfraEquipment.findOne(filter);
   try {
     if (existing) {
@@ -153,8 +196,7 @@ const blockDefaults = async (profile, formKey) => {
   ]);
   const point = firstPoint(capture, profile.blockRouter);
   if (formKey === "block") return { ...point, siteType: profile.blockRouter?.siteType };
-  // Block-level misc: no GP, so the LGD code is the block's
-  return { ...point, phase: blockRecord?.phase, lgdCode: profile.blockCode };
+  return { ...point, phase: blockRecord?.phase };
 };
 
 const gpDefaults = async (profile, gp, formKey) => {
@@ -164,7 +206,14 @@ const gpDefaults = async (profile, gp, formKey) => {
   ]);
   const base = { ...firstPoint(capture, gp), phase: blockRecord?.phase };
   if (formKey === "gp") return { ...base, locationType: "GP", locationName: gp.name, locationCode: gp.lgdCode };
-  return { ...base, lgdCode: gp.lgdCode };
+  return base;
+};
+
+// The record as sent to clients; a misc sheet always has its items (miscItemsOf)
+const recordJson = (record) => {
+  if (!record) return null;
+  const json = record.toJSON ? record.toJSON() : record;
+  return json.form === "misc" ? { ...json, items: miscItemsOf(json) } : json;
 };
 
 // record: the sheet once filled; geoPhoto and version also cover a photo-only record
@@ -175,7 +224,7 @@ const view = async (profile, formKey, gp, record) => ({
   ...(formKey === "block" ? { assetCode: blockAssetCode(profile) } : {}),
   defaults: filled(record) ? {} : gp ? await gpDefaults(profile, gp, formKey) : await blockDefaults(profile, formKey),
   nodes: gp ? nodes(profile).filter((n) => n.code !== gp.lgdCode) : [],
-  record: filled(record),
+  record: recordJson(filled(record)),
   geoPhoto: record?.geoPhoto || null,
   version: record?.toJSON ? record.toJSON().version : record?.__v,
 });

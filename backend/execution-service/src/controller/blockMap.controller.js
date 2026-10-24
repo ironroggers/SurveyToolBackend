@@ -9,6 +9,7 @@ import { notFound, sendError } from "../utils/httpError.js";
 import { parseLatLong, pointOf } from "../utils/geo.js";
 import { sectionExecutionSummaries } from "../services/progress.service.js";
 import { ROUTER_NAME } from "../utils/blockNodes.js";
+import { miscItemsOf } from "../config/infraEquipment.js";
 
 // Everything of a block that has a place on the map, in one response, for the block
 // map's layers: infra captures, equipment sheets, sections, subsections (planned line, pits, reference
@@ -113,7 +114,7 @@ export const buildBlockMap = async (profile) => {
     push(e.geoPhoto, { kind: "EQUIPMENT", label: `${equipmentLabel[e.form]} · ${name}`, gpLgdCode: e.gpLgdCode });
     if (!e.assetCode) return [];
     const point = pointOf(e);
-    return [{ ...e, _id: String(e._id), name, ...(point || {}) }];
+    return [{ ...e, _id: String(e._id), name, ...(point || {}), ...(e.form === "misc" ? { items: miscItemsOf(e) } : {}) }];
   });
 
   // ---- sections: a line between their nodes (or their stored lat/long text)

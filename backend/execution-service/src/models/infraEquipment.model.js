@@ -31,6 +31,24 @@ const infraEquipmentSchema = new mongoose.Schema(
                 longitude: Number,
                 geoPhoto: mediaFileSchema,
                 ...valueFields,
+                // Misc sheets: one item per type of equipment at the site
+                items: {
+                        type: [
+                                new mongoose.Schema(
+                                        {
+                                                type: { type: String, trim: true },
+                                                assetCode: { type: String, trim: true },
+                                                model: { type: String, trim: true },
+                                                serialNo: { type: String, trim: true }
+                                        },
+                                        { _id: false }
+                                )
+                        ],
+                        default: undefined
+                },
+                // Misc sheets saved before items: one type, its LGD code (read via miscItemsOf)
+                equipmentType: { type: String, trim: true },
+                lgdCode: { type: String, trim: true },
                 capturedBy: actorSchema,
                 updatedBy: actorSchema
         },
