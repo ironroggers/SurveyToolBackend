@@ -119,9 +119,9 @@ export const MEDIA_RULES = {
   // The pit itself and each of its reference points, optional
   pit: { minPhotos: 0, maxPhotos: 4, video: "optional" },
   refPoint: { minPhotos: 0, maxPhotos: 2, video: "optional" },
-  // Start has no photos step any more: the pit and its reference points carry the media
+  // Start and end have no photos step any more: the pit and its reference points carry the media
   start: { minPhotos: 0, maxPhotos: 4, video: "optional" },
-  end: { minPhotos: 1, maxPhotos: 4, video: "required" },
+  end: { minPhotos: 0, maxPhotos: 4, video: "optional" },
   restorationItem: { minPhotos: 1, maxPhotos: 3, video: "required" },
   // TODO(confirm): whether all 4 infra photos are mandatory; 1 is enough for now
   infra: { minPhotos: 1, maxPhotos: 4, video: "none", descriptions: "optional" },
