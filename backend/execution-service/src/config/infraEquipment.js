@@ -14,6 +14,8 @@ export const BACKHAUL = ["F", "S", "R"]; // OFC / Satellite / Radio
 // Asset code XX for each misc equipment type
 export const MISC_TYPE_TAGS = { RACK: "RA", FDMS: "FD", FTB: "FT", CCU: "CC", SPV: "SP" };
 export const GP_SITE_TYPES = ["SCHOOL", "COLLEGE", "AANGANWADI", "GRAM_PANCHAYAT_BHAVAN"];
+// Where misc equipment is: the GP site types, or a BSNL exchange
+export const MISC_LOCATION_TYPES = [...GP_SITE_TYPES, "BSNL_EXCHANGE"];
 
 const common = {
   phase: { column: "phase", type: "enum", options: PHASES, required: true },
@@ -85,7 +87,7 @@ export const EQUIPMENT_FORMS = {
     fields: {
       phase: common.phase,
       // Once for the sheet, not per item
-      locationType: { column: "loc_type", type: "enum", options: GP_SITE_TYPES },
+      locationType: { column: "loc_type", type: "enum", options: MISC_LOCATION_TYPES },
       backhaul: { column: "backhaul", type: "enum", options: BACKHAUL },
       remarks: common.remarks,
     },
