@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { assetPrefix } from "../config/infraEquipment.js";
 
 export const SITE_TYPES = ["BSNL_OWNED", "BSNL_RENTED", "OTHERS"];
 
@@ -56,9 +57,11 @@ const gpSchema = new mongoose.Schema(
         { _id: false }
 );
 
-// Ring codes follow the number of rings: A01, A02, … (ringCodes(3) -> A01, A02, A03)
+// Ring numbers follow the number of rings: A01, A02, … (ringCodes(3) -> A01, A02, A03). The
+// stored ring code is SSDDDBBBBAAA: state, district and block LGD codes + the ring number.
 export const MAX_RINGS = 20;
 export const ringCodes = (count) => Array.from({ length: count }, (_, i) => `A${String(i + 1).padStart(2, "0")}`);
+const RING_NUMBER = /A\d{2}$/;
 
 // One ring of the block's network, named by its ring code
 const ringSchema = new mongoose.Schema(
@@ -233,8 +236,23 @@ const blockProfileSchema = new mongoose.Schema(
         }
 );
 
-// A GP's ring must be one of the block's rings
+// Ring codes are SSDDDBBBB + the ring number, rebuilt on every save so they follow the block's
+// codes; GPs keep their ring number. A GP's ring must then be one of the block's rings.
 blockProfileSchema.pre("validate", function () {
+        const prefix = assetPrefix(this);
+        if (this.rings?.length) {
+                if (!prefix) {
+                        this.invalidate("numberOfRings", "Ring codes need the state, district and block LGD codes");
+                } else {
+                        this.rings = this.rings.map((r) => ({ code: `${prefix}${String(r.code).match(RING_NUMBER)?.[0] || r.code}` }));
+                }
+        }
+        if (prefix) {
+                (this.gps || []).forEach((gp) => {
+                        const number = String(gp.ringCode || "").match(RING_NUMBER)?.[0];
+                        if (number) gp.ringCode = `${prefix}${number}`;
+                });
+        }
         const codes = new Set((this.rings || []).map((r) => r.code));
         (this.gps || []).forEach((gp, index) => {
                 if (gp.ringCode && !codes.has(gp.ringCode)) this.invalidate(`gps.${index}.ringCode`, `Ring ${gp.ringCode} isn't one of the block's rings`);
