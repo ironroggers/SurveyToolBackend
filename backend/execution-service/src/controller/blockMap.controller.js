@@ -58,7 +58,7 @@ const pitView = (point) => {
 // The block map's layers for one profile (needs its _id, block and gps). Also used
 // by the master map, which draws many blocks on one map.
 export const buildBlockMap = async (profile) => {
-  const sections = await Section.find({ blockProfile: profile._id }).select("name fromNode toNode fromLatLong toLatLong sectionLength routeType").lean();
+  const sections = await Section.find({ blockProfile: profile._id }).select("name fromNode toNode fromLatLong toLatLong sectionLength mainPathLength sharingPathLength existingIncrementalPathLength routeType").lean();
   const sectionIds = sections.map((s) => s._id);
   const [subs, captures, equipmentDocs, restorations, summaries] = await Promise.all([
     SubSection.find({ section: { $in: sectionIds } })
@@ -133,6 +133,9 @@ export const buildBlockMap = async (profile) => {
       fromNode: s.fromNode ? { type: s.fromNode.type, code: s.fromNode.code, name: s.fromNode.name } : null,
       toNode: s.toNode ? { type: s.toNode.type, code: s.toNode.code, name: s.toNode.name } : null,
       sectionLength: s.sectionLength,
+      mainPathLength: s.mainPathLength,
+      sharingPathLength: s.sharingPathLength,
+      existingIncrementalPathLength: s.existingIncrementalPathLength,
       routeType: s.routeType || "NEW",
       counts: summary?.counts,
       total: summary?.total || 0,
