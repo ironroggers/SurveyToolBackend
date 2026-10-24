@@ -7,7 +7,7 @@ import { sectionExecutionSummaries } from "../services/progress.service.js";
 const toNodeRef = ({ type, code, name }) => ({ type, code, name });
 
 // Sections under a block profile take its names and LGD codes, as location sections
-// take them from the Location. They run from one of the block's nodes (BHQ or GP) to
+// take them from the Location. They run from one of the block's nodes (block router or GP) to
 // another, and their end coordinates come from those nodes. The ends are required on
 // create; an update without them leaves them as they are.
 const withBlockProfile = async (payload, { isCreate }) => {
@@ -20,8 +20,8 @@ const withBlockProfile = async (payload, { isCreate }) => {
   if (isCreate || payload.fromNode || payload.toNode) {
     const from = findBlockNode(profile, payload.fromNode);
     const to = findBlockNode(profile, payload.toNode);
-    if (!from) throw new Error("From must be this block's BHQ or one of its GPs");
-    if (!to) throw new Error("To must be this block's BHQ or one of its GPs");
+    if (!from) throw new Error("From must be this block's router or one of its GPs");
+    if (!to) throw new Error("To must be this block's router or one of its GPs");
     if (from.type === to.type && from.code === to.code) throw new Error("From and To must be different");
     Object.assign(result, {
       fromNode: toNodeRef(from),

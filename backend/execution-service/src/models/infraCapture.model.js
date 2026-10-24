@@ -16,7 +16,7 @@ const infraPhotoSchema = new mongoose.Schema(
         { _id: false }
 );
 
-// Location and photos of the block HQ (level BLOCK) or one GP (level GP, matched to
+// Location and photos of the block router site (level BLOCK) or one GP (level GP, matched to
 // BlockProfile.gps by LGD code). Editable after saving.
 const infraCaptureSchema = new mongoose.Schema(
         {

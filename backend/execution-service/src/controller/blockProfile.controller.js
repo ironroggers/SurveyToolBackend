@@ -15,13 +15,9 @@ const EDITABLE_FIELDS = [
   "districtCensusCode",
   "block",
   "blockCode",
-  "siteType",
-  "bhq",
   "numberOfGps",
   "gps",
   "numberOfRacks",
-  "startDate",
-  "endDate",
   "remarks",
   "blockRouter",
   "status",
@@ -33,7 +29,7 @@ const pick = (source, keys) =>
 // Forms send "" for an unselected site type; the enum only accepts a value or nothing
 const editableFields = (body) => {
   const fields = pick(body, EDITABLE_FIELDS);
-  if (fields.siteType === "") fields.siteType = null;
+  if (fields.blockRouter?.siteType === "") fields.blockRouter = { ...fields.blockRouter, siteType: null };
   return fields;
 };
 
@@ -77,7 +73,7 @@ const withStats = (profile, stats, progress) => {
 };
 
 // Sections copy their end nodes' names and coordinates, so refresh them after the
-// block's BHQ or GPs change. A node that was removed from the block keeps its last copy.
+// block's router, GPs or code change. A node that was removed from the block keeps its last copy.
 const syncSectionEnds = async (profile) => {
   const sections = await Section.find({ blockProfile: profile._id, fromNode: { $exists: true } }).lean();
   const operations = sections.flatMap((section) => {
@@ -85,6 +81,7 @@ const syncSectionEnds = async (profile) => {
     for (const [key, latLongKey] of [["fromNode", "fromLatLong"], ["toNode", "toLatLong"]]) {
       const node = findBlockNode(profile, section[key]);
       if (!node) continue;
+      set[`${key}.code`] = node.code;
       set[`${key}.name`] = node.name;
       set[latLongKey] = formatLatLong(node);
     }
@@ -194,7 +191,7 @@ export const updateBlockProfile = async (req, res) => {
       const geography = Object.fromEntries(GEOGRAPHY_FIELDS.map((field) => [field, profile[field] ?? ""]));
       await Section.updateMany({ blockProfile: profile._id }, { $set: geography });
     }
-    if ("bhq" in updates || "gps" in updates) await syncSectionEnds(profile);
+    if ("blockRouter" in updates || "gps" in updates || "blockCode" in updates) await syncSectionEnds(profile);
     await respondWithProfile(res, profile);
   } catch (error) {
     sendError(res, error);

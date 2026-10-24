@@ -7,13 +7,14 @@ import { conflict, failIfErrors, notFound, sendError } from "../utils/httpError.
 import { pointOf } from "../utils/geo.js";
 import { actorOf, checkVersion, cleanMedia } from "../services/execution.service.js";
 import { queueStampsFor } from "../services/stampQueue.service.js";
+import { ROUTER_NAME } from "../utils/blockNodes.js";
 
 // Equipment sheets (src/config/infraEquipment.js), filled on the web after the block
 // exists: block once per block, gp once per GP, misc once per block and once per GP.
 
 const loadProfile = async (id) => {
   const profile = await BlockProfile.findById(id).select(
-    "state stateCode district districtCensusCode block blockCode siteType bhq gps blockRouter"
+    "state stateCode district districtCode districtCensusCode block blockCode gps blockRouter"
   );
   if (!profile) throw notFound("Block profile not found");
   return profile;
@@ -125,7 +126,7 @@ const geography = (profile) => ({
 
 // Places a GP can name as its previous / next node
 const nodes = (profile) => [
-  ...(profile.bhq?.name ? [{ name: profile.bhq.name, code: profile.bhq.code, kind: "BHQ" }] : []),
+  { name: ROUTER_NAME, code: profile.blockCode, kind: "ROUTER" },
   ...(profile.gps || []).map((g) => ({ name: g.name, code: g.lgdCode, kind: "GP" })),
 ];
 
@@ -140,8 +141,8 @@ const blockDefaults = async (profile, formKey) => {
     InfraCapture.findOne({ blockProfile: profile._id, level: "BLOCK" }).select("latitude longitude").lean(),
     formKey === "block" ? null : InfraEquipment.findOne({ blockProfile: profile._id, form: "block" }).select("phase").lean(),
   ]);
-  const point = firstPoint(capture, profile.blockRouter, profile.bhq);
-  if (formKey === "block") return { ...point, siteType: profile.siteType };
+  const point = firstPoint(capture, profile.blockRouter);
+  if (formKey === "block") return { ...point, siteType: profile.blockRouter?.siteType };
   // Block-level misc: no GP, so the LGD code is the block's
   return { ...point, phase: blockRecord?.phase, lgdCode: profile.blockCode };
 };

@@ -6,12 +6,13 @@ import { conflict, failIfErrors, notFound, sendError } from "../utils/httpError.
 import { distanceM, pointOf, round } from "../utils/geo.js";
 import { actorOf, checkVersion, cleanFix, cleanMedia } from "../services/execution.service.js";
 import { queueStampsFor } from "../services/stampQueue.service.js";
+import { ROUTER_NAME } from "../utils/blockNodes.js";
 
-// Block HQ and GP infra: a GPS location and 1–4 photos, each with an optional description.
+// Block router and GP infra: a GPS location and 1–4 photos, each with an optional description.
 // Editable after saving.
 
 const loadProfile = async (id) => {
-  const profile = await BlockProfile.findById(id).select("block blockCode district bhq gps");
+  const profile = await BlockProfile.findById(id).select("block blockCode district blockRouter gps");
   if (!profile) throw notFound("Block profile not found");
   return profile;
 };
@@ -21,6 +22,9 @@ const findGp = (profile, lgdCode) => {
   if (!gp) throw notFound("GP not found in this block");
   return gp;
 };
+
+// The block-level capture is at the block router
+const routerTarget = (profile) => ({ name: ROUTER_NAME, code: profile.blockCode, latitude: profile.blockRouter?.latitude, longitude: profile.blockRouter?.longitude });
 
 const target = (place, code) => ({
   name: place?.name,
@@ -74,7 +78,7 @@ export const getBlockInfra = async (req, res) => {
   try {
     const profile = await loadProfile(req.params.id);
     const capture = await InfraCapture.findOne({ blockProfile: profile._id, level: "BLOCK" });
-    res.json({ target: target(profile.bhq, profile.bhq?.code), capture });
+    res.json({ target: routerTarget(profile), capture });
   } catch (error) {
     sendError(res, error);
   }
@@ -85,14 +89,14 @@ export const saveBlockInfra = async (req, res) => {
   try {
     const profile = await loadProfile(req.params.id);
     const capture = await save(req, { blockProfile: profile._id, level: "BLOCK", gpLgdCode: null });
-    res.json({ target: target(profile.bhq, profile.bhq?.code), capture });
+    res.json({ target: routerTarget(profile), capture });
   } catch (error) {
     sendError(res, error);
   }
 };
 
 // GET /api/block-profiles/:id/gp-infra   (viewExecution)
-// Every GP with its capture state and which equipment sheets are filled, nearest to the BHQ first
+// Every GP with its capture state and which equipment sheets are filled, nearest to the block router first
 export const getGpInfraList = async (req, res) => {
   try {
     const profile = await loadProfile(req.params.id);
@@ -102,7 +106,7 @@ export const getGpInfraList = async (req, res) => {
     ]);
     const byCode = new Map(captures.map((c) => [c.gpLgdCode, c]));
     const filled = new Set(equipment.map((e) => `${e.form}:${e.gpLgdCode}`));
-    const bhq = pointOf(profile.bhq);
+    const router = pointOf(profile.blockRouter);
     const items = (profile.gps || []).map((gp) => {
       const point = pointOf(gp);
       const capture = byCode.get(gp.lgdCode);
@@ -111,7 +115,7 @@ export const getGpInfraList = async (req, res) => {
         lgdCode: gp.lgdCode,
         latitude: gp.latitude,
         longitude: gp.longitude,
-        distanceFromBhqM: bhq && point ? round(distanceM(bhq, point), 0) : null,
+        distanceFromRouterM: router && point ? round(distanceM(router, point), 0) : null,
         captured: Boolean(capture),
         photoCount: capture?.photos.length || 0,
         savedAt: capture?.updatedAt,
@@ -120,7 +124,7 @@ export const getGpInfraList = async (req, res) => {
       };
     });
     // GPs without coordinates go last
-    items.sort((a, b) => (a.distanceFromBhqM ?? Infinity) - (b.distanceFromBhqM ?? Infinity) || a.name.localeCompare(b.name));
+    items.sort((a, b) => (a.distanceFromRouterM ?? Infinity) - (b.distanceFromRouterM ?? Infinity) || a.name.localeCompare(b.name));
     res.json({ items, captured: items.filter((i) => i.captured).length, total: items.length });
   } catch (error) {
     sendError(res, error);

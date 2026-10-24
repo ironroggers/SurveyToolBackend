@@ -117,28 +117,6 @@ const blockProfileSchema = new mongoose.Schema(
                         required: [true, "Block LGD code is required"],
                         unique: true
                 },
-                siteType: {
-                        type: String,
-                        enum: {
-                                values: SITE_TYPES,
-                                message: "Site type must be one of " + SITE_TYPES.join(", ")
-                        }
-                },
-                // Block headquarters: one per block, listed above its GPs
-                bhq: {
-                        name: {
-                                type: String,
-                                trim: true,
-                                required: [true, "BHQ name is required"]
-                        },
-                        code: {
-                                type: String,
-                                trim: true,
-                                required: [true, "BHQ code is required"]
-                        },
-                        latitude: coordinate("latitude", "BHQ", (doc) => doc.bhq?.longitude),
-                        longitude: coordinate("longitude", "BHQ", (doc) => doc.bhq?.latitude)
-                },
                 numberOfGps: {
                         type: Number,
                         required: [true, "Number of GPs is required"],
@@ -168,23 +146,20 @@ const blockProfileSchema = new mongoose.Schema(
                                 message: "Number of racks must be a whole number"
                         }
                 },
-                startDate: {
-                        type: Date
-                },
-                endDate: {
-                        type: Date,
-                        validate: {
-                                validator: function (value) {
-                                        return !value || !this.startDate || value >= this.startDate;
-                                },
-                                message: "End date can't be before the start date"
-                        }
-                },
                 remarks: {
                         type: String,
                         trim: true
                 },
+                // The block's head node: sections start here and the block infra is captured here.
+                // As a node it is { type: "ROUTER", code: blockCode } (utils/blockNodes.js).
                 blockRouter: {
+                        siteType: {
+                                type: String,
+                                enum: {
+                                        values: SITE_TYPES,
+                                        message: "Site type must be one of " + SITE_TYPES.join(", ")
+                                }
+                        },
                         latitude: coordinate("latitude", "Block router", (doc) => doc.blockRouter?.longitude),
                         longitude: coordinate("longitude", "Block router", (doc) => doc.blockRouter?.latitude),
                         address: {

@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import { NODE_TYPES } from "../utils/blockNodes.js";
 
-// One end of a block section: the block's BHQ or one of its GPs (code is the LGD code for a GP)
+// One end of a block section: the block router (code: the block's LGD code) or one of its GPs (code: the GP's LGD code)
 const sectionEndSchema = new mongoose.Schema(
         {
                 type: {
