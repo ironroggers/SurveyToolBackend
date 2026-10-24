@@ -57,7 +57,6 @@ export const EQUIPMENT_FORMS = {
       locationName: { column: "loc_name", type: "text" },
       locationCode: { column: "loc_code", type: "text" },
       routerType: { column: "router_typ", type: "enum", options: ["C", "D"] },
-      ringCount: { column: "ring_count", type: "int" },
       ringCode: { column: "ring_code", type: "text" },
       assetCode: common.assetCode,
       siteType: { column: "site_type", type: "enum", options: GP_SITE_TYPES },
