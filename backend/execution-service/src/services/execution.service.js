@@ -213,10 +213,13 @@ const cleanPit = (input = {}, errors) => {
       fix && refFix
         ? round(distanceM({ lat: fix.latitude, lng: fix.longitude }, { lat: refFix.latitude, lng: refFix.longitude }), 1)
         : undefined;
-    return { description, ...(refFix || {}), tapeDistanceM: tape, gpsDistanceM };
+    const media = cleanMediaSet(ref, MEDIA_RULES.refPoint, `${base}.`, errors);
+    return { description, ...(refFix || {}), tapeDistanceM: tape, gpsDistanceM, ...media };
   });
   const copiedFrom = mongoose.isValidObjectId(input.copiedFrom) ? input.copiedFrom : undefined;
-  return { ...(fix || {}), copiedFrom, refs };
+  // The pit's own photos and video, optional
+  const media = cleanMediaSet(input, MEDIA_RULES.pit, "pit.", errors);
+  return { ...(fix || {}), copiedFrom, refs, ...media };
 };
 
 // Ducting records a pit with 3 reference points; other work just its location.
@@ -351,7 +354,10 @@ export const startPitSuggestion = (sub, others) => {
     .sort((a, b) => a.distance - b.distance)[0];
   if (!nearest) return null;
   const { other, distance } = nearest;
-  const pit = other.end.pit.toObject ? other.end.pit.toObject() : other.end.pit;
+  const saved = other.end.pit.toObject ? other.end.pit.toObject() : other.end.pit;
+  // Location and reference points only: the new pit's photos are taken afresh
+  const { photos: _photos, video: _video, ...pit } = saved;
+  pit.refs = (pit.refs || []).map(({ photos: _p, video: _v, ...ref }) => ref);
   return {
     subSection: other._id,
     name: other.name,

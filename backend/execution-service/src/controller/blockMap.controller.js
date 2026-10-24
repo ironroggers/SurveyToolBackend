@@ -167,8 +167,13 @@ export const buildBlockMap = async (profile) => {
     (ic.crossingPhotos || []).forEach((m) => push(m, subExtra(sub, "SITE", `Crossing · ${sub.name}`)));
     ["start", "end"].forEach((which) => {
       const point = sub[which];
-      [...(point?.photos || []), point?.video].forEach((m) =>
-        push(m, subExtra(sub, which === "start" ? "START" : "END", `${which === "start" ? "Start" : "End"} · ${sub.name}`))
+      const kind = which === "start" ? "START" : "END";
+      const label = which === "start" ? "Start" : "End";
+      [...(point?.photos || []), point?.video].forEach((m) => push(m, subExtra(sub, kind, `${label} · ${sub.name}`)));
+      // The pit's and its reference points' own photos and video
+      [...(point?.pit?.photos || []), point?.pit?.video].forEach((m) => push(m, subExtra(sub, kind, `${label} pit · ${sub.name}`)));
+      (point?.pit?.refs || []).forEach((r, i) =>
+        [...(r.photos || []), r.video].forEach((m) => push(m, subExtra(sub, kind, `${label} reference ${i + 1}${r.description ? ` (${r.description})` : ""} · ${sub.name}`)))
       );
     });
     return {

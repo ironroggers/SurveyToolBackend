@@ -115,6 +115,9 @@ export const MEDIA_RULES = {
   siteCondition: { minPhotos: 0, maxPhotos: 4, video: "optional" },
   // Photos of the crossings, optional
   crossing: { minPhotos: 0, maxPhotos: 4, video: "none" },
+  // The pit itself and each of its reference points, optional
+  pit: { minPhotos: 0, maxPhotos: 4, video: "optional" },
+  refPoint: { minPhotos: 0, maxPhotos: 2, video: "optional" },
   start: { minPhotos: 1, maxPhotos: 4, video: "required" },
   end: { minPhotos: 1, maxPhotos: 4, video: "required" },
   restorationItem: { minPhotos: 1, maxPhotos: 3, video: "required" },

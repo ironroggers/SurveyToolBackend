@@ -82,7 +82,10 @@ export const referencePointSchema = new mongoose.Schema(
                 accuracyAboveLimit: Boolean,
                 tapeDistanceM: Number,
                 // Straight-line distance between the two GPS fixes, kept so the approver sees mismatches
-                gpsDistanceM: Number
+                gpsDistanceM: Number,
+                // Optional photos and video of the object
+                photos: [mediaFileSchema],
+                video: mediaFileSchema
         },
         { _id: false }
 );
@@ -98,7 +101,10 @@ export const pitSchema = new mongoose.Schema(
                         type: mongoose.Schema.Types.ObjectId,
                         ref: "SubSection"
                 },
-                refs: [referencePointSchema]
+                refs: [referencePointSchema],
+                // Optional photos and video of the pit
+                photos: [mediaFileSchema],
+                video: mediaFileSchema
         },
         { _id: false }
 );
