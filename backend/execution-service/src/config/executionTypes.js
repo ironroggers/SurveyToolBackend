@@ -6,7 +6,7 @@
 // TODO(confirm): name codes and pit labels are the proposal from the prototype
 export const EXECUTION_TYPES = {
   HDD: { label: "HDD", full: "Ducting · HDD", code: "HDD", kind: "ducting", pitA: "Starting pit", pitB: "Ending pit", methodOfConstruction: "HDD", trenchType: "HDD", aiAutofill: true },
-  OT: { label: "Open Trench", full: "Ducting · Open Trench", code: "OT", kind: "ducting", pitA: "Coupling point 1", pitB: "Coupling point 2", methodOfConstruction: "Open Trench", trenchType: "Open Trench" },
+  OT: { label: "Open Trench", full: "Ducting · Open Trench", code: "OT", kind: "ducting", pitA: "Open trench start point", pitB: "Open trench end point", methodOfConstruction: "Open Trench", trenchType: "Open Trench" },
   CLAMP: { label: "Clamping", full: "Ducting · Clamping", code: "CLP", kind: "ducting", pitA: "Coupling point 1", pitB: "Coupling point 2", methodOfConstruction: "Clamping", trenchType: "Bridge Clamping" },
   CHAMBER: { label: "Chamber", full: "Chamber", code: "CHM", kind: "basic", trenchType: "other" },
   BLOWING: { label: "Blowing", full: "Blowing", code: "BLW", kind: "basic", trenchType: "other" },
