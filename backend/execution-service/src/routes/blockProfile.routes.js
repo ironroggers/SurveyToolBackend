@@ -19,6 +19,8 @@ import {
   saveGpEquipment,
   saveBlockEquipmentPhoto,
   saveGpEquipmentPhoto,
+  saveBlockMiscItemPhoto,
+  saveGpMiscItemPhoto,
 } from "../controller/infraEquipment.controller.js";
 
 const router = Router();
@@ -46,6 +48,9 @@ router.put("/:id/gps/:lgdCode/infra", saveGpInfra); // captureInfra
 // Block and GP equipment sheets (web), with their geo photos (mobile app)
 router.put("/:id/equipment/:form/geo-photo", saveBlockEquipmentPhoto); // captureInfra   form: block | misc
 router.put("/:id/gps/:lgdCode/equipment/:form/geo-photo", saveGpEquipmentPhoto); // captureInfra   form: gp | misc
+// One photo per type of misc equipment (RACK, FDMS, FTB, CCU, SPV)
+router.put("/:id/equipment/misc/items/:type/geo-photo", saveBlockMiscItemPhoto); // captureInfra
+router.put("/:id/gps/:lgdCode/equipment/misc/items/:type/geo-photo", saveGpMiscItemPhoto); // captureInfra
 router.get("/:id/equipment/:form?", getBlockEquipment); // viewExecution   form: block (default) | misc
 router.put("/:id/equipment/:form?", saveBlockEquipment); // manageInfraEquipment
 router.get("/:id/gps/:lgdCode/equipment/:form", getGpEquipment); // viewExecution

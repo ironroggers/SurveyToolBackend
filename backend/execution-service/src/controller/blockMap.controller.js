@@ -112,6 +112,8 @@ export const buildBlockMap = async (profile) => {
   const equipment = equipmentDocs.flatMap((e) => {
     const name = e.gpLgdCode ? gpName.get(e.gpLgdCode) || e.gpLgdCode : profile.block;
     push(e.geoPhoto, { kind: "EQUIPMENT", label: `${equipmentLabel[e.form]} · ${name}`, gpLgdCode: e.gpLgdCode });
+    // A misc sheet's photo per type
+    if (e.form === "misc") miscItemsOf(e).forEach((item) => push(item.geoPhoto, { kind: "EQUIPMENT", label: `Misc equipment · ${item.type} · ${name}`, gpLgdCode: e.gpLgdCode }));
     if (!e.assetCode) return [];
     const point = pointOf(e);
     return [{ ...e, _id: String(e._id), name, ...(point || {}), ...(e.form === "misc" ? { items: miscItemsOf(e) } : {}) }];

@@ -39,7 +39,9 @@ const infraEquipmentSchema = new mongoose.Schema(
                                                 type: { type: String, trim: true },
                                                 assetCode: { type: String, trim: true },
                                                 model: { type: String, trim: true },
-                                                serialNo: { type: String, trim: true }
+                                                serialNo: { type: String, trim: true },
+                                                // Taken on the mobile app, one per type
+                                                geoPhoto: mediaFileSchema
                                         },
                                         { _id: false }
                                 )

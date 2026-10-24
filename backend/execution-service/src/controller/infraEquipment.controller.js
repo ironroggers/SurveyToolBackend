@@ -129,6 +129,12 @@ const save = async (req, form, filter, profile) => {
   if (form.items) {
     const { items, errors } = buildItems(req.body?.items, profile, filter.gpLgdCode || profile.blockCode);
     values = buildValues(form, body, errors);
+    // Each type keeps the photo taken for it on the mobile app
+    const saved = await InfraEquipment.findOne(filter).select("items equipmentType assetCode model serialNo").lean();
+    const photos = new Map(miscItemsOf(saved).map((i) => [i.type, i.geoPhoto]));
+    items.forEach((item) => {
+      if (photos.get(item.type)) item.geoPhoto = photos.get(item.type);
+    });
     // The sheet's code lists its items' codes; fields from before items are cleared
     Object.assign(values, {
       items,
@@ -330,6 +336,49 @@ export const saveGpEquipmentPhoto = async (req, res) => {
     const gp = findGp(profile, req.params.lgdCode);
     const record = await savePhoto(req, { blockProfile: profile._id, form: req.params.form, gpLgdCode: gp.lgdCode });
     res.json(await view(profile, req.params.form, gp, record));
+  } catch (error) {
+    sendError(res, error);
+  }
+};
+
+// Sets or clears the geo photo of one type on a misc sheet. The type must be on the sheet
+// (picked on the web); a sheet saved before items is read as one item.
+const saveItemPhoto = async (req, filter) => {
+  const type = String(req.params.type || "").toUpperCase();
+  if (!MISC_TYPE_TAGS[type]) throw notFound("Unknown misc equipment type");
+  const errors = {};
+  const geoPhoto = req.body?.geoPhoto ? cleanMedia(req.body.geoPhoto, "geoPhoto", "IMAGE", errors) : null;
+  failIfErrors(errors);
+  const record = await InfraEquipment.findOne(filter);
+  const items = miscItemsOf(record?.toObject ? record.toObject() : record);
+  const index = items.findIndex((i) => i.type === type);
+  if (!record || index === -1) failIfErrors({ type: "Pick this type on the misc equipment sheet first" });
+  items[index] = { ...items[index], geoPhoto: geoPhoto || undefined };
+  record.items = items;
+  record.updatedBy = actorOf(req);
+  const saved = await record.save();
+  queueStampsFor(saved);
+  return saved;
+};
+
+// PUT /api/block-profiles/:id/equipment/misc/items/:type/geo-photo   (captureInfra)
+export const saveBlockMiscItemPhoto = async (req, res) => {
+  try {
+    const profile = await loadProfile(req.params.id);
+    const record = await saveItemPhoto(req, { blockProfile: profile._id, form: "misc", gpLgdCode: null });
+    res.json(await view(profile, "misc", null, record));
+  } catch (error) {
+    sendError(res, error);
+  }
+};
+
+// PUT /api/block-profiles/:id/gps/:lgdCode/equipment/misc/items/:type/geo-photo   (captureInfra)
+export const saveGpMiscItemPhoto = async (req, res) => {
+  try {
+    const profile = await loadProfile(req.params.id);
+    const gp = findGp(profile, req.params.lgdCode);
+    const record = await saveItemPhoto(req, { blockProfile: profile._id, form: "misc", gpLgdCode: gp.lgdCode });
+    res.json(await view(profile, "misc", gp, record));
   } catch (error) {
     sendError(res, error);
   }
