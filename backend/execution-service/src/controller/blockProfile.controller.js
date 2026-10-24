@@ -1,4 +1,4 @@
-import BlockProfile, { GEOGRAPHY_FIELDS } from "../models/blockProfile.model.js";
+import BlockProfile, { GEOGRAPHY_FIELDS, MAX_RINGS, ringCodes } from "../models/blockProfile.model.js";
 import Section from "../models/section.model.js";
 import { PERMISSIONS, normalizeRole, permissionsForRole } from "../config/permissions.js";
 import { deleteS3Object } from "../utils/s3.js";
@@ -17,7 +17,6 @@ const EDITABLE_FIELDS = [
   "blockCode",
   "numberOfGps",
   "gps",
-  "rings",
   "numberOfRacks",
   "remarks",
   "blockRouter",
@@ -27,9 +26,22 @@ const EDITABLE_FIELDS = [
 const pick = (source, keys) =>
   Object.fromEntries(keys.filter((key) => source?.[key] !== undefined).map((key) => [key, source[key]]));
 
-// Forms send "" for an unselected site type; the enum only accepts a value or nothing
+// Forms send "" for an unselected site type; the enum only accepts a value or nothing.
+// Rings come from numberOfRings: their codes are generated (A01, A02, …), never typed.
 const editableFields = (body) => {
   const fields = pick(body, EDITABLE_FIELDS);
+  if (body?.numberOfRings !== undefined && body.numberOfRings !== null && body.numberOfRings !== "") {
+    const count = Number(body.numberOfRings);
+    if (!Number.isInteger(count) || count < 0 || count > MAX_RINGS) {
+      const error = new Error(`Number of rings must be a whole number up to ${MAX_RINGS}`);
+      error.name = "ValidationError";
+      error.errors = { numberOfRings: { message: error.message } };
+      throw error;
+    }
+    fields.rings = ringCodes(count).map((code) => ({ code }));
+  } else if (body?.numberOfRings === "" || body?.numberOfRings === null) {
+    fields.rings = [];
+  }
   if (fields.blockRouter?.siteType === "") fields.blockRouter = { ...fields.blockRouter, siteType: null };
   return fields;
 };

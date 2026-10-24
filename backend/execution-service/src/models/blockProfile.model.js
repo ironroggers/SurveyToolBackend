@@ -56,6 +56,10 @@ const gpSchema = new mongoose.Schema(
         { _id: false }
 );
 
+// Ring codes follow the number of rings: A01, A02, … (ringCodes(3) -> A01, A02, A03)
+export const MAX_RINGS = 20;
+export const ringCodes = (count) => Array.from({ length: count }, (_, i) => `A${String(i + 1).padStart(2, "0")}`);
+
 // One ring of the block's network, named by its ring code
 const ringSchema = new mongoose.Schema(
         {
