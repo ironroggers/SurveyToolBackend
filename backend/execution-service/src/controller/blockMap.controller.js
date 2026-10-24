@@ -107,11 +107,13 @@ export const buildBlockMap = async (profile) => {
 
   // ---- equipment sheets: every value, for the info window; the geo photo joins the attachments
   const equipmentLabel = { block: "Block equipment", gp: "GP equipment", misc: "Misc equipment" };
-  const equipment = equipmentDocs.map((e) => {
+  // A photo-only record (sheet not filled yet) adds its photo but isn't equipment yet
+  const equipment = equipmentDocs.flatMap((e) => {
     const name = e.gpLgdCode ? gpName.get(e.gpLgdCode) || e.gpLgdCode : profile.block;
     push(e.geoPhoto, { kind: "EQUIPMENT", label: `${equipmentLabel[e.form]} · ${name}`, gpLgdCode: e.gpLgdCode });
+    if (!e.assetCode) return [];
     const point = pointOf(e);
-    return { ...e, _id: String(e._id), name, ...(point || {}) };
+    return [{ ...e, _id: String(e._id), name, ...(point || {}) }];
   });
 
   // ---- sections: a line between their nodes (or their stored lat/long text)

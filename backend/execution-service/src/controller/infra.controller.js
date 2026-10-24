@@ -102,7 +102,7 @@ export const getGpInfraList = async (req, res) => {
     const profile = await loadProfile(req.params.id);
     const [captures, equipment] = await Promise.all([
       InfraCapture.find({ blockProfile: profile._id, level: "GP" }).select("gpLgdCode photos updatedAt"),
-      InfraEquipment.find({ blockProfile: profile._id, gpLgdCode: { $ne: null } }).select("gpLgdCode form").lean(),
+      InfraEquipment.find({ blockProfile: profile._id, gpLgdCode: { $ne: null }, assetCode: { $nin: [null, ""] } }).select("gpLgdCode form").lean(),
     ]);
     const byCode = new Map(captures.map((c) => [c.gpLgdCode, c]));
     const filled = new Set(equipment.map((e) => `${e.form}:${e.gpLgdCode}`));

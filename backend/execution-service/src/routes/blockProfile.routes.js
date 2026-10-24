@@ -12,7 +12,14 @@ import {
 } from "../controller/blockProfile.controller.js";
 import { getBlockInfra, saveBlockInfra, getGpInfraList, getGpInfra, saveGpInfra } from "../controller/infra.controller.js";
 import { getBlockMap } from "../controller/blockMap.controller.js";
-import { getBlockEquipment, saveBlockEquipment, getGpEquipment, saveGpEquipment } from "../controller/infraEquipment.controller.js";
+import {
+  getBlockEquipment,
+  saveBlockEquipment,
+  getGpEquipment,
+  saveGpEquipment,
+  saveBlockEquipmentPhoto,
+  saveGpEquipmentPhoto,
+} from "../controller/infraEquipment.controller.js";
 
 const router = Router();
 
@@ -36,7 +43,9 @@ router.get("/:id/gp-infra", getGpInfraList); // viewExecution
 router.get("/:id/gps/:lgdCode/infra", getGpInfra); // viewExecution
 router.put("/:id/gps/:lgdCode/infra", saveGpInfra); // captureInfra
 
-// Block and GP equipment sheets (web only)
+// Block and GP equipment sheets (web), with their geo photos (mobile app)
+router.put("/:id/equipment/:form/geo-photo", saveBlockEquipmentPhoto); // captureInfra   form: block | misc
+router.put("/:id/gps/:lgdCode/equipment/:form/geo-photo", saveGpEquipmentPhoto); // captureInfra   form: gp | misc
 router.get("/:id/equipment/:form?", getBlockEquipment); // viewExecution   form: block (default) | misc
 router.put("/:id/equipment/:form?", saveBlockEquipment); // manageInfraEquipment
 router.get("/:id/gps/:lgdCode/equipment/:form", getGpEquipment); // viewExecution

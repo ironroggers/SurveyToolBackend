@@ -5,7 +5,8 @@
 // they come from the block profile.
 //
 // Field types: text, int (whole number ≥ 0), metres (number ≥ 0), enum, ip, mac.
-// latitude / longitude / geoPhoto are handled by the controller on every form.
+// latitude / longitude / geoPhoto are handled by the controller on every form. The geo
+// photo is taken on the mobile app (PUT …/equipment/:form/geo-photo); the web shows it.
 
 export const PHASES = ["1", "2", "ABP"];
 export const PROJECT_STATUSES = ["DESIGNED", "EXECUTED"];
@@ -28,6 +29,7 @@ export const EQUIPMENT_FORMS = {
     fields: {
       phase: common.phase,
       siteType: { column: "site_type", type: "enum", options: ["BSNL_OWNED", "BSNL_RENTED", "OTHERS"] },
+      // Generated from the block profile: blockAssetCode()
       assetCode: common.assetCode,
       routerType: { column: "router_typ", type: "enum", options: ["A", "B"] },
       make: { column: "eqp_make", type: "text" },
@@ -35,10 +37,12 @@ export const EQUIPMENT_FORMS = {
       managementIp: { column: "eqp_mgm_ip", type: "ip" },
       macId: { column: "eqp_mac_id", type: "mac" },
       serialNo: { column: "eqp_sr_no", type: "text" },
-      ports100g: { column: "Port_100g", type: "int" },
-      ports10g: { column: "Port_10g", type: "int" },
-      ports10g1g: { column: "Port_10g_1g", type: "int" },
-      projectStatus: common.projectStatus,
+      // Ports by speed and optic reach
+      ports100g40km: { column: "Port_100g_40km", type: "int" },
+      ports10g10km: { column: "Port_10g_10km", type: "int" },
+      ports10g40km: { column: "Port_10g_40km", type: "int" },
+      ports10g80km: { column: "Port_10g_80km", type: "int" },
+      ports1g10km: { column: "Port_1g_10km", type: "int" },
       remarks: common.remarks,
     },
   },
@@ -88,6 +92,23 @@ export const EQUIPMENT_FORMS = {
       remarks: common.remarks,
     },
   },
+};
+
+const pad = (value, length) => {
+  const text = String(value ?? "").trim();
+  return text ? text.padStart(length, "0") : "";
+};
+
+// SS (state LGD) + DDD (district LGD) + BBBB (block LGD); empty if a code is missing
+export const assetPrefix = (profile) => {
+  const parts = [pad(profile.stateCode, 2), pad(profile.districtCode, 3), pad(profile.blockCode, 4)];
+  return parts.every(Boolean) ? parts.join("") : "";
+};
+
+// The block router's asset code: SSDDDBBBB + BH + LL, fixed
+export const blockAssetCode = (profile) => {
+  const prefix = assetPrefix(profile);
+  return prefix ? `${prefix}BHLL`.toUpperCase().replace(/\s+/g, "") : "";
 };
 
 // Every value key across the forms, with its stored type

@@ -2,7 +2,7 @@ import { isIP } from "node:net";
 import BlockProfile from "../models/blockProfile.model.js";
 import InfraCapture from "../models/infraCapture.model.js";
 import InfraEquipment from "../models/infraEquipment.model.js";
-import { EQUIPMENT_FORMS } from "../config/infraEquipment.js";
+import { EQUIPMENT_FORMS, blockAssetCode } from "../config/infraEquipment.js";
 import { conflict, failIfErrors, notFound, sendError } from "../utils/httpError.js";
 import { pointOf } from "../utils/geo.js";
 import { actorOf, checkVersion, cleanMedia } from "../services/execution.service.js";
@@ -80,18 +80,27 @@ const buildValues = (form, body = {}) => {
   }
   const point = pointOf(body);
   if (!point) errors.location = "Enter a valid latitude and longitude";
-  const geoPhoto = body.geoPhoto ? cleanMedia(body.geoPhoto, "geoPhoto", "IMAGE", errors) : undefined;
   failIfErrors(errors);
-  return { ...values, latitude: point.lat, longitude: point.lng, geoPhoto };
+  // The geo photo isn't part of the sheet: the mobile app saves it on its own
+  return { ...values, latitude: point.lat, longitude: point.lng };
 };
+
+// A sheet counts as filled once it has been saved with its values (an asset code); before
+// that a record may hold only the geo photo taken on the mobile app
+const filled = (record) => (record?.assetCode ? record : null);
 
 const assertAssetCodeFree = async (assetCode, filter) => {
   const other = await InfraEquipment.findOne({ assetCode, $nor: [filter] }).select("_id").lean();
   if (other) failIfErrors({ assetCode: "This asset code is already used" });
 };
 
-const save = async (req, form, filter) => {
-  const values = buildValues(form, req.body);
+const save = async (req, form, filter, profile) => {
+  // The block router's asset code is generated, never typed
+  const body = filter.form === "block" ? { ...req.body, assetCode: blockAssetCode(profile) } : req.body;
+  if (filter.form === "block" && !body.assetCode) {
+    failIfErrors({ assetCode: "Add the state, district and block LGD codes to the block profile first" });
+  }
+  const values = buildValues(form, body);
   await assertAssetCodeFree(values.assetCode, filter);
   const existing = await InfraEquipment.findOne(filter);
   try {
@@ -119,6 +128,7 @@ const geography = (profile) => ({
   state: profile.state,
   stateCode: profile.stateCode,
   district: profile.district,
+  districtCode: profile.districtCode,
   districtCensusCode: profile.districtCensusCode,
   block: profile.block,
   blockCode: profile.blockCode,
@@ -157,14 +167,45 @@ const gpDefaults = async (profile, gp, formKey) => {
   return { ...base, lgdCode: gp.lgdCode };
 };
 
+// record: the sheet once filled; geoPhoto and version also cover a photo-only record
 const view = async (profile, formKey, gp, record) => ({
   form: formKey,
   target: gp ? { name: gp.name, code: gp.lgdCode } : { name: profile.block, code: profile.blockCode },
   geography: geography(profile),
-  defaults: record ? {} : gp ? await gpDefaults(profile, gp, formKey) : await blockDefaults(profile, formKey),
+  ...(formKey === "block" ? { assetCode: blockAssetCode(profile) } : {}),
+  defaults: filled(record) ? {} : gp ? await gpDefaults(profile, gp, formKey) : await blockDefaults(profile, formKey),
   nodes: gp ? nodes(profile).filter((n) => n.code !== gp.lgdCode) : [],
-  record,
+  record: filled(record),
+  geoPhoto: record?.geoPhoto || null,
+  version: record?.toJSON ? record.toJSON().version : record?.__v,
 });
+
+// Sets or clears the geo photo alone, creating a photo-only record when the sheet isn't
+// filled yet. The record takes the photo's location until the sheet gives its own.
+const savePhoto = async (req, filter) => {
+  const errors = {};
+  const geoPhoto = req.body?.geoPhoto ? cleanMedia(req.body.geoPhoto, "geoPhoto", "IMAGE", errors) : null;
+  failIfErrors(errors);
+  const point = geoPhoto ? pointOf(geoPhoto) : null;
+  const existing = await InfraEquipment.findOne(filter);
+  try {
+    if (existing) {
+      existing.geoPhoto = geoPhoto || undefined;
+      if (point && existing.latitude == null) Object.assign(existing, { latitude: point.lat, longitude: point.lng });
+      existing.updatedBy = actorOf(req);
+      const saved = await existing.save();
+      queueStampsFor(saved);
+      return saved;
+    }
+    if (!geoPhoto) return null;
+    const created = await InfraEquipment.create({ ...filter, geoPhoto, latitude: point.lat, longitude: point.lng, capturedBy: actorOf(req), updatedBy: actorOf(req) });
+    queueStampsFor(created);
+    return created;
+  } catch (error) {
+    if (error.code === 11000) throw conflict("This was updated on another device", "STALE");
+    throw error;
+  }
+};
 
 // GET /api/block-profiles/:id/equipment[/:form]   (viewExecution)   form: block (default) | misc
 export const getBlockEquipment = async (req, res) => {
@@ -185,7 +226,7 @@ export const saveBlockEquipment = async (req, res) => {
     const formKey = req.params.form || "block";
     const form = formOf(formKey, "BLOCK");
     const profile = await loadProfile(req.params.id);
-    const record = await save(req, form, { blockProfile: profile._id, form: formKey, gpLgdCode: null });
+    const record = await save(req, form, { blockProfile: profile._id, form: formKey, gpLgdCode: null }, profile);
     res.json(await view(profile, formKey, null, record));
   } catch (error) {
     sendError(res, error);
@@ -211,7 +252,34 @@ export const saveGpEquipment = async (req, res) => {
     const form = formOf(req.params.form, "GP");
     const profile = await loadProfile(req.params.id);
     const gp = findGp(profile, req.params.lgdCode);
-    const record = await save(req, form, { blockProfile: profile._id, form: req.params.form, gpLgdCode: gp.lgdCode });
+    const record = await save(req, form, { blockProfile: profile._id, form: req.params.form, gpLgdCode: gp.lgdCode }, profile);
+    res.json(await view(profile, req.params.form, gp, record));
+  } catch (error) {
+    sendError(res, error);
+  }
+};
+
+// PUT /api/block-profiles/:id/equipment/:form/geo-photo   (captureInfra)   form: block | misc
+// Body { geoPhoto } (null clears it). Taken on the mobile app.
+export const saveBlockEquipmentPhoto = async (req, res) => {
+  try {
+    const formKey = req.params.form;
+    formOf(formKey, "BLOCK");
+    const profile = await loadProfile(req.params.id);
+    const record = await savePhoto(req, { blockProfile: profile._id, form: formKey, gpLgdCode: null });
+    res.json(await view(profile, formKey, null, record));
+  } catch (error) {
+    sendError(res, error);
+  }
+};
+
+// PUT /api/block-profiles/:id/gps/:lgdCode/equipment/:form/geo-photo   (captureInfra)   form: gp | misc
+export const saveGpEquipmentPhoto = async (req, res) => {
+  try {
+    formOf(req.params.form, "GP");
+    const profile = await loadProfile(req.params.id);
+    const gp = findGp(profile, req.params.lgdCode);
+    const record = await savePhoto(req, { blockProfile: profile._id, form: req.params.form, gpLgdCode: gp.lgdCode });
     res.json(await view(profile, req.params.form, gp, record));
   } catch (error) {
     sendError(res, error);
