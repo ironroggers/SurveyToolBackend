@@ -84,6 +84,8 @@ export const EQUIPMENT_FORMS = {
     items: true,
     fields: {
       phase: common.phase,
+      // Once for the sheet, not per item
+      locationType: { column: "loc_type", type: "enum", options: GP_SITE_TYPES },
       backhaul: { column: "backhaul", type: "enum", options: BACKHAUL },
       remarks: common.remarks,
     },

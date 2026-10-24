@@ -137,7 +137,6 @@ const save = async (req, form, filter, profile) => {
       lgdCode: undefined,
       model: undefined,
       serialNo: undefined,
-      locationType: undefined,
       projectStatus: undefined,
     });
     await assertAssetCodesFree(items.map((i) => i.assetCode), filter, "items");
