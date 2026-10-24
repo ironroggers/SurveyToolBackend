@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import mongoose from "mongoose";
 import BlockProfile from "../models/blockProfile.model.js";
 import Section from "../models/section.model.js";
@@ -16,7 +17,7 @@ import { DEMO_MEDIA_ROUTE, makeDemoPhoto, makeDemoVideo, resetDemoMediaDir, runP
 // again, so it can be changed freely during a demo and then put back.
 //
 // What it shows:
-//   BHQ + 6 GPs (two without infra), router, KML route
+//   Block router (the block's head node) + 6 GPs (two without infra), KML of the road route
 //   Block infra and 4 GP infra captures with described photos
 //   S1 Harippad → Karuvatta      every type of work, all approved, restoration approved
 //   S2 Karuvatta → Pallippad     all approved, restoration waiting approval (approve it)
@@ -25,6 +26,11 @@ import { DEMO_MEDIA_ROUTE, makeDemoPhoto, makeDemoVideo, resetDemoMediaDir, runP
 //   S5 Harippad → Cheruthana     in progress with entries, not started
 //   S6 Cheruthana → Kumarapuram  no subsections yet (create one)
 //   S7 Karuvatta → Thrikkunnapuzha an existing route (dashed), no work; makes Karuvatta a branch
+//
+// Sections run along real roads (demoRoads.json, routed once from OpenStreetMap and kept
+// here so a reset needs no network). The nodes sit on those roads, section lengths are
+// road lengths, and subsections, pits and entries are placed along the road. The KML
+// file is the road path, which the maps use to draw sections and subsections.
 
 const DAY = 24 * 60 * 60 * 1000;
 const HOUR = 60 * 60 * 1000;
@@ -36,10 +42,12 @@ const SUP = { id: new mongoose.Types.ObjectId("64d0000000000000000000b1"), name:
 const ADMIN = { id: new mongoose.Types.ObjectId("64d0000000000000000000a1"), name: "Admin", role: "ADMIN" };
 const DEVICE = "Pixel 8 · Android 15";
 
-// ---- geometry: metres around the BHQ
+// ---- geometry: road paths and metres around a point
 
-const BHQ = { lat: 9.2869, lng: 76.4637 };
-const at = (northM, eastM, from = BHQ) => ({
+const ROADS = JSON.parse(readFileSync(new URL("./demoRoads.json", import.meta.url), "utf8"));
+const nodePoint = (code) => ({ lat: ROADS.nodes[code][1], lng: ROADS.nodes[code][0] });
+const ROUTER = nodePoint("ROUTER");
+const at = (northM, eastM, from = ROUTER) => ({
   lat: +(from.lat + northM / 110540).toFixed(6),
   lng: +(from.lng + eastM / (111320 * Math.cos((from.lat * Math.PI) / 180))).toFixed(6),
 });
@@ -51,18 +59,61 @@ const dist = (a, b) => {
 };
 const ll = (p) => `${p.lat.toFixed(6)}, ${p.lng.toFixed(6)}`;
 
+// The road from one node to another, as [{ lat, lng }] with the metres run at each vertex
+const roadBetween = (from, to) => {
+  const forward = ROADS.roads[`${from}>${to}`];
+  const coords = forward || [...ROADS.roads[`${to}>${from}`]].reverse();
+  const path = coords.map(([lng, lat]) => ({ lat, lng }));
+  const runs = [0];
+  for (let i = 1; i < path.length; i += 1) runs.push(runs[i - 1] + dist(path[i - 1], path[i]));
+  return { path, runs, length: runs[runs.length - 1] };
+};
+// The point `metres` along a road from its start and `side` metres to its left (negative:
+// right), e.g. a pole or km stone on the roadside
+const roadside = ({ path, runs, length }, metres, side = 0) => {
+  const target = Math.min(Math.max(metres, 0), length);
+  let i = 1;
+  while (i < runs.length - 1 && runs[i] < target) i += 1;
+  const a = path[i - 1];
+  const b = path[i];
+  const span = runs[i] - runs[i - 1];
+  const p = lerp(a, b, span ? (target - runs[i - 1]) / span : 0);
+  if (!side || !span) return p;
+  const north = (b.lat - a.lat) * 110540;
+  const east = (b.lng - a.lng) * 111320 * Math.cos((a.lat * Math.PI) / 180);
+  const len = Math.hypot(north, east);
+  return at((east / len) * side, (-north / len) * side, p);
+};
+// The point at share t (0..1) of the way along a road
+const along = ({ path, runs, length }, t) => {
+  const target = Math.min(Math.max(t, 0), 1) * length;
+  let i = 1;
+  while (i < runs.length - 1 && runs[i] < target) i += 1;
+  const span = runs[i] - runs[i - 1];
+  return lerp(path[i - 1], path[i], span ? (target - runs[i - 1]) / span : 0);
+};
+
 const GPS = [
-  { name: "KARUVATTA", lgdCode: "990101", p: at(1400, -600) },
-  { name: "PALLIPPAD", lgdCode: "990102", p: at(2600, 900) },
-  { name: "VEEYAPURAM", lgdCode: "990103", p: at(1000, 2200) },
-  { name: "CHERUTHANA", lgdCode: "990104", p: at(-1600, 1400) },
-  { name: "KUMARAPURAM", lgdCode: "990105", p: at(-2900, -400) },
-  { name: "THRIKKUNNAPUZHA", lgdCode: "990106", p: at(-900, -2600) },
-];
+  { name: "KARUVATTA", lgdCode: "990101" },
+  { name: "PALLIPPAD", lgdCode: "990102" },
+  { name: "VEEYAPURAM", lgdCode: "990103" },
+  { name: "CHERUTHANA", lgdCode: "990104" },
+  { name: "KUMARAPURAM", lgdCode: "990105" },
+  { name: "THRIKKUNNAPUZHA", lgdCode: "990106" },
+].map((g) => ({ ...g, p: nodePoint(g.lgdCode) }));
 const gp = (code) => GPS.find((g) => g.lgdCode === code);
-const BHQ_NODE = { type: "BHQ", code: "DEMO-BHQ", name: "Harippad Telephone Exchange", latitude: BHQ.lat, longitude: BHQ.lng };
-const node = (code) => (code === "BHQ" ? BHQ_NODE : { type: "GP", code, name: gp(code).name, latitude: gp(code).p.lat, longitude: gp(code).p.lng });
+const BLOCK_CODE = "DEMO6265";
+// The block router is the block's head node: { type: ROUTER, code: blockCode }
+const ROUTER_NODE = { type: "ROUTER", code: BLOCK_CODE, name: "Block router", latitude: ROUTER.lat, longitude: ROUTER.lng };
+const node = (code) => (code === "ROUTER" ? ROUTER_NODE : { type: "GP", code, name: gp(code).name, latitude: gp(code).p.lat, longitude: gp(code).p.lng });
 const pointOfNode = (n) => ({ lat: n.latitude, lng: n.longitude });
+// A road leaving a node, starting at it: for points around the router or a GP
+const roadFrom = (code) => {
+  const [from, to] = Object.keys(ROADS.roads)
+    .find((key) => key.split(">").includes(code))
+    .split(">");
+  return from === code ? roadBetween(from, to) : roadBetween(to, from);
+};
 
 const placeNear = (road, area) => `${road}, ${area}, Harippad, Alappuzha, Kerala 690514, India`;
 
@@ -121,16 +172,12 @@ export const resetDemoBlock = async ({ baseUrl }) => {
     districtCode: "591",
     districtCensusCode: "591",
     block: "HARIPPAD (DEMO)",
-    blockCode: "DEMO6265",
-    siteType: "BSNL_OWNED",
-    bhq: { name: BHQ_NODE.name, code: BHQ_NODE.code, latitude: BHQ.lat, longitude: BHQ.lng },
+    blockCode: BLOCK_CODE,
     numberOfGps: GPS.length,
     gps: GPS.map((g) => ({ name: g.name, lgdCode: g.lgdCode, latitude: g.p.lat, longitude: g.p.lng })),
     numberOfRacks: 2,
-    startDate: t(60),
-    endDate: new Date(now + 30 * DAY),
     remarks: "Demonstration block with complete sample data. Visible to admins only; Reset demo block puts it back.",
-    blockRouter: { ...((p) => ({ latitude: p.lat, longitude: p.lng }))(at(12, 8)), address: "Harippad Telephone Exchange, NH 66, Harippad, Kerala 690514" },
+    blockRouter: { siteType: "BSNL_OWNED", latitude: ROUTER.lat, longitude: ROUTER.lng, address: "Harippad Telephone Exchange, NH 66, Harippad, Kerala 690514" },
     kmlFiles: [],
     status: "ACTIVE",
     createdBy: ADMIN.id,
@@ -139,11 +186,12 @@ export const resetDemoBlock = async ({ baseUrl }) => {
     updatedAt: t(1),
   };
 
-  // ---- infra: block HQ and 4 of the 6 GPs
+  // ---- infra: the block router site and 4 of the 6 GPs
   const infraDocs = [];
-  const infraPhotos = (area, point, when, labels) =>
+  // Taken a few metres apart along the road from the site
+  const infraPhotos = (area, code, when, labels) =>
     labels.map((description, i) => ({
-      media: photo({ kind: "INFRA", title: description, subtitle: area, point: at(i * 3, i * 2, point), when: new Date(when.getTime() + i * 60000), place: placeNear("NH 66", area) }),
+      media: photo({ kind: "INFRA", title: description, subtitle: area, point: roadside(roadFrom(code), i * 4), when: new Date(when.getTime() + i * 60000), place: placeNear("NH 66", area) }),
       description,
     }));
   infraDocs.push({
@@ -151,10 +199,10 @@ export const resetDemoBlock = async ({ baseUrl }) => {
     blockProfile: blockId,
     level: "BLOCK",
     gpLgdCode: null,
-    latitude: BHQ.lat,
-    longitude: BHQ.lng,
+    latitude: ROUTER.lat,
+    longitude: ROUTER.lng,
     accuracy: 0.6,
-    photos: infraPhotos("Harippad", BHQ, t(55), ["Exchange building front with signboard", "Rack room · OLT and FDMS position", "Cable entry point at the back wall", "Approach road from NH 66"]),
+    photos: infraPhotos("Harippad", "ROUTER", t(55), ["Exchange building front with signboard", "Rack room · OLT and FDMS position", "Cable entry point at the back wall", "Approach road from NH 66"]),
     capturedBy: SUP,
     updatedBy: SUP,
     createdAt: t(55),
@@ -170,7 +218,7 @@ export const resetDemoBlock = async ({ baseUrl }) => {
       latitude: g.p.lat,
       longitude: g.p.lng,
       accuracy: 0.7,
-      photos: infraPhotos(g.name, g.p, t(50 - i * 3), ["GP office front", "Equipment position inside the office"]),
+      photos: infraPhotos(g.name, code, t(50 - i * 3), ["GP office front", "Equipment position inside the office"]),
       capturedBy: i % 2 ? EE2 : EE,
       updatedBy: i % 2 ? EE2 : EE,
       createdAt: t(50 - i * 3),
@@ -183,14 +231,17 @@ export const resetDemoBlock = async ({ baseUrl }) => {
   const subs = [];
   const entries = [];
   const restorations = [];
+  // Halfway along each subsection's road, where its restoration photos are taken
+  const midpoints = new Map();
 
-  const refPoints = (pit, mismatch = false) =>
+  // On the roadside near the pit: near(metres along the road from the pit, metres to its left)
+  const refPoints = (pit, near, mismatch = false) =>
     [
-      ["Electric pole", 4, 6],
-      ["Km stone", -5, 3],
-      ["Tree", 2, -7],
-    ].map(([description, east, north], i) => {
-      const p = at(north, east, pit);
+      ["Electric pole", 6, 4],
+      ["Km stone", -8, -3.5],
+      ["Tree", 3, -5],
+    ].map(([description, alongM, sideM], i) => {
+      const p = near(alongM, sideM);
       const gpsM = +dist(pit, p).toFixed(1);
       return { description, latitude: p.lat, longitude: p.lng, accuracy: 0.7, tapeDistanceM: mismatch && i === 1 ? +(gpsM + 9).toFixed(1) : gpsM, gpsDistanceM: gpsM };
     });
@@ -204,7 +255,7 @@ export const resetDemoBlock = async ({ baseUrl }) => {
       latitude: p.lat,
       longitude: p.lng,
       accuracy: 0.6,
-      ...(isDucting(sub.typeOfWork) ? { pit: { latitude: p.lat, longitude: p.lng, accuracy: 0.6, refs: refPoints(p, opts.mismatch) } } : {}),
+      ...(isDucting(sub.typeOfWork) ? { pit: { latitude: p.lat, longitude: p.lng, accuracy: 0.6, refs: refPoints(p, opts.near, opts.mismatch) } } : {}),
       photos: [photo({ kind: which === "start" ? "START" : "END", title: label, subtitle: sub.name, point: p, when, place, accuracy: opts.photoAccuracy ?? 0.6, aboveLimit: Boolean(opts.photoAccuracy && opts.photoAccuracy > 1) })],
       video: video({ kind: which === "start" ? "START" : "END", title: label, subtitle: sub.name, point: p, when: new Date(when.getTime() + 120000), place }),
       remarks: which === "start" ? "Pit opened, machine positioned" : "Pit closed, end cap fixed",
@@ -219,14 +270,15 @@ export const resetDemoBlock = async ({ baseUrl }) => {
     CLAMP: (i) => ({ trenchDepth: 0, offset: 0.5, side: "Opposite side", protectionType: "GI", clampOn: "Bridge", clampMethod: i % 2 ? "Wall clamp" : "Side Clamp" }),
   };
 
-  // Entries spread between start and end; doneShare of the planned length is covered
-  const addEntries = (sub, from, to, startAt, endAt, by, area, doneShare) => {
+  // Entries spread along the subsection's road; doneShare of the planned length is covered.
+  // pos(share) is the point at that share of the way from the subsection's start to its end.
+  const addEntries = (sub, pos, startAt, endAt, by, area, doneShare) => {
     const ducting = isDucting(sub.typeOfWork);
     if (ducting) {
       const n = Math.max(2, Math.min(10, Math.round(sub.subSectionLength / 30)));
       const each = (sub.subSectionLength * doneShare) / n;
       for (let i = 0; i < n; i += 1) {
-        const p = lerp(from, to, ((i + 1) / n) * doneShare);
+        const p = pos(((i + 1) / n) * doneShare);
         const when = new Date(startAt.getTime() + ((endAt.getTime() - startAt.getTime()) * (i + 1)) / (n + 1));
         entries.push({
           _id: oid(),
@@ -257,7 +309,7 @@ export const resetDemoBlock = async ({ baseUrl }) => {
     const n = { CHAMBER: 3, ROUTE_MARKER: 4, SPLICING: 1, BLOWING: 2 }[sub.typeOfWork] || 1;
     const count = Math.max(1, Math.round(n * doneShare));
     for (let i = 0; i < count; i += 1) {
-      const p = lerp(from, to, n === 1 ? 0.5 : (i + 0.5) / n);
+      const p = pos(n === 1 ? 0.5 : (i + 0.5) / n);
       const when = new Date(startAt.getTime() + ((endAt.getTime() - startAt.getTime()) * (i + 1)) / (count + 1));
       entries.push({
         _id: oid(),
@@ -289,6 +341,7 @@ export const resetDemoBlock = async ({ baseUrl }) => {
     const toNode = node(to);
     const a = pointOfNode(fromNode);
     const b = pointOfNode(toNode);
+    const route = roadBetween(from, to);
     const section = {
       _id: oid(),
       name,
@@ -304,21 +357,23 @@ export const resetDemoBlock = async ({ baseUrl }) => {
       toNode: { type: toNode.type, code: toNode.code, name: toNode.name, latitude: toNode.latitude, longitude: toNode.longitude },
       fromLatLong: ll(a),
       toLatLong: ll(b),
-      sectionLength: Math.round((dist(a, b) * 1.08) / 10) * 10,
+      sectionLength: Math.round(route.length / 10) * 10,
       routeType,
       status: plan.length ? 2 : 1,
       subSectionSeq: plan.length,
       createdAt: t(daysAgo + 2),
       updatedAt: t(1),
     };
-    sections.push(section);
-    const scale = section.sectionLength / dist(a, b);
+    // Kept for the KML file, not stored on the section
+    sections.push({ ...section, roadPath: route.path });
 
     plan.forEach((step, i) => {
       const type = EXECUTION_TYPES[step.type];
       const seq = i + 1;
-      const p0 = lerp(a, b, step.t0);
-      const p1 = lerp(a, b, step.t1);
+      const p0 = along(route, step.t0);
+      const p1 = along(route, step.t1);
+      const pos = (share) => along(route, step.t0 + (step.t1 - step.t0) * share);
+      const near = (t) => (alongM, sideM) => roadside(route, route.length * t + alongM, sideM);
       const by = i % 3 === 2 ? EE2 : EE;
       const created = t(daysAgo - i * 1.2, 9);
       const started = new Date(created.getTime() + DAY);
@@ -333,7 +388,7 @@ export const resetDemoBlock = async ({ baseUrl }) => {
         roadName: road,
         fromLatLong: ll(p0),
         toLatLong: ll(p1),
-        subSectionLength: Math.max(1, Math.round(dist(p0, p1) * scale)),
+        subSectionLength: Math.max(1, Math.round(route.length * (step.t1 - step.t0))),
         methodOfConstruction: type.methodOfConstruction,
         executionStatus: step.status,
         createdBy: by,
@@ -352,20 +407,20 @@ export const resetDemoBlock = async ({ baseUrl }) => {
         remarks: "Surface intact, no existing damage",
         photos: [
           photo({ kind: "SITE", title: "Site condition", subtitle: sub.name, point: p0, when: created, place: placeNear(road, area) }),
-          photo({ kind: "SITE", title: "Site condition", subtitle: sub.name, point: lerp(p0, p1, 0.5), when: new Date(created.getTime() + 300000), place: placeNear(road, area), ...(step.flags?.upload ? { source: "UPLOAD", locationSource: "MANUAL", device: "Gallery upload" } : {}) }),
+          photo({ kind: "SITE", title: "Site condition", subtitle: sub.name, point: pos(0.5), when: new Date(created.getTime() + 300000), place: placeNear(road, area), ...(step.flags?.upload ? { source: "UPLOAD", locationSource: "MANUAL", device: "Gallery upload" } : {}) }),
         ],
         video: video({ kind: "SITE", title: "Site condition", subtitle: sub.name, point: p0, when: new Date(created.getTime() + 600000), place: placeNear(road, area) }),
       };
 
       if (step.status !== "NOT_STARTED") {
-        sub.start = point(sub, "start", p0, started, by, area);
+        sub.start = point(sub, "start", p0, started, by, area, { near: near(step.t0) });
         sub.history.push(hist(started, "started", startedText(step.type), by));
         sub.__v += 1;
       }
       const endedStatuses = ["PENDING_APPROVAL", "APPROVED", "REJECTED"];
-      addEntries(sub, p0, p1, started, step.status === "IN_PROGRESS" ? new Date(now - 2 * HOUR) : ended, by, area, step.status === "IN_PROGRESS" ? 0.6 : step.status === "NOT_STARTED" ? 0 : 1);
+      addEntries(sub, pos, started, step.status === "IN_PROGRESS" ? new Date(now - 2 * HOUR) : ended, by, area, step.status === "IN_PROGRESS" ? 0.6 : step.status === "NOT_STARTED" ? 0 : 1);
       if (endedStatuses.includes(step.status)) {
-        sub.end = point(sub, "end", p1, ended, by, area, { mismatch: step.flags?.mismatch, photoAccuracy: step.flags?.aboveLimit ? 2.4 : undefined });
+        sub.end = point(sub, "end", p1, ended, by, area, { near: near(step.t1), mismatch: step.flags?.mismatch, photoAccuracy: step.flags?.aboveLimit ? 2.4 : undefined });
         sub.history.push(hist(ended, "ended", endedText(step.type), by));
         sub.__v += 2;
       }
@@ -381,6 +436,7 @@ export const resetDemoBlock = async ({ baseUrl }) => {
       }
       sub.updatedAt = sub.history[sub.history.length - 1].at;
       subs.push(sub);
+      midpoints.set(String(sub._id), pos(0.5));
     });
 
     // Restoration: after photos and a video per subsection
@@ -388,8 +444,7 @@ export const resetDemoBlock = async ({ baseUrl }) => {
       const own = subs.filter((s) => s.section.equals(section._id));
       const savedAt = t(restoration.daysAgo ?? 3);
       const items = own.slice(0, restoration.items ?? own.length).map((s, i) => {
-        const [lat, lng] = s.fromLatLong.split(",").map(Number);
-        const p = { lat, lng };
+        const p = midpoints.get(String(s._id));
         const when = new Date(savedAt.getTime() + i * HOUR);
         return {
           subSection: s._id,
@@ -433,7 +488,7 @@ export const resetDemoBlock = async ({ baseUrl }) => {
     { type: "ROUTE_MARKER", t0: 0, t1: 1, status },
   ];
 
-  buildSection({ name: "Harippad → Karuvatta", from: "BHQ", to: "990101", road: "NH 66", area: "Karuvatta", daysAgo: 45, plan: ALL_TYPES("APPROVED"), restoration: { status: "APPROVED", daysAgo: 20 } });
+  buildSection({ name: "Harippad → Karuvatta", from: "ROUTER", to: "990101", road: "NH 66", area: "Karuvatta", daysAgo: 45, plan: ALL_TYPES("APPROVED"), restoration: { status: "APPROVED", daysAgo: 20 } });
   buildSection({
     name: "Karuvatta → Pallippad",
     from: "990101",
@@ -466,7 +521,7 @@ export const resetDemoBlock = async ({ baseUrl }) => {
   buildSection({
     name: "Veeyapuram → Harippad",
     from: "990103",
-    to: "BHQ",
+    to: "ROUTER",
     road: "Veeyapuram Road",
     area: "Harippad",
     daysAgo: 18,
@@ -479,7 +534,7 @@ export const resetDemoBlock = async ({ baseUrl }) => {
   });
   buildSection({
     name: "Harippad → Cheruthana",
-    from: "BHQ",
+    from: "ROUTER",
     to: "990104",
     road: "SH 6",
     area: "Cheruthana",
@@ -497,12 +552,13 @@ export const resetDemoBlock = async ({ baseUrl }) => {
   // Branches off Karuvatta, so the L-14 shows a BJC there
   buildSection({ name: "Karuvatta → Thrikkunnapuzha", from: "990101", to: "990106", road: "Thrikkunnapuzha Road", area: "Thrikkunnapuzha", daysAgo: 40, plan: [], routeType: "EXISTING" });
 
-  // ---- KML of the planned route (one line per section)
+  // ---- KML of the road route: one line per section, along the road
   const kml = `<?xml version="1.0" encoding="UTF-8"?>
 <kml xmlns="http://www.opengis.net/kml/2.2"><Document><name>Harippad demo route</name>
 ${sections
   .map(
-    (s) => `<Placemark><name>${s.name.replace(/&/g, "&amp;").replace(/</g, "&lt;")}</name><LineString><coordinates>${s.fromNode.longitude},${s.fromNode.latitude},0 ${s.toNode.longitude},${s.toNode.latitude},0</coordinates></LineString></Placemark>`
+    (s) =>
+        `<Placemark><name>${s.name.replace(/&/g, "&amp;").replace(/</g, "&lt;")}</name><LineString><tessellate>1</tessellate><coordinates>${s.roadPath.map((p) => `${p.lng},${p.lat},0`).join(" ")}</coordinates></LineString></Placemark>`
   )
   .join("\n")}
 </Document></kml>`;
@@ -525,7 +581,10 @@ ${sections
   };
   await insert(BlockProfile, [block]);
   await insert(InfraCapture, infraDocs);
-  await insert(Section, sections);
+  await insert(
+    Section,
+    sections.map(({ roadPath, ...section }) => section)
+  );
   await insert(SubSection, subs);
   await insert(Trenching, entries);
   await insert(Restoration, restorations);
