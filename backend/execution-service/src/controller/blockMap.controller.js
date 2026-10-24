@@ -9,7 +9,7 @@ import { notFound, sendError } from "../utils/httpError.js";
 import { parseLatLong, pointOf } from "../utils/geo.js";
 import { sectionExecutionSummaries } from "../services/progress.service.js";
 import { ROUTER_NAME } from "../utils/blockNodes.js";
-import { miscItemsOf } from "../config/infraEquipment.js";
+import { miscItemsOf, photosOf } from "../config/infraEquipment.js";
 
 // Everything of a block that has a place on the map, in one response, for the block
 // map's layers: infra captures, equipment sheets, sections, subsections (planned line, pits, reference
@@ -111,9 +111,13 @@ export const buildBlockMap = async (profile) => {
   // A photo-only record (sheet not filled yet) adds its photo but isn't equipment yet
   const equipment = equipmentDocs.flatMap((e) => {
     const name = e.gpLgdCode ? gpName.get(e.gpLgdCode) || e.gpLgdCode : profile.block;
-    push(e.geoPhoto, { kind: "EQUIPMENT", label: `${equipmentLabel[e.form]} · ${name}`, gpLgdCode: e.gpLgdCode });
+    photosOf(e).forEach((m) => push(m, { kind: "EQUIPMENT", label: `${equipmentLabel[e.form]} · ${name}`, gpLgdCode: e.gpLgdCode }));
     // A misc sheet's photo per type
-    if (e.form === "misc") miscItemsOf(e).forEach((item) => push(item.geoPhoto, { kind: "EQUIPMENT", label: `Misc equipment · ${item.type} · ${name}`, gpLgdCode: e.gpLgdCode }));
+    if (e.form === "misc") {
+      miscItemsOf(e).forEach((item) =>
+        photosOf(item).forEach((m) => push(m, { kind: "EQUIPMENT", label: `Misc equipment · ${item.type} · ${name}`, gpLgdCode: e.gpLgdCode }))
+      );
+    }
     if (!e.assetCode) return [];
     const point = pointOf(e);
     return [{ ...e, _id: String(e._id), name, ...(point || {}), ...(e.form === "misc" ? { items: miscItemsOf(e) } : {}) }];

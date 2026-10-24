@@ -112,6 +112,11 @@ export const blockAssetCode = (profile) => {
   return prefix ? `${prefix}BHLL`.toUpperCase().replace(/\s+/g, "") : "";
 };
 
+// Images of a piece of equipment (a sheet, or one type on a misc sheet), taken on the
+// mobile app: up to MAX_EQUIPMENT_PHOTOS. A single geoPhoto saved before lists counts as one.
+export const MAX_EQUIPMENT_PHOTOS = 4;
+export const photosOf = (holder) => (holder?.geoPhotos?.length ? holder.geoPhotos : holder?.geoPhoto ? [holder.geoPhoto] : []);
+
 // A misc sheet's items: one per type, each with its generated asset code
 export const MISC_ITEM_FIELDS = {
   type: { column: "type", type: "enum", options: Object.keys(MISC_TYPE_TAGS) },

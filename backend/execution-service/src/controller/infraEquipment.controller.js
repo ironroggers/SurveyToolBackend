@@ -2,7 +2,7 @@ import { isIP } from "node:net";
 import BlockProfile from "../models/blockProfile.model.js";
 import InfraCapture from "../models/infraCapture.model.js";
 import InfraEquipment from "../models/infraEquipment.model.js";
-import { EQUIPMENT_FORMS, MISC_TYPE_TAGS, assetPrefix, blockAssetCode, miscAssetCode, miscItemsOf } from "../config/infraEquipment.js";
+import { EQUIPMENT_FORMS, MAX_EQUIPMENT_PHOTOS, MISC_TYPE_TAGS, assetPrefix, blockAssetCode, miscAssetCode, miscItemsOf, photosOf } from "../config/infraEquipment.js";
 import { conflict, failIfErrors, notFound, sendError } from "../utils/httpError.js";
 import { pointOf } from "../utils/geo.js";
 import { actorOf, checkVersion, cleanMedia } from "../services/execution.service.js";
@@ -129,11 +129,11 @@ const save = async (req, form, filter, profile) => {
   if (form.items) {
     const { items, errors } = buildItems(req.body?.items, profile, filter.gpLgdCode || profile.blockCode);
     values = buildValues(form, body, errors);
-    // Each type keeps the photo taken for it on the mobile app
+    // Each type keeps the images taken for it on the mobile app
     const saved = await InfraEquipment.findOne(filter).select("items equipmentType assetCode model serialNo").lean();
-    const photos = new Map(miscItemsOf(saved).map((i) => [i.type, i.geoPhoto]));
+    const photos = new Map(miscItemsOf(saved).map((i) => [i.type, photosOf(i)]));
     items.forEach((item) => {
-      if (photos.get(item.type)) item.geoPhoto = photos.get(item.type);
+      if (photos.get(item.type)?.length) item.geoPhotos = photos.get(item.type);
     });
     // The sheet's code lists its items' codes; fields from before items are cleared
     Object.assign(values, {
@@ -231,29 +231,43 @@ const view = async (profile, formKey, gp, record) => ({
   defaults: filled(record) ? {} : gp ? await gpDefaults(profile, gp, formKey) : await blockDefaults(profile, formKey),
   nodes: gp ? nodes(profile).filter((n) => n.code !== gp.lgdCode) : [],
   record: recordJson(filled(record)),
-  geoPhoto: record?.geoPhoto || null,
+  geoPhotos: photosOf(record),
+  geoPhoto: photosOf(record)[0] || null,
   version: record?.toJSON ? record.toJSON().version : record?.__v,
 });
 
-// Sets or clears the geo photo alone, creating a photo-only record when the sheet isn't
-// filled yet. The record takes the photo's location until the sheet gives its own.
-const savePhoto = async (req, filter) => {
+// The images in a photo request: body.geoPhotos (the whole list), or one geoPhoto from an
+// older client (null for none), checked like every other upload
+const cleanPhotos = (body = {}) => {
   const errors = {};
-  const geoPhoto = req.body?.geoPhoto ? cleanMedia(req.body.geoPhoto, "geoPhoto", "IMAGE", errors) : null;
+  const input = Array.isArray(body.geoPhotos) ? body.geoPhotos : body.geoPhoto ? [body.geoPhoto] : [];
+  if (input.length > MAX_EQUIPMENT_PHOTOS) errors.geoPhotos = `Up to ${MAX_EQUIPMENT_PHOTOS} images`;
+  const list = input
+    .slice(0, MAX_EQUIPMENT_PHOTOS)
+    .map((m, i) => cleanMedia(m, `geoPhotos.${i}`, "IMAGE", errors))
+    .filter(Boolean);
   failIfErrors(errors);
-  const point = geoPhoto ? pointOf(geoPhoto) : null;
+  return list;
+};
+
+// Sets the images alone (an empty list clears them), creating a photo-only record when the
+// sheet isn't filled yet. The record takes the first image's location until the sheet gives its own.
+const savePhoto = async (req, filter) => {
+  const photos = cleanPhotos(req.body);
+  const point = photos.length ? pointOf(photos[0]) : null;
   const existing = await InfraEquipment.findOne(filter);
   try {
     if (existing) {
-      existing.geoPhoto = geoPhoto || undefined;
+      existing.geoPhotos = photos.length ? photos : undefined;
+      existing.geoPhoto = undefined;
       if (point && existing.latitude == null) Object.assign(existing, { latitude: point.lat, longitude: point.lng });
       existing.updatedBy = actorOf(req);
       const saved = await existing.save();
       queueStampsFor(saved);
       return saved;
     }
-    if (!geoPhoto) return null;
-    const created = await InfraEquipment.create({ ...filter, geoPhoto, latitude: point.lat, longitude: point.lng, capturedBy: actorOf(req), updatedBy: actorOf(req) });
+    if (!photos.length) return null;
+    const created = await InfraEquipment.create({ ...filter, geoPhotos: photos, latitude: point.lat, longitude: point.lng, capturedBy: actorOf(req), updatedBy: actorOf(req) });
     queueStampsFor(created);
     return created;
   } catch (error) {
@@ -315,7 +329,7 @@ export const saveGpEquipment = async (req, res) => {
 };
 
 // PUT /api/block-profiles/:id/equipment/:form/geo-photo   (captureInfra)   form: block | misc
-// Body { geoPhoto } (null clears it). Taken on the mobile app.
+// Body { geoPhotos: [...] } (up to 4; [] clears them), or one { geoPhoto } from older clients.
 export const saveBlockEquipmentPhoto = async (req, res) => {
   try {
     const formKey = req.params.form;
@@ -341,19 +355,17 @@ export const saveGpEquipmentPhoto = async (req, res) => {
   }
 };
 
-// Sets or clears the geo photo of one type on a misc sheet. The type must be on the sheet
-// (picked on the web); a sheet saved before items is read as one item.
+// Sets the images of one type on a misc sheet (an empty list clears them). The type must be on
+// the sheet (picked on the web); a sheet saved before items is read as one item.
 const saveItemPhoto = async (req, filter) => {
   const type = String(req.params.type || "").toUpperCase();
   if (!MISC_TYPE_TAGS[type]) throw notFound("Unknown misc equipment type");
-  const errors = {};
-  const geoPhoto = req.body?.geoPhoto ? cleanMedia(req.body.geoPhoto, "geoPhoto", "IMAGE", errors) : null;
-  failIfErrors(errors);
+  const photos = cleanPhotos(req.body);
   const record = await InfraEquipment.findOne(filter);
   const items = miscItemsOf(record?.toObject ? record.toObject() : record);
   const index = items.findIndex((i) => i.type === type);
   if (!record || index === -1) failIfErrors({ type: "Pick this type on the misc equipment sheet first" });
-  items[index] = { ...items[index], geoPhoto: geoPhoto || undefined };
+  items[index] = { ...items[index], geoPhotos: photos.length ? photos : undefined, geoPhoto: undefined };
   record.items = items;
   record.updatedBy = actorOf(req);
   const saved = await record.save();

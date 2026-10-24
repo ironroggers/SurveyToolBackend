@@ -29,6 +29,8 @@ const infraEquipmentSchema = new mongoose.Schema(
                 },
                 latitude: Number,
                 longitude: Number,
+                // Images taken on the mobile app (photosOf); geoPhoto is the single one from before
+                geoPhotos: { type: [mediaFileSchema], default: undefined },
                 geoPhoto: mediaFileSchema,
                 ...valueFields,
                 // Misc sheets: one item per type of equipment at the site
@@ -40,7 +42,8 @@ const infraEquipmentSchema = new mongoose.Schema(
                                                 assetCode: { type: String, trim: true },
                                                 model: { type: String, trim: true },
                                                 serialNo: { type: String, trim: true },
-                                                // Taken on the mobile app, one per type
+                                                // Images of this type, taken on the mobile app
+                                                geoPhotos: { type: [mediaFileSchema], default: undefined },
                                                 geoPhoto: mediaFileSchema
                                         },
                                         { _id: false }
