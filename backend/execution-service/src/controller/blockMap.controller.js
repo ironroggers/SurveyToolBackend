@@ -164,6 +164,7 @@ export const buildBlockMap = async (profile) => {
   const subViews = subs.map((sub) => {
     const ic = sub.initialCondition || {};
     [...(ic.photos || []), ic.video].forEach((m) => push(m, subExtra(sub, "SITE", `Site condition · ${sub.name}`)));
+    (ic.crossingPhotos || []).forEach((m) => push(m, subExtra(sub, "SITE", `Crossing · ${sub.name}`)));
     ["start", "end"].forEach((which) => {
       const point = sub[which];
       [...(point?.photos || []), point?.video].forEach((m) =>

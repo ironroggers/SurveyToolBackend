@@ -134,6 +134,8 @@ export const cleanMediaSet = (input, rule, prefix, errors, messages = {}) => {
   if (rule.video === "required") {
     if (!input?.video) errors[`${prefix}video`] = messages.video || "Record a video";
     else video = cleanMedia(input.video, `${prefix}video`, "VIDEO", errors);
+  } else if (rule.video === "optional" && input?.video) {
+    video = cleanMedia(input.video, `${prefix}video`, "VIDEO", errors);
   }
   return { photos, video };
 };
@@ -143,7 +145,8 @@ export const cleanMediaSet = (input, rule, prefix, errors, messages = {}) => {
 export const buildNewSubsection = (body = {}) => {
   const errors = {};
   const typeOfWork = body.typeOfWork;
-  if (!EXECUTION_TYPES[typeOfWork]) errors.typeOfWork = "Pick the type of work";
+  // New subsections are ducting (HDD, open trench, clamping)
+  if (!EXECUTION_TYPES[typeOfWork] || !isDucting(typeOfWork)) errors.typeOfWork = "Pick the type of work";
   const roadName = trimmed(body.roadName);
   if (!roadName) errors.roadName = "Enter the road name";
   const from = parseLatLong(body.fromLatLong);
@@ -158,11 +161,24 @@ export const buildNewSubsection = (body = {}) => {
   // Site condition is asked for ducting only
   if (isDucting(typeOfWork)) {
     if (!OPTIONS.terrain.includes(ic.terrain)) errors["initialCondition.terrain"] = "Pick the terrain";
-    if (ic.crossing && !OPTIONS.crossing.includes(ic.crossing)) errors["initialCondition.crossing"] = "Pick a crossing from the list";
+    // Crossings: several from the list (one crossing from older clients), Others described
+    const crossings = [...new Set(Array.isArray(ic.crossings) ? ic.crossings : ic.crossing ? [ic.crossing] : [])];
+    if (crossings.some((c) => !OPTIONS.crossing.includes(c))) errors["initialCondition.crossings"] = "Pick crossings from the list";
+    const crossingOther = crossings.includes("Others") ? trimmed(ic.crossingOther) : undefined;
+    if (crossings.includes("Others") && !crossingOther) errors["initialCondition.crossingOther"] = "Describe the other crossing";
+    const crossingPhotosIn = Array.isArray(ic.crossingPhotos) ? ic.crossingPhotos.filter(Boolean) : [];
+    if (crossingPhotosIn.length > MEDIA_RULES.crossing.maxPhotos) errors["initialCondition.crossingPhotos"] = `Up to ${MEDIA_RULES.crossing.maxPhotos} photos`;
+    const crossingPhotos = crossingPhotosIn
+      .slice(0, MEDIA_RULES.crossing.maxPhotos)
+      .map((m, i) => cleanMedia(m, `initialCondition.crossingPhotos.${i}`, "IMAGE", errors))
+      .filter(Boolean);
     if (!OPTIONS.ofcSide.includes(ic.ofcSide)) errors["initialCondition.ofcSide"] = "Pick the OFC side";
     Object.assign(initialCondition, {
       terrain: ic.terrain,
-      crossing: ic.crossing || undefined,
+      crossings,
+      crossingOther,
+      crossing: crossings.map((c) => (c === "Others" ? crossingOther || "Others" : c)).join(", ") || undefined,
+      crossingPhotos,
       ofcSide: ic.ofcSide,
       roadFeatures: trimmed(ic.roadFeatures),
       authorityName: trimmed(ic.authorityName),

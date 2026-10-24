@@ -22,11 +22,14 @@ export const TYPE_GROUPS = [
 ];
 
 export const isDucting = (typeOfWork) => EXECUTION_TYPES[typeOfWork]?.kind === "ducting";
+// New subsections are ducting only; the other types stay for subsections created before
+export const CREATE_TYPE_ORDER = TYPE_ORDER.filter(isDucting);
 
 // Dropdown values exactly as on the change-request slides
 export const OPTIONS = {
   terrain: ["Hilly", "Normal"],
-  crossing: ["Rail", "Road", "Culvert", "Bridge", "Nallah"],
+  // Several can apply; Others asks for a description (crossingOther)
+  crossing: ["Rail", "Road", "Culvert", "Bridge", "Nallah", "Others"],
   ofcSide: ["LHS", "RHS", "Road Crossing"],
   side: ["Same side", "Opposite side"],
   protection: ["DWC", "GI", "DWC PCC", "GI PCC", "RCC"],
@@ -108,7 +111,10 @@ export const STEP_LABELS = {
 
 // Media per step. video: "required" | "none"
 export const MEDIA_RULES = {
-  siteCondition: { minPhotos: 1, maxPhotos: 4, video: "required" },
+  // Before photos and video are optional
+  siteCondition: { minPhotos: 0, maxPhotos: 4, video: "optional" },
+  // Photos of the crossings, optional
+  crossing: { minPhotos: 0, maxPhotos: 4, video: "none" },
   start: { minPhotos: 1, maxPhotos: 4, video: "required" },
   end: { minPhotos: 1, maxPhotos: 4, video: "required" },
   restorationItem: { minPhotos: 1, maxPhotos: 3, video: "required" },
@@ -140,6 +146,7 @@ export const executionLimits = () => ({
 export const executionConfig = () => ({
   types: EXECUTION_TYPES,
   typeOrder: TYPE_ORDER,
+  createTypeOrder: CREATE_TYPE_ORDER,
   typeGroups: TYPE_GROUPS,
   options: OPTIONS,
   entryFields: ENTRY_FIELDS,

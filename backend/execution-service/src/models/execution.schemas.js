@@ -133,7 +133,14 @@ export const initialConditionSchema = new mongoose.Schema(
         {
                 capturedAt: Date,
                 terrain: String,
+                // Every crossing as one line of text (with Others' description), for display
                 crossing: String,
+                crossings: [String],
+                crossingOther: {
+                        type: String,
+                        trim: true
+                },
+                crossingPhotos: [mediaFileSchema],
                 ofcSide: String,
                 roadFeatures: {
                         type: String,
