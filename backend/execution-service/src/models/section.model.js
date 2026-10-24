@@ -85,9 +85,24 @@ const sectionSchema = new mongoose.Schema({
                 type: String,
                 trim: true
         },
+        // Total length: the sum of the three path lengths below when they're given
         sectionLength: {
                 type: Number,
                 default: 0
+        },
+        // Parts of the section's length in metres: the main path, the path shared with
+        // another section, and the existing path added incrementally
+        mainPathLength: {
+                type: Number,
+                min: [0, "Main path length can't be negative"]
+        },
+        sharingPathLength: {
+                type: Number,
+                min: [0, "Sharing path length can't be negative"]
+        },
+        existingIncrementalPathLength: {
+                type: Number,
+                min: [0, "Existing incremental path length can't be negative"]
         },
 
         status: {

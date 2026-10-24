@@ -33,9 +33,34 @@ const withBlockProfile = async (payload, { isCreate }) => {
   return result;
 };
 
+// The three parts of a section's length; the total is their sum
+const PATH_LENGTHS = ["mainPathLength", "sharingPathLength", "existingIncrementalPathLength"];
+const PATH_LABELS = { mainPathLength: "Main path length", sharingPathLength: "Sharing path length", existingIncrementalPathLength: "Existing incremental path length" };
+
+// When a payload sends any of the path lengths, the section length becomes their sum (parts
+// not sent keep their saved value). Without them, sectionLength is taken as sent.
+const withLengths = (payload, saved = {}) => {
+  if (!PATH_LENGTHS.some((key) => key in (payload || {}))) return payload;
+  const result = { ...payload };
+  let total = 0;
+  for (const key of PATH_LENGTHS) {
+    const raw = key in result ? result[key] : saved[key];
+    if (raw === "" || raw === null || raw === undefined) {
+      if (key in result) result[key] = null;
+      continue;
+    }
+    const value = Number(raw);
+    if (!Number.isFinite(value) || value < 0) throw new Error(`${PATH_LABELS[key]} must be a length in metres, 0 or more`);
+    if (key in result) result[key] = value;
+    total += value;
+  }
+  result.sectionLength = Math.round(total * 100) / 100;
+  return result;
+};
+
 export const createSection = async (req, res) => {
   try {
-    const payload = await withBlockProfile(req.body, { isCreate: true });
+    const payload = withLengths(await withBlockProfile(req.body, { isCreate: true }));
     const section = await Section.create(payload);
     res.status(201).json(section);
   } catch (error) {
@@ -97,7 +122,9 @@ export const getSectionById = async (req, res) => {
 export const updateSection = async (req, res) => {
   try {
     const { id } = req.params;
-    const updates = await withBlockProfile(req.body, { isCreate: false });
+    const needsSaved = PATH_LENGTHS.some((key) => key in (req.body || {}));
+    const saved = needsSaved ? await Section.findById(id).select(PATH_LENGTHS.join(" ")).lean() : {};
+    const updates = withLengths(await withBlockProfile(req.body, { isCreate: false }), saved || {});
     const updated = await Section.findByIdAndUpdate(id, updates, { new: true, runValidators: true });
     if (!updated) return res.status(404).json({ message: "Section not found" });
     res.json(updated);

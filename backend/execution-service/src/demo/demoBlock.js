@@ -359,6 +359,8 @@ export const resetDemoBlock = async ({ baseUrl }) => {
       fromLatLong: ll(a),
       toLatLong: ll(b),
       sectionLength: Math.round(route.length / 10) * 10,
+      // An existing route's length is existing incremental path; a new one's is main path
+      [routeType === "EXISTING" ? "existingIncrementalPathLength" : "mainPathLength"]: Math.round(route.length / 10) * 10,
       routeType,
       status: plan.length ? 2 : 1,
       subSectionSeq: plan.length,
