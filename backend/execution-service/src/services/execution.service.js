@@ -266,6 +266,7 @@ export const buildEntry = (req, sub) => {
       const n = Number(raw);
       if (!Number.isFinite(n)) errors[f.key] = f.required ? f.requiredMessage : "Numbers only";
       else if (f.positive && !(n > 0)) errors[f.key] = f.requiredMessage;
+      else if (f.nonNegative && n < 0) errors[f.key] = "Enter 0 or more";
       else values[f.key] = n;
     } else if (f.kind === "choice") {
       if (empty) {

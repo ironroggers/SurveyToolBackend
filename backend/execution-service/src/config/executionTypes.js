@@ -38,10 +38,11 @@ export const OPTIONS = {
   referencePoint: ["Electric pole", "Telecom pole", "Culvert", "Km stone", "Tree", "Building corner"],
 };
 
-// Entry fields as data. kind: number | text | choice. `positive` means > 0.
+// Entry fields as data. kind: number | text | choice. `positive` means > 0; `nonNegative` means 0 or more
+// (an entry may have no length, e.g. a point recorded without trenching).
 // Every entry also has a location (required) and up to one photo.
 const field = (key, label, kind, extra = {}) => ({ key, label, kind, required: false, ...extra });
-const LENGTH = field("length", "Length (m)", "number", { unit: "m", required: true, positive: true, requiredMessage: "Enter a length" });
+const LENGTH = field("length", "Length (m)", "number", { unit: "m", required: true, nonNegative: true, requiredMessage: "Enter a length" });
 const DEPTH = field("depth", "Depth (m)", "number", { unit: "m", required: true, requiredMessage: "Enter a depth", placeholder: "e.g. 1.2" });
 const OFFSET = field("offset", "Offset (m)", "number", { unit: "m", placeholder: "e.g. 1.5" });
 const LANDMARK = field("landmark", "Landmark", "text", { placeholder: "e.g. Bus shelter" });
