@@ -86,6 +86,7 @@ export const subsectionSummary = (sub, stats, context) => ({
   executionStatus: sub.executionStatus,
   roadName: sub.roadName,
   subSectionLength: sub.subSectionLength,
+  calculatedLength: sub.calculatedLength ?? null,
   section: context?.section || { _id: sub.section },
   block: context?.block,
   doneM: stats?.doneM || 0,

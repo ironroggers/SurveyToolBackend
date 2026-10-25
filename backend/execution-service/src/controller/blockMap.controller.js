@@ -6,7 +6,7 @@ import InfraCapture from "../models/infraCapture.model.js";
 import InfraEquipment from "../models/infraEquipment.model.js";
 import Restoration from "../models/restoration.model.js";
 import { notFound, sendError } from "../utils/httpError.js";
-import { parseLatLong, pointOf } from "../utils/geo.js";
+import { calculatedLengthOf, parseLatLong, pointOf } from "../utils/geo.js";
 import { sectionExecutionSummaries } from "../services/progress.service.js";
 import { ROUTER_NAME } from "../utils/blockNodes.js";
 import { miscItemsOf, photosOf } from "../config/infraEquipment.js";
@@ -186,6 +186,7 @@ export const buildBlockMap = async (profile) => {
       legacy: !sub.typeOfWork,
       roadName: sub.roadName,
       subSectionLength: sub.subSectionLength,
+      calculatedLength: calculatedLengthOf(sub),
       seq: sub.seq,
       // Site condition, for the L14 diagram
       crossing: ic.crossing,

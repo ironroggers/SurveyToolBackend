@@ -8,6 +8,7 @@ import {
     initialConditionSchema,
     withVersion,
 } from "./execution.schemas.js";
+import { calculatedLengthOf } from "../utils/geo.js";
 
 const rowSchema = new mongoose.Schema({
     rowOwnership: {
@@ -158,6 +159,12 @@ const subSectionSchema = new mongoose.Schema({
     optimisticConcurrency: true,
     toJSON: withVersion
 })
+
+// Straight-line distance between the planned From and To points, whole metres. The engineer
+// may enter a different length (subSectionLength); both are shown.
+subSectionSchema.virtual("calculatedLength").get(function () {
+    return calculatedLengthOf(this);
+});
 
 subSectionSchema.index({ section: 1, executionStatus: 1, typeOfWork: 1 });
 // Generated names are unique per section; legacy names (no seq) are free text and may repeat

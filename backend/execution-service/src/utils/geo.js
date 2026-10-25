@@ -32,3 +32,11 @@ export const pointOf = (obj) => {
 export const formatLatLong = ({ lat, lng }) => `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
 
 export const round = (value, digits = 1) => Math.round(value * 10 ** digits) / 10 ** digits;
+
+// A subsection's calculated length: the straight distance between its planned From and To
+// ("lat, long" strings), whole metres; null without both points
+export const calculatedLengthOf = ({ fromLatLong, toLatLong }) => {
+  const from = parseLatLong(fromLatLong);
+  const to = parseLatLong(toLatLong);
+  return from && to ? Math.round(distanceM(from, to)) : null;
+};
