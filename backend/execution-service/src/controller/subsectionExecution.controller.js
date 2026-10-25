@@ -15,6 +15,7 @@ import {
   endedText,
   historyEntry,
   roleLabel,
+  pitSuggestion,
   startPitSuggestion,
   startedText,
 } from "../services/execution.service.js";
@@ -93,7 +94,22 @@ export const createExecutionSubsection = async (req, res) => {
   }
 };
 
-// GET /api/subsections/:id/start-pit-suggestion   (viewExecution)
+// GET /api/subsections/:id/pit-suggestion?which=start|end   (viewExecution)
+// A neighbour's pit this start / end can reuse (see pitSuggestion)
+export const getPitSuggestion = async (req, res) => {
+  try {
+    const which = req.query.which === "end" ? "end" : "start";
+    const sub = await loadExecutionSub(req.params.id);
+    const others = await SubSection.find({ section: sub.section, [`${which === "start" ? "end" : "start"}.pit.latitude`]: { $exists: true } }).select(
+      "name typeOfWork fromLatLong toLatLong start.pit end.pit"
+    );
+    res.json({ suggestion: pitSuggestion(sub, others, which) });
+  } catch (error) {
+    sendError(res, error);
+  }
+};
+
+// GET /api/subsections/:id/start-pit-suggestion   (viewExecution; older apps)
 export const getStartPitSuggestion = async (req, res) => {
   try {
     const sub = await loadExecutionSub(req.params.id);

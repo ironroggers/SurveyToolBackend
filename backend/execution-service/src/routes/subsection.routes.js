@@ -8,6 +8,7 @@ import {
 } from "../controller/subsection.controller.js";
 import {
   previewName,
+  getPitSuggestion,
   getStartPitSuggestion,
   startSubsection,
   addEntry,
@@ -30,7 +31,8 @@ router.get("/:id", getSubSectionById);
 router.put("/:id", updateSubSection);
 router.delete("/:id", deleteSubSection);
 
-router.get("/:id/start-pit-suggestion", getStartPitSuggestion); // viewExecution
+router.get("/:id/pit-suggestion", getPitSuggestion); // viewExecution
+router.get("/:id/start-pit-suggestion", getStartPitSuggestion); // viewExecution (older apps)
 router.post("/:id/start", startSubsection); // executeSubsection
 router.post("/:id/entries", addEntry); // executeSubsection
 router.put("/:id/entries/:entryId", updateEntry); // executeSubsection

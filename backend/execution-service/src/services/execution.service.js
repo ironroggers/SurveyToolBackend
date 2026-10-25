@@ -337,33 +337,49 @@ export const entryView = (doc) => {
   };
 };
 
-// ---- start-pit suggestion
+// ---- pit suggestions (back-to-back subsections)
 
-// The end pit of another subsection in the section whose planned To is within the
-// radius of this subsection's planned From (nearest first)
-export const startPitSuggestion = (sub, others) => {
-  const from = parseLatLong(sub.fromLatLong);
-  if (!from || !isDucting(sub.typeOfWork)) return null;
+const plainPit = (pit) => (pit?.toObject ? pit.toObject() : pit);
+
+/**
+ * A pit this subsection's start or end can reuse from a neighbour in the same section:
+ * - start: the end pit of a subsection that ended where this one starts;
+ * - end: the start pit of a subsection that already started where this one ends.
+ * "Where" is the neighbour's planned point or its recorded pit, whichever is nearer, within
+ * pitSuggestionRadiusM of this subsection's planned From (start) or To (end); nearest first.
+ * Everything recorded comes along: location, the three reference points and all photos
+ * and video, so nothing has to be captured twice.
+ */
+export const pitSuggestion = (sub, others, which = "start") => {
+  const isStart = which === "start";
+  const here = parseLatLong(isStart ? sub.fromLatLong : sub.toLatLong);
+  if (!here || !isDucting(sub.typeOfWork)) return null;
   const { pitSuggestionRadiusM } = executionLimits();
+  // Start reuses a neighbour's end pit; end reuses a neighbour's start pit
+  const theirs = isStart ? "end" : "start";
   const nearest = others
-    .filter((other) => String(other._id) !== String(sub._id) && other.end?.pit?.latitude != null)
+    .filter((other) => String(other._id) !== String(sub._id) && other[theirs]?.pit?.latitude != null)
     .map((other) => {
-      const to = parseLatLong(other.toLatLong);
-      return { other, distance: to ? distanceM(to, from) : Infinity };
+      const pit = other[theirs].pit;
+      const planned = parseLatLong(isStart ? other.toLatLong : other.fromLatLong);
+      const distance = Math.min(planned ? distanceM(planned, here) : Infinity, distanceM({ lat: pit.latitude, lng: pit.longitude }, here));
+      return { other, distance };
     })
     .filter(({ distance }) => distance <= pitSuggestionRadiusM)
     .sort((a, b) => a.distance - b.distance)[0];
   if (!nearest) return null;
   const { other, distance } = nearest;
-  const saved = other.end.pit.toObject ? other.end.pit.toObject() : other.end.pit;
-  // Location and reference points only: the new pit's photos are taken afresh
-  const { photos: _photos, video: _video, ...pit } = saved;
-  pit.refs = (pit.refs || []).map(({ photos: _p, video: _v, ...ref }) => ref);
+  const { copiedFrom: _copiedFrom, ...pit } = plainPit(other[theirs].pit);
   return {
+    which,
     subSection: other._id,
     name: other.name,
-    pitLabel: EXECUTION_TYPES[other.typeOfWork]?.pitB,
+    // Which of the neighbour's pits it is: its end (B) for a start, its start (A) for an end
+    pitLabel: EXECUTION_TYPES[other.typeOfWork]?.[isStart ? "pitB" : "pitA"],
     distanceM: round(distance, 1),
-    pit: { ...pit, copiedFrom: other._id },
+    pit: { ...pit, refs: pit.refs || [], copiedFrom: other._id },
   };
 };
+
+// Kept for older app versions that still ask for the start only
+export const startPitSuggestion = (sub, others) => pitSuggestion(sub, others, "start");
