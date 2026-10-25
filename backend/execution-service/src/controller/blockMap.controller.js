@@ -71,7 +71,7 @@ export const buildBlockMap = async (profile) => {
     sectionExecutionSummaries(sectionIds),
   ]);
   const entries = await Trenching.find({ subSection: { $in: subs.map((s) => s._id) } })
-    .select("subSection latitude longitude trenchLatLong mediaFiles capturedAt createdAt trenchLength")
+    .select("subSection latitude longitude trenchLatLong mediaFiles capturedAt createdAt trenchLength trenchDepth offset side protectionType landmark remarks")
     .sort({ capturedAt: 1, createdAt: 1, _id: 1 })
     .lean();
 
@@ -155,7 +155,19 @@ export const buildBlockMap = async (profile) => {
     const key = String(e.subSection);
     const point = pointOf(e) || parseLatLong(e.trenchLatLong);
     if (!entriesBySub.has(key)) entriesBySub.set(key, []);
-    if (point) entriesBySub.get(key).push({ ...point, length: e.trenchLength, capturedAt: e.capturedAt || e.createdAt });
+    if (point) {
+      entriesBySub.get(key).push({
+        ...point,
+        length: e.trenchLength,
+        depth: e.trenchDepth,
+        offset: e.offset,
+        side: e.side,
+        protection: e.protectionType,
+        landmark: e.landmark,
+        remarks: e.remarks,
+        capturedAt: e.capturedAt || e.createdAt,
+      });
+    }
     const sub = subById.get(key);
     if (sub) (e.mediaFiles || []).forEach((m) => push(m, subExtra(sub, "ENTRY", `Entry · ${sub.name}`)));
   }
