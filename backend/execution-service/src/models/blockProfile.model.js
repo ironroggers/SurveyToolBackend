@@ -40,7 +40,7 @@ const coordinate = (kind, label, partner) => {
         };
 };
 
-// Entered manually for now; a GP master will fill these in a later phase.
+// Filled in from the LGD master (lgdBlock.model.js) or entered by hand
 const gpSchema = new mongoose.Schema(
         {
                 name: {

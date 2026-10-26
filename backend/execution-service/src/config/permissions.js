@@ -38,6 +38,8 @@ export const PERMISSIONS = {
   viewBlockProfile: VIEWERS,
   // A Zonal Manager who creates a block is put on its team
   createBlockProfile: { ADMIN: "all", "ZONAL MANAGER": "all" },
+  // Block profiles for many blocks at once, from the LGD master
+  bulkCreateBlockProfiles: { ADMIN: "all" },
   editBlockProfile: MANAGERS,
   deleteBlockProfile: MANAGERS,
   // Admin sets the Zonal Managers; a Zonal Manager sets Cluster Heads, GIS Heads and Field Executives
