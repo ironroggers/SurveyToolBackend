@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
-import { PROJECT_OPTIONS } from "../utils/constants.js";
+import { PROJECT_OPTIONS, ROLES } from "../utils/constants.js";
 
 const userSchema = new mongoose.Schema(
   {
@@ -25,7 +25,7 @@ const userSchema = new mongoose.Schema(
     },
     role: {
       type: String,
-      enum: ["SURVEYOR", "SUPERVISOR", "ADMIN", "EXECUTION ENGINEER", "VIEWER"],
+      enum: ROLES,
       required: true,
     },
     designation: {
