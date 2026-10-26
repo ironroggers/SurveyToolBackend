@@ -28,8 +28,8 @@ const levelFor = (req, section) => {
   return level;
 };
 
-// What the section review screen shows
-export const reviewView = async (section) => {
+// What the section review screen shows; blockFrozen locks the whole block (only Admin edits)
+export const reviewView = async (section, profile) => {
   const subs = await SubSection.find({ section: section._id, typeOfWork: { $exists: true } })
     .select("name typeOfWork executionStatus seq review approval roadName subSectionLength")
     .sort({ seq: 1 })
@@ -38,6 +38,7 @@ export const reviewView = async (section) => {
   return {
     section: { _id: section._id, name: section.name, blockProfile: section.blockProfile, fromNode: section.fromNode, toNode: section.toNode },
     stage: sectionStage(section),
+    blockFrozen: Boolean(profile?.frozen?.at),
     zonal: section.review?.zonal,
     admin: section.review?.admin,
     history: section.review?.history || [],
@@ -59,7 +60,7 @@ export const reviewView = async (section) => {
 // GET /api/sections/:id/review   (viewExecution)
 export const getSectionReview = async (req, res) => {
   try {
-    res.json(await reviewView(req.access.section));
+    res.json(await reviewView(req.access.section, req.access.profile));
   } catch (error) {
     sendError(res, error);
   }
@@ -83,7 +84,7 @@ export const approveSection = async (req, res) => {
       { new: true }
     );
     if (!updated) throw conflict("This section was reviewed by someone else. Refresh and try again", "STALE");
-    res.json(await reviewView(updated));
+    res.json(await reviewView(updated, req.access.profile));
   } catch (error) {
     sendError(res, error);
   }
@@ -132,7 +133,7 @@ export const rejectSection = async (req, res) => {
         $inc: { __v: 1 },
       }
     );
-    res.json(await reviewView(updated));
+    res.json(await reviewView(updated, req.access.profile));
   } catch (error) {
     sendError(res, error);
   }
