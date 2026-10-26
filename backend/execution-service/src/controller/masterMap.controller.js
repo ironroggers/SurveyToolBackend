@@ -1,5 +1,5 @@
 import BlockProfile from "../models/blockProfile.model.js";
-import { demoBlockFilter, seesDemo } from "../demo/demoAccess.js";
+import { blockFilter } from "../services/access.service.js";
 import { notFound, sendError } from "../utils/httpError.js";
 import { pointOf } from "../utils/geo.js";
 import { buildBlockMap } from "./blockMap.controller.js";
@@ -11,7 +11,7 @@ import { buildBlockMap } from "./blockMap.controller.js";
 // GET /api/master-map/blocks   (viewExecution)
 export const getMasterMapBlocks = async (req, res) => {
   try {
-    const profiles = await BlockProfile.find(demoBlockFilter(req))
+    const profiles = await BlockProfile.find(blockFilter(req, "viewExecution"))
       .select("state district block blockCode blockRouter gps.latitude gps.longitude")
       .sort({ state: 1, district: 1, block: 1 })
       .lean();
@@ -38,7 +38,8 @@ export const getMasterMapBlock = async (req, res) => {
     const profile = await BlockProfile.findById(req.params.id)
       .select("state district block blockCode gps blockRouter kmlFiles isDemo")
       .lean();
-    if (!profile || (profile.isDemo && !seesDemo(req))) throw notFound("Block profile not found");
+    // Access was checked by the route's guard
+    if (!profile) throw notFound("Block profile not found");
     const layers = await buildBlockMap(profile);
     res.json({
       profile: {

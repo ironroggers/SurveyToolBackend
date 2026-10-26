@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import { mediaFileSchema } from "./mediaFile.schema.js";
 
-// Who did something. Comes from the X-User-* headers until auth lands.
+// Who did something: id and role from the login token, name from X-User-Name
 export const actorSchema = new mongoose.Schema(
         {
                 id: {

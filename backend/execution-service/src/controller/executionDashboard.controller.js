@@ -7,7 +7,7 @@ import InfraCapture from "../models/infraCapture.model.js";
 import InfraEquipment from "../models/infraEquipment.model.js";
 import { EXECUTION_TYPES, STATUS_ORDER, TYPE_ORDER, isDucting } from "../config/executionTypes.js";
 import { deriveRestorationStatus } from "../services/progress.service.js";
-import { demoBlockFilter } from "../demo/demoAccess.js";
+import { blockFilter } from "../services/access.service.js";
 import { sendError } from "../utils/httpError.js";
 
 // Execution dashboard: progress of OFC execution across block profiles, in one read.
@@ -51,7 +51,7 @@ export const getExecutionDashboard = async (req, res) => {
     const days = TREND_DAYS.includes(Number(req.query.days)) ? Number(req.query.days) : 30;
 
     // Every visible block, for the filter options; the filters then narrow the figures
-    const visible = await BlockProfile.find(demoBlockFilter(req))
+    const visible = await BlockProfile.find(blockFilter(req, "viewExecution"))
       .select("state district block blockCode status isDemo numberOfGps gps.lgdCode rings updatedAt")
       .sort({ state: 1, district: 1, block: 1 })
       .lean();

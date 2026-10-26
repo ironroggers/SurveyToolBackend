@@ -3,6 +3,31 @@ import Section from "../models/section.model.js";
 import BlockProfile, { GEOGRAPHY_FIELDS } from "../models/blockProfile.model.js";
 import { findBlockNode, formatLatLong } from "../utils/blockNodes.js";
 import { sectionExecutionSummaries } from "../services/progress.service.js";
+import { assertBlockAccess, assertWritable, sectionFilter } from "../services/access.service.js";
+import { sendError } from "../utils/httpError.js";
+
+// POST /api/sections: a block section needs createSection on its block (older location
+// sections only a signed-in user)
+export const guardNewSection = async (req, res, next) => {
+  try {
+    const id = req.body?.blockProfile;
+    if (id) {
+      const profile = mongoose.isValidObjectId(id) ? await BlockProfile.findById(id) : null;
+      if (!profile) return res.status(404).json({ message: "Block profile not found" });
+      assertBlockAccess(req, "createSection", profile);
+      assertWritable(req, profile);
+    }
+    next();
+  } catch (error) {
+    sendError(res, error);
+  }
+};
+
+// Set by the review flow only (sectionReview.controller.js)
+const withoutReview = (payload) => {
+  const { review: _review, ...rest } = payload || {};
+  return rest;
+};
 
 const toNodeRef = ({ type, code, name }) => ({ type, code, name });
 
@@ -60,7 +85,8 @@ const withLengths = (payload, saved = {}) => {
 
 export const createSection = async (req, res) => {
   try {
-    const payload = withLengths(await withBlockProfile(req.body, { isCreate: true }));
+    const payload = withLengths(await withBlockProfile(withoutReview(req.body), { isCreate: true }));
+    if (payload.blockProfile) payload.review = { stage: "FIELD", history: [] };
     const section = await Section.create(payload);
     res.status(201).json(section);
   } catch (error) {
@@ -71,7 +97,8 @@ export const createSection = async (req, res) => {
 export const getSections = async (req, res) => {
   try {
     const { page = 1, limit = 20, q, blockProfile, location } = req.query;
-    const filter = {};
+    // Only sections of blocks the user may see
+    const filter = { ...(await sectionFilter(req)) };
     for (const [key, value] of Object.entries({ blockProfile, location })) {
       if (!value) continue;
       if (!mongoose.isValidObjectId(value)) {
@@ -80,11 +107,18 @@ export const getSections = async (req, res) => {
       filter[key] = value;
     }
     if (q) {
-      filter.$or = [
-        { name: { $regex: q, $options: "i" } },
-        { description: { $regex: q, $options: "i" } },
-        { district: { $regex: q, $options: "i" } },
-      ];
+      const search = {
+        $or: [
+          { name: { $regex: q, $options: "i" } },
+          { description: { $regex: q, $options: "i" } },
+          { district: { $regex: q, $options: "i" } },
+        ],
+      };
+      // Both the visibility $or and the search $or apply
+      if (filter.$or) {
+        filter.$and = [{ $or: filter.$or }, search];
+        delete filter.$or;
+      } else Object.assign(filter, search);
     }
     const skip = (Number(page) - 1) * Number(limit);
     const [items, total] = await Promise.all([
@@ -104,7 +138,7 @@ export const getSections = async (req, res) => {
       limit: Number(limit),
     });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    sendError(res, error);
   }
 };
 
@@ -124,7 +158,11 @@ export const updateSection = async (req, res) => {
     const { id } = req.params;
     const needsSaved = PATH_LENGTHS.some((key) => key in (req.body || {}));
     const saved = needsSaved ? await Section.findById(id).select(PATH_LENGTHS.join(" ")).lean() : {};
-    const updates = withLengths(await withBlockProfile(req.body, { isCreate: false }), saved || {});
+    // A section stays under the block it was created in (its access was checked on that block)
+    const body = withoutReview(req.body);
+    if (req.access.section.blockProfile) body.blockProfile = req.access.section.blockProfile;
+    else delete body.blockProfile;
+    const updates = withLengths(await withBlockProfile(body, { isCreate: false }), saved || {});
     const updated = await Section.findByIdAndUpdate(id, updates, { new: true, runValidators: true });
     if (!updated) return res.status(404).json({ message: "Section not found" });
     res.json(updated);

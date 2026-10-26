@@ -1,5 +1,7 @@
 import mongoose from "mongoose";
 import { assetPrefix } from "../config/infraEquipment.js";
+import { TEAM_ROLES } from "../config/permissions.js";
+import { actorSchema } from "./execution.schemas.js";
 
 export const SITE_TYPES = ["BSNL_OWNED", "BSNL_RENTED", "OTHERS"];
 
@@ -112,6 +114,30 @@ const kmlFileSchema = new mongoose.Schema({
                 default: Date.now
         }
 });
+
+// A user on the block's team. The name is copied from the auth service's user list.
+const teamMemberSchema = new mongoose.Schema(
+        {
+                userId: {
+                        type: mongoose.Schema.Types.ObjectId,
+                        ref: "User",
+                        required: [true, "Pick a user"]
+                },
+                name: {
+                        type: String,
+                        trim: true
+                },
+                role: {
+                        type: String,
+                        required: true,
+                        enum: {
+                                values: TEAM_ROLES,
+                                message: "Team role must be one of " + TEAM_ROLES.join(", ")
+                        }
+                }
+        },
+        { _id: false }
+);
 
 const blockProfileSchema = new mongoose.Schema(
         {
@@ -233,6 +259,17 @@ const blockProfileSchema = new mongoose.Schema(
                         },
                         default: "ACTIVE"
                 },
+                // The people working on this block; those with an assigned scope see only
+                // the blocks they're on. A user is on the team once per role.
+                team: {
+                        type: [teamMemberSchema],
+                        default: []
+                },
+                // Set by Admin: the whole block is read-only for everyone else from then on
+                frozen: {
+                        at: Date,
+                        by: actorSchema
+                },
                 createdBy: {
                         type: mongoose.Schema.Types.ObjectId,
                         ref: "User"
@@ -280,5 +317,6 @@ blockProfileSchema.virtual("gpCountMismatch").get(function () {
 
 blockProfileSchema.index({ district: 1, block: 1 });
 blockProfileSchema.index({ status: 1 });
+blockProfileSchema.index({ "team.userId": 1 });
 
 export default mongoose.model("BlockProfile", blockProfileSchema, "BlockProfile");

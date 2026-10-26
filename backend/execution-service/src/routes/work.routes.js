@@ -1,12 +1,14 @@
 import { Router } from "express";
 import { getApprovals, getExecutionConfig, getMyWork, getPermissions } from "../controller/work.controller.js";
+import { requireAction } from "../services/access.service.js";
 
-// Mounted at /api. Auth is off for now; the comment is the action each route should check once it lands.
+// Mounted at /api. Every route needs a signed-in user (requireAuth in server.js).
 const router = Router();
 
-router.get("/execution/config", getExecutionConfig); // any signed-in user
-router.get("/permissions", getPermissions); // any signed-in user
-router.get("/my-work", getMyWork); // viewExecution
-router.get("/approvals", getApprovals); // approveExecution
+router.get("/execution/config", getExecutionConfig);
+router.get("/permissions", getPermissions);
+router.get("/my-work", requireAction("viewExecution"), getMyWork);
+// Each reviewer's own queue; the controller checks which reviews the role does
+router.get("/approvals", getApprovals);
 
 export default router;

@@ -22,6 +22,8 @@ import {
 import { sectionExecutionSummaries } from "../services/progress.service.js";
 import { jobCard } from "../services/views.service.js";
 import { queueStampsFor } from "../services/stampQueue.service.js";
+import { actorRole, checkSection, forbidden, sectionStage } from "../services/access.service.js";
+import { REVIEW_SLOTS, SLOT_LABELS, bothApproved, syncSectionStage } from "../services/review.service.js";
 
 // The OFC execution flow for one subsection. Rules are in services/execution.service.js.
 
@@ -59,8 +61,13 @@ export const previewName = async (req, res) => {
 // POST /api/subsections with typeOfWork   (executeSubsection)
 export const createExecutionSubsection = async (req, res) => {
   try {
-    const built = buildNewSubsection(req.body);
     const section = await loadBlockSection(req.body.section);
+    // Once every subsection is approved the section moves up for review; a Zonal Manager's or
+    // Admin's rejection brings it back
+    if (sectionStage(section) !== "FIELD") {
+      throw conflict("This section has been sent for Zonal Manager / Admin review, so no subsections can be added", "WRONG_STATE");
+    }
+    const built = buildNewSubsection(req.body);
     const summary = (await sectionExecutionSummaries([section._id])).get(String(section._id));
     if (["PENDING_APPROVAL", "APPROVED"].includes(summary?.restoration.status)) {
       throw conflict("This section's restoration is waiting approval or approved, so no subsections can be added", "WRONG_STATE");
@@ -207,6 +214,10 @@ export const endSubsection = async (req, res) => {
     sub.end = buildExecutionPoint(req, sub, "end");
     sub.executionStatus = "PENDING_APPROVAL";
     sub.approval = undefined;
+    // A reviewer who rejected reviews the fix; an approval given before stays
+    for (const slot of Object.values(REVIEW_SLOTS)) {
+      if (sub.review?.[slot]?.status !== "APPROVED") sub.set(`review.${slot}`, undefined);
+    }
     sub.history.push(historyEntry(req, "ended", endedText(sub.typeOfWork)));
     sub.updatedBy = actorOf(req);
     await sub.save();
@@ -234,26 +245,41 @@ export const reopenSubsection = async (req, res) => {
   }
 };
 
+// Cluster Head and GIS Head each fill their own review slot. The subsection is APPROVED once
+// both have approved; either one's reject sends it back to the Field Executive.
 const decide = (status) => async (req, res) => {
   try {
+    const slot = REVIEW_SLOTS[actorRole(req)];
+    if (!slot) throw forbidden("Subsections are reviewed by the Cluster Head and the GIS Head");
     const sub = await loadExecutionSub(req.params.id);
     checkVersion(sub, req.body?.version);
     assertStatus(sub, ["PENDING_APPROVAL"], "Only a subsection waiting approval can be approved or rejected");
+    if (sub.review?.[slot]?.status === "APPROVED") {
+      throw conflict(`The ${SLOT_LABELS[slot]} has already approved this subsection`, "WRONG_STATE");
+    }
     const remark = String(req.body?.remark || "").trim();
     if (status === "REJECTED" && !remark) {
       throw badRequest("Write a reason before rejecting.", { remark: "Write a reason before rejecting." });
     }
     const by = actorOf(req);
-    sub.executionStatus = status;
-    sub.approval = { status, by, at: new Date(), remark: remark || undefined, client: req.client };
+    const decision = { status, by, at: new Date(), remark: remark || undefined, client: req.client };
+    sub.set(`review.${slot}`, decision);
     const who = roleLabel(by.role);
-    sub.history.push(
-      status === "APPROVED"
-        ? historyEntry(req, "approved", `Approved by ${who}`)
-        : historyEntry(req, "rejected", `Needs fix (${who}): ${remark}`, remark)
-    );
+    if (status === "REJECTED") {
+      sub.executionStatus = "REJECTED";
+      sub.approval = decision;
+      sub.history.push(historyEntry(req, "rejected", `Needs fix (${who}): ${remark}`, remark));
+    } else if (bothApproved(sub.review)) {
+      sub.executionStatus = "APPROVED";
+      sub.approval = decision;
+      sub.history.push(historyEntry(req, "approved", `Approved by ${who} · approved by Cluster Head and GIS Head`));
+    } else {
+      const other = slot === "clusterHead" ? "gisHead" : "clusterHead";
+      sub.history.push(historyEntry(req, "approved", `Approved by ${who} · waiting for the ${SLOT_LABELS[other]}`));
+    }
     sub.updatedBy = by;
     await sub.save();
+    if (sub.executionStatus === "APPROVED") await syncSectionStage(req, sub.section);
     await respond(res, sub);
   } catch (error) {
     sendError(res, error);
@@ -265,10 +291,13 @@ export const approveSubsection = decide("APPROVED");
 export const rejectSubsection = decide("REJECTED");
 
 // Used by the trenching routes so the old screens can't change an execution subsection's
-// entries outside In progress
-export const assertTrenchingAllowed = async (subSectionId) => {
-  const sub = subSectionId ? await SubSection.findById(subSectionId).select("typeOfWork executionStatus") : null;
-  if (sub?.typeOfWork && sub.executionStatus !== "IN_PROGRESS") {
+// entries outside In progress, or outside the user's blocks
+export const assertTrenchingAllowed = async (req, subSectionId) => {
+  const sub = subSectionId ? await SubSection.findById(subSectionId).select("typeOfWork executionStatus section") : null;
+  if (!sub?.typeOfWork) return;
+  const section = await Section.findById(sub.section);
+  if (section) await checkSection(req, "executeSubsection", section, { write: true });
+  if (sub.executionStatus !== "IN_PROGRESS") {
     throw new HttpError(409, "Entries can only change while the subsection is in progress", { code: "WRONG_STATE" });
   }
 };

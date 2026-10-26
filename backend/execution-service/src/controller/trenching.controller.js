@@ -3,9 +3,9 @@ import { assertTrenchingAllowed } from "./subsectionExecution.controller.js";
 import { queueStampsFor } from "../services/stampQueue.service.js";
 
 // Entries of execution subsections can only change while they're in progress
-const guardFails = async (res, subSectionId) => {
+const guardFails = async (req, res, subSectionId) => {
   try {
-    await assertTrenchingAllowed(subSectionId);
+    await assertTrenchingAllowed(req, subSectionId);
     return false;
   } catch (error) {
     res.status(error.status || 400).json({ message: error.message, code: error.code });
@@ -15,7 +15,7 @@ const guardFails = async (res, subSectionId) => {
 
 export const createTrenching = async (req, res) => {
   try {
-    if (await guardFails(res, req.body?.subSection)) return;
+    if (await guardFails(req, res, req.body?.subSection)) return;
     const doc = await Trenching.create(req.body);
     queueStampsFor(doc);
     res.status(201).json(doc);
@@ -53,7 +53,7 @@ export const getTrenchingById = async (req, res) => {
 export const updateTrenching = async (req, res) => {
   try {
     const current = await Trenching.findById(req.params.id).select("subSection");
-    if (current && (await guardFails(res, current.subSection))) return;
+    if (current && (await guardFails(req, res, current.subSection))) return;
     const updated = await Trenching.findByIdAndUpdate(req.params.id, req.body, { new: true });
     if (!updated) return res.status(404).json({ message: "Trenching not found" });
     queueStampsFor(updated);
@@ -66,7 +66,7 @@ export const updateTrenching = async (req, res) => {
 export const deleteTrenching = async (req, res) => {
   try {
     const current = await Trenching.findById(req.params.id).select("subSection");
-    if (current && (await guardFails(res, current.subSection))) return;
+    if (current && (await guardFails(req, res, current.subSection))) return;
     const deleted = await Trenching.findByIdAndDelete(req.params.id);
     if (!deleted) return res.status(404).json({ message: "Trenching not found" });
     res.json({ message: "Trenching deleted" });

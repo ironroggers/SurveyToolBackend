@@ -15,8 +15,13 @@ import { distanceM, parseLatLong, pointOf, round } from "../utils/geo.js";
 
 const ROLE_LABELS = {
   ADMIN: "Admin",
+  "ZONAL MANAGER": "Zonal Manager",
+  "CLUSTER HEAD": "Cluster Head",
+  "GIS HEAD": "GIS Head",
+  "FIELD EXECUTIVE": "Field Executive",
+  // Older history entries
+  "EXECUTION ENGINEER": "Field Executive",
   SUPERVISOR: "Supervisor",
-  "EXECUTION ENGINEER": "Execution Engineer",
   SURVEYOR: "Surveyor",
   VIEWER: "Viewer",
 };

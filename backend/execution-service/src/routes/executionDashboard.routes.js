@@ -1,9 +1,10 @@
 import { Router } from "express";
 import { getExecutionDashboard } from "../controller/executionDashboard.controller.js";
+import { requireAction } from "../services/access.service.js";
 
 const router = Router();
 
-// Read only. Auth is off for now, as on every execution-service route.
-router.get("/", getExecutionDashboard); // viewExecution
+// Read only; the blocks the user may see
+router.get("/", requireAction("viewExecution"), getExecutionDashboard);
 
 export default router;

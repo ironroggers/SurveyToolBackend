@@ -2,6 +2,9 @@ import mongoose from "mongoose";
 import SubSection from "../models/subSection.model.js";
 import { createExecutionSubsection } from "./subsectionExecution.controller.js";
 import { entryStats, jobCard } from "../services/views.service.js";
+import Section from "../models/section.model.js";
+import { visibleBlockIds } from "../services/access.service.js";
+import { syncSectionStage } from "../services/review.service.js";
 
 // Fields the execution flow owns; the plain update below can't change them
 const EXECUTION_FIELDS = [
@@ -14,6 +17,7 @@ const EXECUTION_FIELDS = [
   "start",
   "end",
   "approval",
+  "review",
   "history",
   "createdBy",
   "updatedBy",
@@ -35,7 +39,13 @@ export const getSubSections = async (req, res) => {
   try {
     const { page = 1, limit = 20, section, q, typeOfWork, executionStatus } = req.query;
     const filter = {};
-    if (section) filter.section = section;
+    // Only subsections of blocks the user may see (older ones outside block sections stay visible)
+    const visible = await visibleBlockIds(req);
+    if (visible) {
+      const hidden = await Section.find({ blockProfile: { $exists: true, $ne: null, $nin: visible } }).distinct("_id");
+      if (hidden.length) filter.section = { $nin: hidden };
+    }
+    if (section) filter.section = { ...(filter.section || {}), $eq: section };
     if (typeOfWork) filter.typeOfWork = typeOfWork;
     if (executionStatus) filter.executionStatus = executionStatus;
     if (q) {
@@ -93,6 +103,8 @@ export const deleteSubSection = async (req, res) => {
   try {
     const deleted = await SubSection.findByIdAndDelete(req.params.id);
     if (!deleted) return res.status(404).json({ message: "SubSection not found" });
+    // The rest of the section may now all be approved
+    if (deleted.typeOfWork) await syncSectionStage(req, deleted.section);
     res.json({ message: "SubSection deleted" });
   } catch (error) {
     res.status(400).json({ message: error.message });

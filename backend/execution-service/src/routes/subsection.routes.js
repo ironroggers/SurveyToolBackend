@@ -19,27 +19,35 @@ import {
   approveSubsection,
   rejectSubsection,
 } from "../controller/subsectionExecution.controller.js";
+import { guardSection, guardSubsection } from "../services/access.service.js";
 
 const router = Router();
 
-// Auth is off for now, as on every execution-service route. The comment on each
-// execution route is the action from src/config/permissions.js it should check once auth lands.
-router.get("/", getSubSections);
-router.post("/", createSubSection); // with typeOfWork: executeSubsection
-router.get("/next-name", previewName); // viewExecution
-router.get("/:id", getSubSectionById);
-router.put("/:id", updateSubSection);
-router.delete("/:id", deleteSubSection);
+// Every route needs a signed-in user (requireAuth in server.js). Execution routes check the
+// action from src/config/permissions.js on the block's team; `write` also refuses frozen data.
+const view = guardSubsection("viewExecution");
+const write = (action) => guardSubsection(action, { write: true });
+// Execution subsections are created in a block section; older ones need only a signed-in user
+const guardCreate = (req, res, next) =>
+  req.body?.typeOfWork ? guardSection("executeSubsection", { write: true, from: "body", key: "section" })(req, res, next) : next();
 
-router.get("/:id/pit-suggestion", getPitSuggestion); // viewExecution
-router.get("/:id/start-pit-suggestion", getStartPitSuggestion); // viewExecution (older apps)
-router.post("/:id/start", startSubsection); // executeSubsection
-router.post("/:id/entries", addEntry); // executeSubsection
-router.put("/:id/entries/:entryId", updateEntry); // executeSubsection
-router.delete("/:id/entries/:entryId", deleteEntry); // executeSubsection
-router.post("/:id/end", endSubsection); // executeSubsection
-router.post("/:id/reopen", reopenSubsection); // executeSubsection
-router.post("/:id/approve", approveSubsection); // approveExecution
-router.post("/:id/reject", rejectSubsection); // approveExecution
+router.get("/", getSubSections);
+router.post("/", guardCreate, createSubSection);
+router.get("/next-name", guardSection("viewExecution", { from: "query", key: "section" }), previewName);
+router.get("/:id", view, getSubSectionById);
+router.put("/:id", write("executeSubsection"), updateSubSection);
+router.delete("/:id", write("deleteSubsection"), deleteSubSection);
+
+router.get("/:id/pit-suggestion", view, getPitSuggestion);
+router.get("/:id/start-pit-suggestion", view, getStartPitSuggestion); // older apps
+router.post("/:id/start", write("executeSubsection"), startSubsection);
+router.post("/:id/entries", write("executeSubsection"), addEntry);
+router.put("/:id/entries/:entryId", write("executeSubsection"), updateEntry);
+router.delete("/:id/entries/:entryId", write("executeSubsection"), deleteEntry);
+router.post("/:id/end", write("executeSubsection"), endSubsection);
+router.post("/:id/reopen", write("executeSubsection"), reopenSubsection);
+// Cluster Head and GIS Head
+router.post("/:id/approve", write("reviewSubsection"), approveSubsection);
+router.post("/:id/reject", write("reviewSubsection"), rejectSubsection);
 
 export default router;

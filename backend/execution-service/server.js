@@ -29,7 +29,7 @@ import masterMapRoutes from "./src/routes/masterMap.routes.js";
 import executionDashboardRoutes from "./src/routes/executionDashboard.routes.js";
 import { DEMO_MEDIA_DIR, DEMO_MEDIA_ROUTE } from "./src/demo/demoMedia.js";
 import { startStampWorker } from "./src/services/stampQueue.service.js";
-import { readActor } from "./src/midddleware/actor.middleware.js";
+import { requireAuth } from "./src/midddleware/actor.middleware.js";
 
 dotenv.config();
 
@@ -41,8 +41,6 @@ app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 app.use(cors());
 app.use(helmet());
 app.use(morgan("dev"));
-// Who is acting (X-User-* headers) for execution history; not used for permissions
-app.use(readActor);
 
 // Health
 app.get("/health", (req, res) => {
@@ -53,7 +51,12 @@ app.get("/health", (req, res) => {
   });
 });
 
-// Mount routes (auth intentionally bypassed for now)
+// Generated photos, videos and KML of the demo block; the web portal loads them cross-origin
+// (as <img> / <video>, which can't send the token)
+app.use(DEMO_MEDIA_ROUTE, express.static(DEMO_MEDIA_DIR, { setHeaders: (res) => res.set("Cross-Origin-Resource-Policy", "cross-origin") }));
+
+// Everything below needs the auth-service login token; who is acting comes from it
+app.use("/api", requireAuth);
 app.use("/api/sections", sectionRoutes);
 app.use("/api/subsections", subSectionRoutes);
 app.use("/api/trenchings", trenchingRoutes);
@@ -64,8 +67,6 @@ app.use("/api/media", mediaRoutes);
 app.use("/api/demo", demoRoutes);
 app.use("/api/master-map", masterMapRoutes);
 app.use("/api/execution-dashboard", executionDashboardRoutes);
-// Generated photos, videos and KML of the demo block; the web portal loads them cross-origin
-app.use(DEMO_MEDIA_ROUTE, express.static(DEMO_MEDIA_DIR, { setHeaders: (res) => res.set("Cross-Origin-Resource-Policy", "cross-origin") }));
 app.use("/api", workRoutes);
 
 // Global 404

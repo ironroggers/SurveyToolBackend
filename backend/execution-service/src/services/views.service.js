@@ -22,23 +22,23 @@ export const entryStats = async (subIds) => {
   return stats;
 };
 
-// Per section: { section: { _id, name, fromNode, toNode }, block: { _id, name, district, blockCode } }
+// Per section: { section: { _id, name, fromNode, toNode, stage }, block: { _id, name, district, blockCode, frozen } }
 export const sectionContexts = async (sectionIds) => {
   const contexts = new Map();
   if (!sectionIds.length) return contexts;
   const sections = await Section.find({ _id: { $in: toIds(sectionIds) } })
-    .select("name blockProfile block district fromNode toNode")
+    .select("name blockProfile block district fromNode toNode review.stage")
     .lean();
   const profiles = await BlockProfile.find({ _id: { $in: sections.map((s) => s.blockProfile).filter(Boolean) } })
-    .select("block district blockCode")
+    .select("block district blockCode frozen")
     .lean();
   const byId = new Map(profiles.map((p) => [String(p._id), p]));
   for (const s of sections) {
     const profile = byId.get(String(s.blockProfile));
     contexts.set(String(s._id), {
-      section: { _id: s._id, name: s.name, fromNode: s.fromNode, toNode: s.toNode },
+      section: { _id: s._id, name: s.name, fromNode: s.fromNode, toNode: s.toNode, stage: s.blockProfile ? s.review?.stage || "FIELD" : undefined },
       block: profile
-        ? { _id: profile._id, name: profile.block, district: profile.district, blockCode: profile.blockCode }
+        ? { _id: profile._id, name: profile.block, district: profile.district, blockCode: profile.blockCode, frozen: Boolean(profile.frozen?.at) }
         : { name: s.block, district: s.district },
     });
   }
@@ -92,6 +92,8 @@ export const subsectionSummary = (sub, stats, context) => ({
   doneM: stats?.doneM || 0,
   entryCount: stats?.entryCount || 0,
   remark: sub.executionStatus === "REJECTED" ? sub.approval?.remark : undefined,
+  // Cluster Head / GIS Head decisions
+  review: sub.review || {},
   submittedAt: sub.executionStatus === "PENDING_APPROVAL" ? sub.end?.at : undefined,
   updatedAt: sub.updatedAt,
 });

@@ -1,5 +1,31 @@
 import mongoose from "mongoose";
 import { NODE_TYPES } from "../utils/blockNodes.js";
+import { approvalSchema, historySchema } from "./execution.schemas.js";
+
+// Where a block section is in the approval flow:
+//   FIELD:  subsections being executed and reviewed by Cluster Head + GIS Head
+//   ZONAL:  every subsection approved by both; with the Zonal Manager
+//   ADMIN:  approved by the Zonal Manager; with Admin
+//   FROZEN: approved by Admin; read-only for everyone else
+export const SECTION_STAGES = ["FIELD", "ZONAL", "ADMIN", "FROZEN"];
+
+const sectionReviewSchema = new mongoose.Schema(
+        {
+                stage: {
+                        type: String,
+                        enum: SECTION_STAGES,
+                        default: "FIELD"
+                },
+                // The latest decision at each level
+                zonal: approvalSchema,
+                admin: approvalSchema,
+                history: {
+                        type: [historySchema],
+                        default: []
+                }
+        },
+        { _id: false }
+);
 
 // One end of a block section: the block router (code: the block's LGD code) or one of its GPs (code: the GP's LGD code)
 const sectionEndSchema = new mongoose.Schema(
@@ -120,8 +146,13 @@ const sectionSchema = new mongoose.Schema({
                 type: Number,
                 default: 0
         },
+        // Block sections only; missing on older sections, which read as FIELD
+        review: sectionReviewSchema,
         others : {
                 type: mongoose.Schema.Types.Mixed,
         }
 })
+
+sectionSchema.index({ blockProfile: 1, "review.stage": 1 });
+
 export default mongoose.model("Section", sectionSchema, "Section");

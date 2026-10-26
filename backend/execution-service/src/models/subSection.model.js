@@ -146,7 +146,14 @@ const subSectionSchema = new mongoose.Schema({
     initialCondition: initialConditionSchema,
     start: executionPointSchema,
     end: executionPointSchema,
+    // The latest decision (whoever made it), shown as the status reason
     approval: approvalSchema,
+    // Cluster Head and GIS Head each review an ended subsection; it's APPROVED once both
+    // have approved. A reject keeps the other's approval, so only the rejector reviews the fix.
+    review: {
+        clusterHead: approvalSchema,
+        gisHead: approvalSchema
+    },
     history: {
         type: [historySchema],
         default: undefined

@@ -19,9 +19,10 @@ import { DEMO_MEDIA_ROUTE, makeDemoPhoto, makeDemoVideo, resetDemoMediaDir, runP
 // What it shows:
 //   Block router (the block's head node) + 6 GPs (two without infra), KML of the road route
 //   Block infra and 4 GP infra captures with described photos
-//   S1 Harippad → Karuvatta      every type of work, all approved, restoration approved
-//   S2 Karuvatta → Pallippad     all approved, restoration waiting approval (approve it)
-//   S3 Pallippad → Veeyapuram    approved, waiting approval (with flags), needs fix
+//   A team: Zonal Manager, Cluster Head, GIS Head and two Field Executives
+//   S1 Harippad → Karuvatta      every type of work, all approved, restoration approved, frozen by Admin
+//   S2 Karuvatta → Pallippad     all approved, Zonal Manager approved (with Admin), restoration waiting approval
+//   S3 Pallippad → Veeyapuram    approved, waiting approval (one approved by GIS Head only, with flags), needs fix
 //   S4 Veeyapuram → Harippad     all ended, restoration ready with one item saved (closes a ring)
 //   S5 Harippad → Cheruthana     in progress with entries, not started
 //   S6 Cheruthana → Kumarapuram  no subsections yet (create one)
@@ -36,9 +37,11 @@ const DAY = 24 * 60 * 60 * 1000;
 const HOUR = 60 * 60 * 1000;
 const oid = () => new mongoose.Types.ObjectId();
 
-const EE = { id: new mongoose.Types.ObjectId("64d0000000000000000000e1"), name: "Ravi Kumar", role: "EXECUTION ENGINEER" };
-const EE2 = { id: new mongoose.Types.ObjectId("64d0000000000000000000e2"), name: "Suresh Nair", role: "EXECUTION ENGINEER" };
-const SUP = { id: new mongoose.Types.ObjectId("64d0000000000000000000b1"), name: "Anil Menon", role: "SUPERVISOR" };
+const EE = { id: new mongoose.Types.ObjectId("64d0000000000000000000e1"), name: "Ravi Kumar", role: "FIELD EXECUTIVE" };
+const EE2 = { id: new mongoose.Types.ObjectId("64d0000000000000000000e2"), name: "Suresh Nair", role: "FIELD EXECUTIVE" };
+const SUP = { id: new mongoose.Types.ObjectId("64d0000000000000000000b1"), name: "Anil Menon", role: "CLUSTER HEAD" };
+const GIS = { id: new mongoose.Types.ObjectId("64d0000000000000000000b2"), name: "Divya Thomas", role: "GIS HEAD" };
+const ZM = { id: new mongoose.Types.ObjectId("64d0000000000000000000b3"), name: "Meera Pillai", role: "ZONAL MANAGER" };
 const ADMIN = { id: new mongoose.Types.ObjectId("64d0000000000000000000a1"), name: "Admin", role: "ADMIN" };
 const DEVICE = "Pixel 8 · Android 15";
 
@@ -180,6 +183,7 @@ export const resetDemoBlock = async ({ baseUrl }) => {
     remarks: "Demonstration block with complete sample data. Visible to admins only; Reset demo block puts it back.",
     blockRouter: { siteType: "BSNL_OWNED", latitude: ROUTER.lat, longitude: ROUTER.lng, address: "Harippad Telephone Exchange, NH 66, Harippad, Kerala 690514" },
     kmlFiles: [],
+    team: [ZM, SUP, GIS, EE, EE2].map((u) => ({ userId: u.id, name: u.name, role: u.role })),
     status: "ACTIVE",
     createdBy: ADMIN.id,
     updatedBy: ADMIN.id,
@@ -337,7 +341,28 @@ export const resetDemoBlock = async ({ baseUrl }) => {
    * One section and its subsections.
    * plan: [{ type, t0, t1, status, crossing?, remark?, flags? }]   (t = share of the way From → To)
    */
-  const buildSection = ({ name, from, to, road, area, daysAgo, plan, restoration, routeType = "NEW" }) => {
+  // The section review above the subsections: FIELD, or approved up to ADMIN / FROZEN
+  const sectionReview = (stage, daysAgo) => {
+    if (stage === "FIELD") return { stage, history: [] };
+    const forwarded = t(daysAgo + 1);
+    const zonalAt = t(daysAgo);
+    const review = {
+      stage,
+      zonal: { status: "APPROVED", by: ZM, at: zonalAt, client: "web" },
+      history: [
+        hist(forwarded, "forwarded", "All subsections approved by Cluster Head and GIS Head · sent to Zonal Manager", GIS, "web"),
+        hist(zonalAt, "approved", "Approved by Zonal Manager · sent to Admin", ZM, "web"),
+      ],
+    };
+    if (stage === "FROZEN") {
+      const adminAt = t(Math.max(daysAgo - 1, 0));
+      review.admin = { status: "APPROVED", by: ADMIN, at: adminAt, client: "web" };
+      review.history.push(hist(adminAt, "approved", "Approved by Admin · section frozen", ADMIN, "web"));
+    }
+    return review;
+  };
+
+  const buildSection = ({ name, from, to, road, area, daysAgo, plan, restoration, routeType = "NEW", stage = "FIELD" }) => {
     const fromNode = node(from);
     const toNode = node(to);
     const a = pointOfNode(fromNode);
@@ -364,6 +389,7 @@ export const resetDemoBlock = async ({ baseUrl }) => {
       routeType,
       status: plan.length ? 2 : 1,
       subSectionSeq: plan.length,
+      review: sectionReview(stage, Math.max(daysAgo - 20, 2)),
       createdAt: t(daysAgo + 2),
       updatedAt: t(1),
     };
@@ -427,14 +453,23 @@ export const resetDemoBlock = async ({ baseUrl }) => {
         sub.history.push(hist(ended, "ended", endedText(step.type), by));
         sub.__v += 2;
       }
+      // Cluster Head and GIS Head review each ended subsection
+      if (step.status === "APPROVED" || step.gisApproved) {
+        const gisAt = new Date(decided.getTime() - HOUR);
+        sub.review = { gisHead: { status: "APPROVED", by: GIS, at: gisAt, client: "web" } };
+        sub.history.push(hist(gisAt, "approved", "Approved by GIS Head · waiting for the Cluster Head", GIS, "web"));
+        sub.__v += 1;
+      }
       if (step.status === "APPROVED") {
-        sub.approval = { status: "APPROVED", by: ADMIN, at: decided, client: "web" };
-        sub.history.push(hist(decided, "approved", "Approved by Admin", ADMIN, "web"));
+        sub.review.clusterHead = { status: "APPROVED", by: SUP, at: decided, client: "web" };
+        sub.approval = sub.review.clusterHead;
+        sub.history.push(hist(decided, "approved", "Approved by Cluster Head · approved by Cluster Head and GIS Head", SUP, "web"));
         sub.__v += 1;
       }
       if (step.status === "REJECTED") {
-        sub.approval = { status: "REJECTED", by: ADMIN, at: decided, remark: step.remark, client: "web" };
-        sub.history.push(hist(decided, "rejected", `Needs fix (Admin): ${step.remark}`, ADMIN, "web", step.remark));
+        sub.approval = { status: "REJECTED", by: SUP, at: decided, remark: step.remark, client: "web" };
+        sub.review = { clusterHead: sub.approval };
+        sub.history.push(hist(decided, "rejected", `Needs fix (Cluster Head): ${step.remark}`, SUP, "web", step.remark));
         sub.__v += 1;
       }
       sub.updatedAt = sub.history[sub.history.length - 1].at;
@@ -491,7 +526,7 @@ export const resetDemoBlock = async ({ baseUrl }) => {
     { type: "ROUTE_MARKER", t0: 0, t1: 1, status },
   ];
 
-  buildSection({ name: "Harippad → Karuvatta", from: "ROUTER", to: "990101", road: "NH 66", area: "Karuvatta", daysAgo: 45, plan: ALL_TYPES("APPROVED"), restoration: { status: "APPROVED", daysAgo: 20 } });
+  buildSection({ name: "Harippad → Karuvatta", from: "ROUTER", to: "990101", road: "NH 66", area: "Karuvatta", daysAgo: 45, plan: ALL_TYPES("APPROVED"), restoration: { status: "APPROVED", daysAgo: 20 }, stage: "FROZEN" });
   buildSection({
     name: "Karuvatta → Pallippad",
     from: "990101",
@@ -505,6 +540,7 @@ export const resetDemoBlock = async ({ baseUrl }) => {
       { type: "CHAMBER", t0: 0, t1: 1, status: "APPROVED" },
     ],
     restoration: { status: "PENDING_APPROVAL", daysAgo: 6 },
+    stage: "ADMIN",
   });
   buildSection({
     name: "Pallippad → Veeyapuram",
@@ -515,7 +551,7 @@ export const resetDemoBlock = async ({ baseUrl }) => {
     daysAgo: 22,
     plan: [
       { type: "HDD", t0: 0, t1: 0.18, status: "APPROVED", crossing: "Culvert" },
-      { type: "OT", t0: 0.18, t1: 0.62, status: "PENDING_APPROVAL", flags: { mismatch: true, aboveLimit: true, upload: true } },
+      { type: "OT", t0: 0.18, t1: 0.62, status: "PENDING_APPROVAL", flags: { mismatch: true, aboveLimit: true, upload: true }, gisApproved: true },
       { type: "CLAMP", t0: 0.62, t1: 0.7, status: "REJECTED", crossing: "Bridge", remark: "Clamp photos on the bridge side are missing. Add them and resubmit." },
       { type: "OT", t0: 0.7, t1: 1, status: "PENDING_APPROVAL" },
       { type: "ROUTE_MARKER", t0: 0, t1: 1, status: "APPROVED" },

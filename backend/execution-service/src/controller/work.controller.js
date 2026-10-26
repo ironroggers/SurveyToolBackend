@@ -5,10 +5,11 @@ import Restoration from "../models/restoration.model.js";
 import Trenching from "../models/trenching.model.js";
 import { executionConfig, executionLimits } from "../config/executionTypes.js";
 import { PERMISSIONS, normalizeRole, permissionsForRole } from "../config/permissions.js";
-import { sendError } from "../utils/httpError.js";
+import { HttpError, sendError } from "../utils/httpError.js";
 import { sectionExecutionSummaries } from "../services/progress.service.js";
 import { entryStats, sectionContexts, subsectionFlags, subsectionSummary } from "../services/views.service.js";
-import { hiddenDemoSectionIds } from "../demo/demoAccess.js";
+import { actorRole, can, visibleSectionIds } from "../services/access.service.js";
+import { REVIEW_SLOTS } from "../services/review.service.js";
 
 // Most recent first; a long list is cut here and the counts say how many there are
 const GROUP_LIMIT = 200;
@@ -21,6 +22,12 @@ export const getPermissions = (req, res) => {
   const { role } = req.query;
   if (role) return res.json({ role: normalizeRole(role), actions: permissionsForRole(role) });
   res.json({ matrix: PERMISSIONS });
+};
+
+// { section: { $in: ids } } for the user's blocks, or {} when they see every block
+const visibleSections = async (req) => {
+  const ids = await visibleSectionIds(req);
+  return ids ? { section: { $in: ids } } : {};
 };
 
 const summarise = async (subs) => {
@@ -44,12 +51,10 @@ const restorationCards = async (restorations, extra = () => ({})) => {
   }));
 };
 
-// GET /api/my-work   (viewExecution) — everyone sees everything
+// GET /api/my-work   (viewExecution) — the work in the blocks the user may see
 export const getMyWork = async (req, res) => {
   try {
-    // The demo block's work is shown to ADMIN only
-    const hidden = await hiddenDemoSectionIds(req);
-    const notHidden = hidden.length ? { section: { $nin: hidden } } : {};
+    const notHidden = await visibleSections(req);
     const subsWith = (executionStatus) =>
       SubSection.find({ executionStatus, ...notHidden }).sort({ updatedAt: -1 }).limit(GROUP_LIMIT);
     const [rejected, inProgress, pending, restorations, sectionIds] = await Promise.all([
@@ -91,20 +96,31 @@ export const getMyWork = async (req, res) => {
   }
 };
 
-// GET /api/approvals?kind=&district=&blockProfile=&typeOfWork=   (approveExecution)
+// The section stage each section reviewer acts on
+const SECTION_REVIEW_STAGE = { "ZONAL MANAGER": "ZONAL", ADMIN: "ADMIN" };
+
+// GET /api/approvals?kind=&district=&blockProfile=&typeOfWork=
+// What's waiting for this user: subsections (Cluster Head, GIS Head: the ones they haven't
+// approved yet), sections (Zonal Manager at ZONAL, Admin at ADMIN) and restorations (Admin).
 export const getApprovals = async (req, res) => {
   try {
+    const slot = REVIEW_SLOTS[actorRole(req)];
+    const sectionStage = can(req, "reviewSection") ? SECTION_REVIEW_STAGE[actorRole(req)] : null;
+    const reviewsSubs = can(req, "reviewSubsection") && slot;
+    const approvesRestoration = can(req, "approveRestoration");
+    if (!reviewsSubs && !sectionStage && !approvesRestoration) throw new HttpError(403, "You don't review anything", { code: "FORBIDDEN" });
+
     const { kind, district, blockProfile, typeOfWork } = req.query;
     const sectionFilter = { blockProfile: { $exists: true } };
-    const hidden = await hiddenDemoSectionIds(req);
-    if (hidden.length) sectionFilter._id = { $nin: hidden };
+    const visible = await visibleSectionIds(req, "viewExecution");
+    if (visible) sectionFilter._id = { $in: visible };
     if (blockProfile && mongoose.isValidObjectId(blockProfile)) sectionFilter.blockProfile = blockProfile;
     if (district) sectionFilter.district = district;
     const sectionIds = (await Section.find(sectionFilter).select("_id").lean()).map((s) => s._id);
 
     let subsections = [];
-    if (kind !== "restoration") {
-      const filter = { section: { $in: sectionIds }, executionStatus: "PENDING_APPROVAL" };
+    if (reviewsSubs && (!kind || kind === "subsection")) {
+      const filter = { section: { $in: sectionIds }, executionStatus: "PENDING_APPROVAL", [`review.${slot}.status`]: { $ne: "APPROVED" } };
       if (typeOfWork) filter.typeOfWork = typeOfWork;
       // Oldest submission first
       const subs = await SubSection.find(filter).sort({ "end.at": 1 }).limit(GROUP_LIMIT);
@@ -118,8 +134,31 @@ export const getApprovals = async (req, res) => {
       });
     }
 
+    let sections = [];
+    if (sectionStage && (!kind || kind === "section")) {
+      const waiting = await Section.find({ _id: { $in: sectionIds }, "review.stage": sectionStage })
+        .select("name blockProfile sectionLength review.history review.zonal")
+        .lean();
+      const [contexts, summaries] = await Promise.all([
+        sectionContexts(waiting.map((s) => String(s._id))),
+        sectionExecutionSummaries(waiting.map((s) => s._id)),
+      ]);
+      sections = waiting
+        .map((s) => ({
+          kind: "section",
+          ...contexts.get(String(s._id)),
+          stage: sectionStage,
+          sectionLength: s.sectionLength,
+          subsectionCount: summaries.get(String(s._id))?.total || 0,
+          // When it reached this stage
+          submittedAt: [...(s.review?.history || [])].reverse().find((h) => h.type === "forwarded" || h.type === "approved")?.at,
+          zonal: s.review?.zonal,
+        }))
+        .sort((a, b) => new Date(a.submittedAt || 0) - new Date(b.submittedAt || 0));
+    }
+
     let restorations = [];
-    if (kind !== "subsection") {
+    if (approvesRestoration && (!kind || kind === "restoration")) {
       const pending = await Restoration.find({ section: { $in: sectionIds }, status: "PENDING_APPROVAL" })
         .sort({ submittedAt: 1 })
         .lean();
@@ -145,8 +184,14 @@ export const getApprovals = async (req, res) => {
 
     res.json({
       subsections,
+      sections,
       restorations,
-      counts: { subsections: subsections.length, restorations: restorations.length, total: subsections.length + restorations.length },
+      counts: {
+        subsections: subsections.length,
+        sections: sections.length,
+        restorations: restorations.length,
+        total: subsections.length + sections.length + restorations.length,
+      },
     });
   } catch (error) {
     sendError(res, error);

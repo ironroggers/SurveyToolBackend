@@ -1,10 +1,13 @@
 import BlockProfile, { GEOGRAPHY_FIELDS, MAX_RINGS, ringCodes } from "../models/blockProfile.model.js";
 import Section from "../models/section.model.js";
-import { PERMISSIONS, normalizeRole, permissionsForRole } from "../config/permissions.js";
+import mongoose from "mongoose";
+import { PERMISSIONS, TEAM_ROLES, normalizeRole, permissionsForRole } from "../config/permissions.js";
 import { deleteS3Object } from "../utils/s3.js";
 import { findBlockNode, formatLatLong } from "../utils/blockNodes.js";
 import { blockProgress } from "../services/progress.service.js";
-import { demoBlockFilter, seesDemo } from "../demo/demoAccess.js";
+import { actorRole, blockFilter, isAdmin } from "../services/access.service.js";
+import { actorOf } from "../services/execution.service.js";
+import { HttpError } from "../utils/httpError.js";
 
 // Fields clients may set on create/update. KML files have their own routes.
 const EDITABLE_FIELDS = [
@@ -49,6 +52,9 @@ const editableFields = (body) => {
 const escapeRegex = (value) => String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 const sendError = (res, error) => {
+  if (error instanceof HttpError) {
+    return res.status(error.status).json({ message: error.message, code: error.code, errors: error.errors });
+  }
   if (error.code === 11000) {
     const code = error.keyValue?.blockCode;
     return res.status(409).json({ message: `A block profile with LGD code ${code} already exists` });
@@ -119,7 +125,7 @@ export const getBlockProfilePermissions = (req, res) => {
 export const getBlockProfiles = async (req, res) => {
   try {
     const { page = 1, limit = 20, q, status, district } = req.query;
-    const filter = { ...demoBlockFilter(req) };
+    const filter = blockFilter(req, "viewBlockProfile");
     // Deactivated profiles stay hidden unless asked for; status=ALL returns everything
     if (!status) filter.status = { $ne: "INACTIVE" };
     else if (status !== "ALL") filter.status = status;
@@ -154,18 +160,17 @@ export const getBlockProfiles = async (req, res) => {
 // GET /api/block-profiles/districts — for the Blocks list's district filter
 export const getDistricts = async (req, res) => {
   try {
-    const districts = await BlockProfile.distinct("district", { status: { $ne: "INACTIVE" }, ...demoBlockFilter(req) });
+    const districts = await BlockProfile.distinct("district", { status: { $ne: "INACTIVE" }, ...blockFilter(req, "viewBlockProfile") });
     res.json({ items: districts.filter(Boolean).sort((a, b) => a.localeCompare(b)) });
   } catch (error) {
     sendError(res, error);
   }
 };
 
+// The route's guard has loaded and checked the profile (req.access)
 export const getBlockProfileById = async (req, res) => {
   try {
-    const profile = await BlockProfile.findById(req.params.id);
-    if (!profile || (profile.isDemo && !seesDemo(req))) return res.status(404).json({ message: "Block profile not found" });
-    await respondWithProfile(res, profile);
+    await respondWithProfile(res, req.access.profile);
   } catch (error) {
     sendError(res, error);
   }
@@ -173,10 +178,12 @@ export const getBlockProfileById = async (req, res) => {
 
 export const createBlockProfile = async (req, res) => {
   try {
-    // createdBy comes from the client until auth lands; then it will be req.user.id
-    const { createdBy } = req.body || {};
+    const createdBy = req.actor.id;
+    // A Zonal Manager who creates a block is on its team, so they can go on working on it
+    const team = actorRole(req) === "ZONAL MANAGER" && createdBy ? [{ userId: createdBy, name: req.actor.name, role: "ZONAL MANAGER" }] : [];
     const profile = await BlockProfile.create({
       ...editableFields(req.body),
+      team,
       createdBy,
       updatedBy: createdBy,
     });
@@ -188,15 +195,13 @@ export const createBlockProfile = async (req, res) => {
 
 export const updateBlockProfile = async (req, res) => {
   try {
-    const profile = await BlockProfile.findById(req.params.id);
-    if (!profile) return res.status(404).json({ message: "Block profile not found" });
-
+    const { profile } = req.access;
     const updates = editableFields(req.body);
     const geographyChanged = GEOGRAPHY_FIELDS.some(
       (field) => field in updates && String(updates[field] ?? "") !== String(profile[field] ?? "")
     );
     profile.set(updates);
-    if (req.body.updatedBy) profile.updatedBy = req.body.updatedBy;
+    profile.updatedBy = req.actor.id;
     await profile.save();
 
     // Sections keep a copy of the block's names and codes, so refresh them
@@ -214,10 +219,7 @@ export const updateBlockProfile = async (req, res) => {
 // Soft delete: the profile is set INACTIVE and keeps its sections
 export const deleteBlockProfile = async (req, res) => {
   try {
-    const profile = await BlockProfile.findById(req.params.id);
-    if (!profile) return res.status(404).json({ message: "Block profile not found" });
-
-    // Only ADMIN may deactivate (and so force). With auth off, the clients enforce that.
+    const { profile } = req.access;
     const sectionCount = await Section.countDocuments({ blockProfile: profile._id });
     if (sectionCount > 0 && req.query.force !== "true") {
       return res.status(409).json({
@@ -227,7 +229,7 @@ export const deleteBlockProfile = async (req, res) => {
     }
 
     profile.status = "INACTIVE";
-    if (req.query.updatedBy) profile.updatedBy = req.query.updatedBy;
+    profile.updatedBy = req.actor.id;
     await profile.save({ validateModifiedOnly: true });
     await respondWithProfile(res, profile);
   } catch (error) {
@@ -238,14 +240,12 @@ export const deleteBlockProfile = async (req, res) => {
 // The file itself is uploaded to S3 through POST /api/uploads/presign first
 export const addKmlFile = async (req, res) => {
   try {
-    const { name, url, s3Key, sizeBytes, uploadedBy } = req.body || {};
+    const { name, url, s3Key, sizeBytes } = req.body || {};
     if (!/^https?:\/\//i.test(url || "")) {
       return res.status(400).json({ message: "A KML file URL (http or https) is required" });
     }
-    const profile = await BlockProfile.findById(req.params.id);
-    if (!profile) return res.status(404).json({ message: "Block profile not found" });
-
-    profile.kmlFiles.push({ name, url, s3Key, sizeBytes, uploadedBy, uploadedAt: new Date() });
+    const { profile } = req.access;
+    profile.kmlFiles.push({ name, url, s3Key, sizeBytes, uploadedBy: req.actor.id, uploadedAt: new Date() });
     await profile.save({ validateModifiedOnly: true });
     await respondWithProfile(res, profile, 201);
   } catch (error) {
@@ -255,8 +255,7 @@ export const addKmlFile = async (req, res) => {
 
 export const removeKmlFile = async (req, res) => {
   try {
-    const profile = await BlockProfile.findById(req.params.id);
-    if (!profile) return res.status(404).json({ message: "Block profile not found" });
+    const { profile } = req.access;
     const file = profile.kmlFiles.id(req.params.fileId);
     if (!file) return res.status(404).json({ message: "KML file not found" });
 
@@ -265,6 +264,63 @@ export const removeKmlFile = async (req, res) => {
 
     // Best effort: the record is already gone, so a failed delete only leaves an orphaned object
     deleteS3Object(file.s3Key).catch((error) => console.error("[block-profiles] S3 delete failed:", file.s3Key, error.message));
+    await respondWithProfile(res, profile);
+  } catch (error) {
+    sendError(res, error);
+  }
+};
+
+const teamKey = (m) => `${m.role}:${m.userId}`;
+
+// The team as sent: [{ userId, name, role }], each user once per role
+const cleanTeam = (input) => {
+  if (!Array.isArray(input)) throw new HttpError(400, "Send the team as a list", { errors: { team: "Send the team as a list" } });
+  const seen = new Map();
+  input.forEach((m, index) => {
+    const role = normalizeRole(m?.role);
+    const userId = String(m?.userId || "");
+    if (!TEAM_ROLES.includes(role)) {
+      throw new HttpError(400, `Team role must be one of ${TEAM_ROLES.join(", ")}`, { errors: { [`team.${index}.role`]: "Pick a role" } });
+    }
+    if (!mongoose.isValidObjectId(userId)) {
+      throw new HttpError(400, "Pick a user", { errors: { [`team.${index}.userId`]: "Pick a user" } });
+    }
+    const member = { userId, name: String(m?.name || "").trim() || undefined, role };
+    seen.set(teamKey(member), member);
+  });
+  return [...seen.values()];
+};
+
+// PUT /api/block-profiles/:id/team   (manageTeam)
+// Admin sets the whole team; a Zonal Manager sets everyone but the Zonal Managers.
+export const updateBlockTeam = async (req, res) => {
+  try {
+    const { profile } = req.access;
+    const team = cleanTeam(req.body?.team);
+    if (!isAdmin(req)) {
+      const zonal = (list) => list.filter((m) => m.role === "ZONAL MANAGER").map(teamKey).sort().join(",");
+      if (zonal(team) !== zonal(profile.team.map((m) => ({ userId: String(m.userId), role: m.role })))) {
+        throw new HttpError(403, "Only Admin can change the Zonal Managers", { code: "FORBIDDEN" });
+      }
+    }
+    profile.team = team;
+    profile.updatedBy = req.actor.id;
+    await profile.save({ validateModifiedOnly: true });
+    await respondWithProfile(res, profile);
+  } catch (error) {
+    sendError(res, error);
+  }
+};
+
+// POST /api/block-profiles/:id/freeze   (freezeBlock)
+// From then on only Admin can change anything in the block
+export const freezeBlockProfile = async (req, res) => {
+  try {
+    const { profile } = req.access;
+    if (profile.frozen?.at) throw new HttpError(409, "This block is already frozen", { code: "FROZEN" });
+    profile.frozen = { at: new Date(), by: actorOf(req) };
+    profile.updatedBy = req.actor.id;
+    await profile.save({ validateModifiedOnly: true });
     await respondWithProfile(res, profile);
   } catch (error) {
     sendError(res, error);
