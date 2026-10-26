@@ -8,7 +8,7 @@ import Restoration from "../models/restoration.model.js";
 import { notFound, sendError } from "../utils/httpError.js";
 import { calculatedLengthOf, parseLatLong, pointOf } from "../utils/geo.js";
 import { sectionExecutionSummaries } from "../services/progress.service.js";
-import { ROUTER_NAME } from "../utils/blockNodes.js";
+import { routerName } from "../utils/blockNodes.js";
 import { miscItemsOf, photosOf } from "../config/infraEquipment.js";
 
 // Everything of a block that has a place on the map, in one response, for the block
@@ -97,7 +97,7 @@ export const buildBlockMap = async (profile) => {
 
   // ---- infra
   const infra = captures.map((c) => {
-    const name = c.level === "BLOCK" ? ROUTER_NAME : gpName.get(c.gpLgdCode) || c.gpLgdCode;
+    const name = c.level === "BLOCK" ? routerName(profile) : gpName.get(c.gpLgdCode) || c.gpLgdCode;
     const kind = c.level === "BLOCK" ? "BLOCK_INFRA" : "GP_INFRA";
     (c.photos || []).forEach((p) =>
       push(p.media, { kind, label: c.level === "BLOCK" ? "Block infra" : `GP infra · ${name}`, description: p.description || p.media?.description, gpLgdCode: c.gpLgdCode })
@@ -227,7 +227,7 @@ export const buildBlockMap = async (profile) => {
 // GET /api/block-profiles/:id/map   (viewExecution)
 export const getBlockMap = async (req, res) => {
   try {
-    const profile = await BlockProfile.findById(req.params.id).select("block blockCode gps").lean();
+    const profile = await BlockProfile.findById(req.params.id).select("block blockCode gps blockRouter.name").lean();
     if (!profile) throw notFound("Block profile not found");
     res.json(await buildBlockMap(profile));
   } catch (error) {

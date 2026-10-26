@@ -5,11 +5,14 @@
 export const NODE_TYPES = ["ROUTER", "GP"];
 export const ROUTER_NAME = "Block router";
 
+// The router's own name when the block profile gives one, else "Block router"
+export const routerName = (profile) => String(profile?.blockRouter?.name || "").trim() || ROUTER_NAME;
+
 // The block router as a node
 export const routerNode = (profile) => ({
   type: "ROUTER",
   code: profile.blockCode,
-  name: ROUTER_NAME,
+  name: routerName(profile),
   latitude: profile.blockRouter?.latitude,
   longitude: profile.blockRouter?.longitude,
 });

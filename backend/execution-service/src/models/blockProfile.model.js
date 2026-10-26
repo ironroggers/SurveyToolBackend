@@ -198,6 +198,10 @@ const blockProfileSchema = new mongoose.Schema(
                 // The block's head node: sections start here and the block infra is captured here.
                 // As a node it is { type: "ROUTER", code: blockCode } (utils/blockNodes.js).
                 blockRouter: {
+                        name: {
+                                type: String,
+                                trim: true
+                        },
                         siteType: {
                                 type: String,
                                 enum: {

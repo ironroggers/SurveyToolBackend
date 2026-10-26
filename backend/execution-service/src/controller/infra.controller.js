@@ -6,7 +6,7 @@ import { conflict, failIfErrors, notFound, sendError } from "../utils/httpError.
 import { distanceM, pointOf, round } from "../utils/geo.js";
 import { actorOf, checkVersion, cleanFix, cleanMedia } from "../services/execution.service.js";
 import { queueStampsFor } from "../services/stampQueue.service.js";
-import { ROUTER_NAME } from "../utils/blockNodes.js";
+import { routerName } from "../utils/blockNodes.js";
 
 // Block router and GP infra: a GPS location and 1–4 photos, each with an optional description.
 // Editable after saving.
@@ -24,7 +24,7 @@ const findGp = (profile, lgdCode) => {
 };
 
 // The block-level capture is at the block router
-const routerTarget = (profile) => ({ name: ROUTER_NAME, code: profile.blockCode, latitude: profile.blockRouter?.latitude, longitude: profile.blockRouter?.longitude });
+const routerTarget = (profile) => ({ name: routerName(profile), code: profile.blockCode, latitude: profile.blockRouter?.latitude, longitude: profile.blockRouter?.longitude });
 
 const target = (place, code) => ({
   name: place?.name,

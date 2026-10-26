@@ -7,7 +7,7 @@ import { conflict, failIfErrors, notFound, sendError } from "../utils/httpError.
 import { pointOf } from "../utils/geo.js";
 import { actorOf, checkVersion, cleanMedia } from "../services/execution.service.js";
 import { queueStampsFor } from "../services/stampQueue.service.js";
-import { ROUTER_NAME } from "../utils/blockNodes.js";
+import { routerName } from "../utils/blockNodes.js";
 
 // Equipment sheets (src/config/infraEquipment.js), filled on the web after the block
 // exists: block once per block, gp once per GP, misc once per block and once per GP.
@@ -184,7 +184,7 @@ const geography = (profile) => ({
 
 // Places a GP can name as its previous / next node
 const nodes = (profile) => [
-  { name: ROUTER_NAME, code: profile.blockCode, kind: "ROUTER" },
+  { name: routerName(profile), code: profile.blockCode, kind: "ROUTER" },
   ...(profile.gps || []).map((g) => ({ name: g.name, code: g.lgdCode, kind: "GP" })),
 ];
 
