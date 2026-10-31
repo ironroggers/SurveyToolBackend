@@ -126,7 +126,7 @@ export const updateProfile = async (req, res, next) => {
 export const getPotentialManagers = async (req, res, next) => {
   try {
     const managers = await User.find({
-      role: { $in: ['SUPERVISOR', 'ADMIN'] },
+      role: { $in: ['SUPERVISOR', 'ADMIN', 'ZONAL MANAGER', 'CLUSTER HEAD'] },
       status: 1
     }).select('_id username email role');
 
