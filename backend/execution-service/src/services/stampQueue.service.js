@@ -129,6 +129,8 @@ export const startStampWorker = async () => {
     console.warn("[stamp] S3 isn't configured; uploaded media won't be stamped");
     return;
   }
+  // Files that failed while stamping needed ffmpeg's drawtext get another go
+  await MediaStamp.updateMany({ status: "FAILED", error: /drawtext/ }, { $set: { status: "PENDING", attempts: 0, error: null } });
   await MediaStamp.updateMany({ status: "PROCESSING", startedAt: { $lt: new Date(Date.now() - 1000) } }, { $set: { status: "PENDING" } });
   timer = setInterval(() => {
     // A job stuck in PROCESSING for long (killed ffmpeg) goes back to the queue
@@ -141,12 +143,19 @@ export const startStampWorker = async () => {
 
 /**
  * Make sure a file is stamped before it's downloaded: stamps it now when its job is
- * still waiting. Returns the job (or null for media this service doesn't stamp).
+ * still waiting or failed. Returns the job (or null for media this service doesn't stamp).
  */
 export const ensureStamped = async (s3Key, { waitMs = 120000 } = {}) => {
   const started = Date.now();
+  let retried = false;
   for (;;) {
     const job = await MediaStamp.findOne({ s3Key });
+    // A file that failed gets one more go before the download is refused
+    if (job?.status === "FAILED" && !retried) {
+      retried = true;
+      await MediaStamp.updateOne({ _id: job._id, status: "FAILED" }, { $set: { status: "PENDING", attempts: 0 } });
+      continue;
+    }
     if (!job || job.status === "DONE" || job.status === "FAILED") return job;
     if (job.status === "PENDING") {
       await runOne({ _id: job._id, status: "PENDING" });

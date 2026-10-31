@@ -7,19 +7,42 @@ import Trenching from "../models/trenching.model.js";
 import InfraCapture from "../models/infraCapture.model.js";
 import InfraEquipment from "../models/infraEquipment.model.js";
 import Restoration from "../models/restoration.model.js";
+import mongoose from "mongoose";
 import { badRequest, conflict, notFound, sendError } from "../utils/httpError.js";
 import { getObjectStream, keyFromUrl } from "../utils/s3.js";
 import { collectMedia, ensureStamped, queueStamps } from "../services/stampQueue.service.js";
+
+const POINT_MEDIA = ["photos", "video", "pit.photos", "pit.video", "pit.refs.photos", "pit.refs.video"];
+const SUBSECTION_MEDIA = [
+  "initialCondition.photos",
+  "initialCondition.video",
+  "initialCondition.crossingPhotos",
+  ...POINT_MEDIA.flatMap((p) => [`start.${p}`, `end.${p}`]),
+];
+
+// Survey and HOTO files are never stamped when saved (those services don't stamp), so they
+// are stamped on first download; they carry no s3Key, the URL gives it
+const findUnstampedFormMedia = async (url, s3Key) => {
+  const query = { $or: [{ "mediaFiles.url": url }, { "fields.mediaFiles.url": url }] };
+  const docs = await Promise.all(["Survey", "hotos"].map((name) => mongoose.connection.collection(name).findOne(query)));
+  for (const doc of docs) {
+    const media = doc && collectMedia(doc).find((m) => m.url === url);
+    if (media) return { ...media, s3Key };
+  }
+  return null;
+};
 
 // The MediaFile with this URL, wherever the execution flow stored it
 const findMediaByUrl = async (url) => {
   const docs = await Promise.all([
     Trenching.findOne({ "mediaFiles.url": url }).lean(),
     SubSection.findOne({
-      $or: ["initialCondition.photos", "initialCondition.video", "start.photos", "start.video", "end.photos", "end.video"].map((p) => ({ [`${p}.url`]: url })),
+      $or: SUBSECTION_MEDIA.map((p) => ({ [`${p}.url`]: url })),
     }).lean(),
     InfraCapture.findOne({ "photos.media.url": url }).lean(),
-    InfraEquipment.findOne({ "geoPhoto.url": url }).lean(),
+    InfraEquipment.findOne({
+      $or: ["geoPhoto", "geoPhotos", "items.geoPhoto", "items.geoPhotos"].map((p) => ({ [`${p}.url`]: url })),
+    }).lean(),
     Restoration.findOne({ $or: [{ "items.photos.url": url }, { "items.video.url": url }] }).lean(),
   ]);
   for (const doc of docs) {
@@ -67,13 +90,14 @@ export const downloadMedia = async (req, res) => {
 
     let job = await ensureStamped(key);
     if (!job) {
-      const media = await findMediaByUrl(url);
+      const media = (await findMediaByUrl(url)) || (await findUnstampedFormMedia(url, key));
       if (!media) throw notFound("File not found");
       if (media.s3Key) {
         await queueStamps([media]);
         job = await ensureStamped(key);
       }
     }
+    if (job?.status === "FAILED") throw conflict("Couldn't add the location stamp to this file. Try again later.", "STAMP_FAILED");
     if (job?.status === "PROCESSING") throw conflict("Still adding the location stamp. Try again in a minute.", "STAMPING");
 
     const object = await getObjectStream(key);

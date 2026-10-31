@@ -6,9 +6,11 @@ import path from "node:path";
 import ffmpegPath from "ffmpeg-static";
 import sharp from "sharp";
 
-// Burns the location stamp into a photo or video with ffmpeg: a dark band at the bottom
-// with the place, the full address, Lat, Long, the IST date and time, and accuracy /
-// device. Same look for both, and for every client.
+// Burns the location stamp into a photo or video: a dark band at the bottom with the place,
+// the full address, Lat, Long, the IST date and time, and accuracy / device. Same look for
+// both, and for every client. The stamp is drawn with sharp and laid over the frame, because
+// the Linux ffmpeg-static build has no drawtext filter. sharp also shapes Indian scripts,
+// which the Dockerfile's Noto fonts cover. The GPS position also goes in the file's metadata.
 
 const require = createRequire(import.meta.url);
 export const FONT = require.resolve("dejavu-fonts-ttf/ttf/DejaVuSans.ttf");
@@ -96,7 +98,106 @@ export const stampLines = (meta, maxChars) => {
   return lines;
 };
 
-// ---- geometry: the filter graph for a frame of width W and height H
+// ---- the stamp as a transparent image the size of the frame
+
+const escapeMarkup = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+const textImage = async (value, size, bold, maxWidth) => {
+  const png = await sharp({
+    text: {
+      text: `<span foreground="white">${escapeMarkup(value)}</span>`,
+      font: `DejaVu Sans${bold ? " Bold" : ""} ${size}`,
+      fontfile: bold ? FONT_BOLD : FONT,
+      rgba: true,
+      dpi: 72,
+    },
+  })
+    .png()
+    .toBuffer();
+  const { width, height } = await sharp(png).metadata();
+  if (width <= maxWidth) return { input: png, width, height };
+  return { input: await sharp(png).extract({ left: 0, top: 0, width: maxWidth, height }).png().toBuffer(), width: maxWidth, height };
+};
+
+const panel = (width, height) =>
+  sharp({ create: { width, height, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 0.55 } } }).png().toBuffer();
+
+export const stampOverlay = async (W, H, meta) => {
+  const fs = Math.max(12, Math.round(Math.min(W, H) * 0.03));
+  const margin = Math.round(Math.min(W, H) * 0.02);
+  const pad = Math.round(fs * 0.7);
+  const boxW = W - margin * 2;
+  // DejaVu Sans averages about 0.55 em per character
+  const maxChars = Math.max(16, Math.floor((boxW - pad * 2) / (fs * 0.56)));
+  const lines = stampLines(meta, maxChars);
+  const heights = lines.map((l) => Math.round(fs * (l.scale || 1) * 1.38));
+  const boxH = Math.min(H, pad * 2 + heights.reduce((a, b) => a + b, 0));
+  const boxY = Math.max(0, H - margin - boxH);
+  const layers = [{ input: await panel(boxW, boxH), left: margin, top: boxY }];
+
+  let y = boxY + pad;
+  for (let i = 0; i < lines.length; i += 1) {
+    const l = lines[i];
+    if (y >= H) break;
+    const line = await textImage(l.text, Math.round(fs * (l.scale || 1)), l.bold, boxW - pad * 2);
+    const room = H - y;
+    const input = line.height > room ? await sharp(line.input).extract({ left: 0, top: 0, width: line.width, height: room }).png().toBuffer() : line.input;
+    layers.push({ input, left: margin + pad, top: y });
+    y += heights[i];
+  }
+
+  // App badge at the top right of the band, like a camera app's watermark
+  const badgeSize = Math.round(fs * 0.85);
+  const badgePad = Math.round(badgeSize * 0.45);
+  const badge = await textImage(BADGE, badgeSize, true, boxW - badgePad * 2);
+  const badgeW = badge.width + badgePad * 2;
+  const badgeH = badge.height + badgePad * 2;
+  const badgeY = boxY - badgeH - Math.round(margin / 2);
+  if (badgeY >= 0) {
+    const badgeX = W - margin - badgeW;
+    layers.push({ input: await panel(badgeW, badgeH), left: badgeX, top: badgeY });
+    layers.push({ input: badge.input, left: badgeX + badgePad, top: badgeY + badgePad });
+  }
+
+  return sharp({ create: { width: W, height: H, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 0 } } }).composite(layers).png().toBuffer();
+};
+
+// ---- the GPS position in the file's metadata
+
+const hasPosition = (meta) => Number.isFinite(Number(meta.latitude)) && Number.isFinite(Number(meta.longitude));
+
+// 9.981634 -> "9/1 58/1 5382/100"
+const exifCoord = (value) => {
+  const abs = Math.abs(value);
+  const degrees = Math.floor(abs);
+  const minutes = Math.floor((abs - degrees) * 60);
+  const seconds = Math.round(((abs - degrees) * 60 - minutes) * 60 * 100);
+  return `${degrees}/1 ${minutes}/1 ${seconds}/100`;
+};
+
+const gpsExif = (meta) => {
+  const lat = Number(meta.latitude);
+  const lng = Number(meta.longitude);
+  return {
+    IFD3: {
+      GPSLatitudeRef: lat < 0 ? "S" : "N",
+      GPSLatitude: exifCoord(lat),
+      GPSLongitudeRef: lng < 0 ? "W" : "E",
+      GPSLongitude: exifCoord(lng),
+    },
+  };
+};
+
+// ISO 6709, as phones write it: "+09.981634+076.299900/"
+const iso6709 = (meta) => {
+  const part = (value, width) => {
+    const n = Number(value);
+    return `${n < 0 ? "-" : "+"}${Math.abs(n).toFixed(6).padStart(width, "0")}`;
+  };
+  return `${part(meta.latitude, 9)}${part(meta.longitude, 10)}/`;
+};
+
+// ---- geometry: the ffmpeg filter graph for the demo block's generated media
 
 export const buildFilter = async (dir, W, H, meta) => {
   const fs = Math.max(12, Math.round(Math.min(W, H) * 0.03));
@@ -171,20 +272,22 @@ const probe = async (file) => {
 export const stampFile = async ({ input, fileType, meta, dir }) => {
   if (fileType === "VIDEO") {
     const { W, H } = await probe(input);
-    const filter = await buildFilter(dir, W, H, meta);
+    const overlay = path.join(dir, "stamp.png");
+    await writeFile(overlay, await stampOverlay(W, H, meta));
     const output = path.join(dir, "stamped.mp4");
+    const position = hasPosition(meta) ? ["-metadata", `com.apple.quicktime.location.ISO6709=${iso6709(meta)}`] : [];
     await runFfmpeg(
-      ["-hide_banner", "-y", "-i", input, "-vf", filter, "-c:v", "libx264", "-preset", "veryfast", "-crf", "23", "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "128k", "-movflags", "+faststart", output],
+      ["-hide_banner", "-y", "-i", input, "-i", overlay, "-filter_complex", "[0:v][1:v]overlay=0:0[v]", "-map", "[v]", "-map", "0:a?", "-c:v", "libx264", "-preset", "veryfast", "-crf", "23", "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "128k", ...position, "-movflags", "+faststart+use_metadata_tags", output],
       10 * 60 * 1000
     );
     return { output, contentType: "video/mp4" };
   }
   // Apply EXIF orientation first so the band ends up at the bottom of the picture as seen
-  const oriented = path.join(dir, "oriented.png");
-  const info = await sharp(input).rotate().png().toFile(oriented);
-  const filter = await buildFilter(dir, info.width, info.height, meta);
+  const oriented = await sharp(input).rotate().png().toBuffer();
+  const { width, height } = await sharp(oriented).metadata();
   const output = path.join(dir, "stamped.jpg");
-  await runFfmpeg(["-hide_banner", "-y", "-i", oriented, "-vf", filter, "-q:v", "3", output], 2 * 60 * 1000);
+  const stamped = sharp(oriented).composite([{ input: await stampOverlay(width, height, meta) }]).jpeg({ quality: 88 });
+  await (hasPosition(meta) ? stamped.withExif(gpsExif(meta)) : stamped).toFile(output);
   return { output, contentType: "image/jpeg" };
 };
 
