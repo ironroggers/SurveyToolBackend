@@ -347,40 +347,37 @@ export const entryView = (doc) => {
 const plainPit = (pit) => (pit?.toObject ? pit.toObject() : pit);
 
 /**
- * A pit this subsection's start or end can reuse from a neighbour in the same section:
- * - start: the end pit of a subsection that ended where this one starts;
- * - end: the start pit of a subsection that already started where this one ends.
- * "Where" is the neighbour's planned point or its recorded pit, whichever is nearer, within
- * pitSuggestionRadiusM of this subsection's planned From (start) or To (end); nearest first.
+ * A pit this subsection's start or end can reuse: the nearest start or end pit already
+ * recorded on another subsection, within pitSuggestionRadiusM of `at` (where the user is
+ * now) or, without it, this subsection's planned From (start) or To (end).
  * Everything recorded comes along: location, the three reference points and all photos
  * and video, so nothing has to be captured twice.
  */
-export const pitSuggestion = (sub, others, which = "start") => {
-  const isStart = which === "start";
-  const here = parseLatLong(isStart ? sub.fromLatLong : sub.toLatLong);
+export const pitSuggestion = (sub, others, which = "start", at = null) => {
+  const here = at || parseLatLong(which === "start" ? sub.fromLatLong : sub.toLatLong);
   if (!here || !isDucting(sub.typeOfWork)) return null;
   const { pitSuggestionRadiusM } = executionLimits();
-  // Start reuses a neighbour's end pit; end reuses a neighbour's start pit
-  const theirs = isStart ? "end" : "start";
   const nearest = others
-    .filter((other) => String(other._id) !== String(sub._id) && other[theirs]?.pit?.latitude != null)
-    .map((other) => {
-      const pit = other[theirs].pit;
-      const planned = parseLatLong(isStart ? other.toLatLong : other.fromLatLong);
-      const distance = Math.min(planned ? distanceM(planned, here) : Infinity, distanceM({ lat: pit.latitude, lng: pit.longitude }, here));
-      return { other, distance };
-    })
+    .filter((other) => String(other._id) !== String(sub._id))
+    .flatMap((other) =>
+      ["start", "end"]
+        .filter((side) => other[side]?.pit?.latitude != null)
+        .map((side) => {
+          const { latitude, longitude } = other[side].pit;
+          return { other, side, distance: distanceM({ lat: latitude, lng: longitude }, here) };
+        })
+    )
     .filter(({ distance }) => distance <= pitSuggestionRadiusM)
     .sort((a, b) => a.distance - b.distance)[0];
   if (!nearest) return null;
-  const { other, distance } = nearest;
-  const { copiedFrom: _copiedFrom, ...pit } = plainPit(other[theirs].pit);
+  const { other, side, distance } = nearest;
+  const { copiedFrom: _copiedFrom, ...pit } = plainPit(other[side].pit);
   return {
     which,
     subSection: other._id,
     name: other.name,
-    // Which of the neighbour's pits it is: its end (B) for a start, its start (A) for an end
-    pitLabel: EXECUTION_TYPES[other.typeOfWork]?.[isStart ? "pitB" : "pitA"],
+    // Which of the neighbour's pits it is: its start (A) or its end (B)
+    pitLabel: EXECUTION_TYPES[other.typeOfWork]?.[side === "start" ? "pitA" : "pitB"],
     distanceM: round(distance, 1),
     pit: { ...pit, refs: pit.refs || [], copiedFrom: other._id },
   };

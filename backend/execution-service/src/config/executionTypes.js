@@ -142,7 +142,7 @@ export const executionLimits = () => ({
   videoMaxSec: envNumber("EXEC_VIDEO_MAX_SEC", 60),
   gpsSampleSec: 10,
   refPointCount: 3,
-  pitSuggestionRadiusM: 50,
+  pitSuggestionRadiusM: 3,
   planDeviationPct: 10,
   // Warn when |tape − GPS| > max(minM, pct × GPS distance)
   tapeMismatch: { minM: 3, pct: 0.5 },

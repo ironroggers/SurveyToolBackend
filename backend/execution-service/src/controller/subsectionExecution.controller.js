@@ -3,7 +3,7 @@ import SubSection from "../models/subSection.model.js";
 import Trenching from "../models/trenching.model.js";
 import { EXECUTION_TYPES } from "../config/executionTypes.js";
 import { HttpError, badRequest, conflict, notFound, sendError } from "../utils/httpError.js";
-import { formatLatLong } from "../utils/geo.js";
+import { formatLatLong, isValidPoint } from "../utils/geo.js";
 import { subsectionName } from "../utils/subsectionName.js";
 import {
   actorOf,
@@ -101,16 +101,24 @@ export const createExecutionSubsection = async (req, res) => {
   }
 };
 
-// GET /api/subsections/:id/pit-suggestion?which=start|end   (viewExecution)
-// A neighbour's pit this start / end can reuse (see pitSuggestion)
+// Subsections of the same block with a recorded pit: adjoining sections can share one
+const subsWithPits = async (sub) => {
+  const { blockProfile } = (await Section.findById(sub.section).select("blockProfile")) || {};
+  const sections = blockProfile ? await Section.find({ blockProfile }).distinct("_id") : [sub.section];
+  return SubSection.find({
+    section: { $in: sections },
+    $or: [{ "start.pit.latitude": { $exists: true } }, { "end.pit.latitude": { $exists: true } }],
+  }).select("name typeOfWork start.pit end.pit");
+};
+
+// GET /api/subsections/:id/pit-suggestion?which=start|end&lat=&lng=   (viewExecution)
+// A pit this start / end can reuse (see pitSuggestion); lat and lng say where the user is
 export const getPitSuggestion = async (req, res) => {
   try {
     const which = req.query.which === "end" ? "end" : "start";
     const sub = await loadExecutionSub(req.params.id);
-    const others = await SubSection.find({ section: sub.section, [`${which === "start" ? "end" : "start"}.pit.latitude`]: { $exists: true } }).select(
-      "name typeOfWork fromLatLong toLatLong start.pit end.pit"
-    );
-    res.json({ suggestion: pitSuggestion(sub, others, which) });
+    const at = { lat: parseFloat(req.query.lat), lng: parseFloat(req.query.lng) };
+    res.json({ suggestion: pitSuggestion(sub, await subsWithPits(sub), which, isValidPoint(at.lat, at.lng) ? at : null) });
   } catch (error) {
     sendError(res, error);
   }
@@ -120,10 +128,7 @@ export const getPitSuggestion = async (req, res) => {
 export const getStartPitSuggestion = async (req, res) => {
   try {
     const sub = await loadExecutionSub(req.params.id);
-    const others = await SubSection.find({ section: sub.section, "end.pit.latitude": { $exists: true } }).select(
-      "name typeOfWork toLatLong end.pit"
-    );
-    res.json({ suggestion: startPitSuggestion(sub, others) });
+    res.json({ suggestion: startPitSuggestion(sub, await subsWithPits(sub)) });
   } catch (error) {
     sendError(res, error);
   }
