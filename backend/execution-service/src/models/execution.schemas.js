@@ -90,6 +90,43 @@ export const referencePointSchema = new mongoose.Schema(
         { _id: false }
 );
 
+// A pit merged with nearby pits to close a gap (services/pitMerge.service.js)
+const pitMergeSchema = new mongoose.Schema(
+        {
+                // Shared by every pit of the merge
+                id: mongoose.Schema.Types.ObjectId,
+                at: Date,
+                by: actorSchema,
+                // "HDD-001 ending pit": whose location was kept
+                keptFrom: String,
+                // Where this pit was captured, restored on undo
+                original: {
+                        latitude: Number,
+                        longitude: Number,
+                        accuracy: Number,
+                        accuracyAboveLimit: Boolean
+                },
+                // The other pits' data, shown with this pit
+                others: [
+                        {
+                                subSection: {
+                                        type: mongoose.Schema.Types.ObjectId,
+                                        ref: "SubSection"
+                                },
+                                name: String,
+                                side: String,
+                                pitLabel: String,
+                                latitude: Number,
+                                longitude: Number,
+                                refs: [referencePointSchema],
+                                photos: [mediaFileSchema],
+                                video: mediaFileSchema
+                        }
+                ]
+        },
+        { _id: false }
+);
+
 export const pitSchema = new mongoose.Schema(
         {
                 latitude: Number,
@@ -104,7 +141,8 @@ export const pitSchema = new mongoose.Schema(
                 refs: [referencePointSchema],
                 // Optional photos and video of the pit
                 photos: [mediaFileSchema],
-                video: mediaFileSchema
+                video: mediaFileSchema,
+                merge: pitMergeSchema
         },
         { _id: false }
 );

@@ -143,6 +143,7 @@ export const executionLimits = () => ({
   gpsSampleSec: 10,
   refPointCount: 3,
   pitSuggestionRadiusM: 3,
+  pitMergeMaxGapM: 3,
   planDeviationPct: 10,
   // Warn when |tape − GPS| > max(minM, pct × GPS distance)
   tapeMismatch: { minM: 3, pct: 0.5 },

@@ -26,6 +26,8 @@ import {
   saveGpMiscItemPhoto,
 } from "../controller/infraEquipment.controller.js";
 
+import { createPitMerge, getPitGaps, undoPitMergeRoute } from "../controller/pitMerge.controller.js";
+
 const router = Router();
 
 // Every route needs a signed-in user (requireAuth in server.js). Each one checks the action
@@ -43,6 +45,9 @@ router.put("/:id", write("editBlockProfile"), updateBlockProfile);
 router.delete("/:id", write("deleteBlockProfile"), deleteBlockProfile);
 router.put("/:id/team", write("manageTeam"), updateBlockTeam);
 router.post("/:id/freeze", guardBlock("freezeBlock"), freezeBlockProfile);
+router.get("/:id/pit-gaps", viewExecution, getPitGaps);
+router.post("/:id/pit-merges", write("mergePits"), createPitMerge);
+router.post("/:id/pit-merges/:mergeId/undo", write("mergePits"), undoPitMergeRoute);
 router.post("/:id/kml", write("manageKml"), addKmlFile);
 router.delete("/:id/kml/:fileId", write("manageKml"), removeKmlFile);
 

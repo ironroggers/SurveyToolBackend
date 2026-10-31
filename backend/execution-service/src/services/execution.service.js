@@ -371,7 +371,7 @@ export const pitSuggestion = (sub, others, which = "start", at = null) => {
     .sort((a, b) => a.distance - b.distance)[0];
   if (!nearest) return null;
   const { other, side, distance } = nearest;
-  const { copiedFrom: _copiedFrom, ...pit } = plainPit(other[side].pit);
+  const { copiedFrom: _copiedFrom, merge: _merge, ...pit } = plainPit(other[side].pit);
   return {
     which,
     subSection: other._id,

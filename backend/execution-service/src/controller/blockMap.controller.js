@@ -45,6 +45,7 @@ const pitView = (point) => {
     ? {
         ...at,
         at: point.at,
+        merged: Boolean(point.pit?.merge?.id),
         refs: (point.pit?.refs || [])
           .map((r) => {
             const p = pointOf(r);

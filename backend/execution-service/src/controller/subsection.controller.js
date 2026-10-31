@@ -5,6 +5,7 @@ import { entryStats, jobCard } from "../services/views.service.js";
 import Section from "../models/section.model.js";
 import { visibleBlockIds } from "../services/access.service.js";
 import { syncSectionStage } from "../services/review.service.js";
+import { syncPitMerge } from "../services/pitMerge.service.js";
 
 // Fields the execution flow owns; the plain update below can't change them
 const EXECUTION_FIELDS = [
@@ -105,6 +106,10 @@ export const deleteSubSection = async (req, res) => {
     if (!deleted) return res.status(404).json({ message: "SubSection not found" });
     // The rest of the section may now all be approved
     if (deleted.typeOfWork) await syncSectionStage(req, deleted.section);
+    // Pits merged with this one stay at the merged location
+    for (const point of [deleted.start, deleted.end]) {
+      if (point?.pit?.merge?.id) await syncPitMerge(req, point.pit.merge.id);
+    }
     res.json({ message: "SubSection deleted" });
   } catch (error) {
     res.status(400).json({ message: error.message });

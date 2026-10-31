@@ -63,6 +63,8 @@ export const PERMISSIONS = {
   // Zonal Manager approves a section to Admin; Admin's approval freezes it. Either can
   // reject it back, reopening the subsections they pick.
   reviewSection: MANAGERS,
+  // Close a gap between nearby pits, or undo that
+  mergePits: { ...MANAGERS, "GIS HEAD": "assigned" },
   approveRestoration: { ADMIN: "all" },
 };
 

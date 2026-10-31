@@ -3,7 +3,8 @@ import SubSection from "../models/subSection.model.js";
 import Trenching from "../models/trenching.model.js";
 import { EXECUTION_TYPES } from "../config/executionTypes.js";
 import { HttpError, badRequest, conflict, notFound, sendError } from "../utils/httpError.js";
-import { formatLatLong, isValidPoint } from "../utils/geo.js";
+import { distanceM, formatLatLong, isValidPoint } from "../utils/geo.js";
+import { syncPitMerge } from "../services/pitMerge.service.js";
 import { subsectionName } from "../utils/subsectionName.js";
 import {
   actorOf,
@@ -216,7 +217,14 @@ export const endSubsection = async (req, res) => {
     if (!(await Trenching.exists({ subSection: sub._id }))) {
       throw badRequest("Add at least one entry before ending", { entries: "Add at least one entry before ending" });
     }
+    // A resubmit at the merged location stays merged; a new capture takes this pit out of it
+    const merge = sub.end?.pit?.merge?.toObject();
+    const mergedAt = merge && { lat: sub.end.pit.latitude, lng: sub.end.pit.longitude };
     sub.end = buildExecutionPoint(req, sub, "end");
+    if (merge) {
+      if (distanceM(mergedAt, { lat: sub.end.pit.latitude, lng: sub.end.pit.longitude }) < 0.01) sub.end.pit.merge = merge;
+      else sub.history.push(historyEntry(req, "pit_merge_left", `${EXECUTION_TYPES[sub.typeOfWork].pitB} recaptured · no longer merged`));
+    }
     sub.executionStatus = "PENDING_APPROVAL";
     sub.approval = undefined;
     // A reviewer who rejected reviews the fix; an approval given before stays
@@ -226,6 +234,7 @@ export const endSubsection = async (req, res) => {
     sub.history.push(historyEntry(req, "ended", endedText(sub.typeOfWork)));
     sub.updatedBy = actorOf(req);
     await sub.save();
+    if (merge) await syncPitMerge(req, merge.id, sub);
     queueStampsFor(sub);
     await respond(res, sub);
   } catch (error) {
