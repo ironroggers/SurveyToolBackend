@@ -1,7 +1,6 @@
 import jwt from "jsonwebtoken";
 import User from "../models/user.model.js";
 import { BadRequestError, NotFoundError } from "../utils/errors.js";
-import bcrypt from "bcryptjs";
 
 const generateToken = (user) => {
   return jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, {
@@ -211,9 +210,11 @@ export const updateUser = async (req, res, next) => {
     const email = normalize(req.body.email);
     const role = normalize(req.body.role);
     const reportingTo = normalize(req.body.reportingTo);
-    const designation = normalize(req.body.designation);
     const password = normalize(req.body.password);
-    const project = normalize(req.body.project);
+
+    if (password && password.length < 6) {
+      throw new BadRequestError('Password must be at least 6 characters long');
+    }
 
     // Load existing user document
     const user = await User.findById(userId);
@@ -224,8 +225,9 @@ export const updateUser = async (req, res, next) => {
     // Apply simple fields if provided
     if (typeof username !== 'undefined') user.username = username;
     if (typeof email !== 'undefined') user.email = email;
-    if (typeof designation !== 'undefined') user.designation = designation;
-    if (typeof project !== 'undefined') user.project = project;
+    // Sent blank, these two are cleared
+    if ('designation' in req.body) user.designation = normalize(req.body.designation);
+    if ('project' in req.body) user.project = normalize(req.body.project);
 
     // Handle role + reportingTo logic
     if (typeof role !== 'undefined') {
@@ -254,11 +256,8 @@ export const updateUser = async (req, res, next) => {
       }
     }
 
-    // Password update
-    if (password) {
-      const hashedPassword = await bcrypt.hash(password, 12);
-      user.password = hashedPassword;
-    }
+    // Password update (hashed by the model on save)
+    if (password) user.password = password;
 
     // Save document to trigger validators with correct context
     const saved = await user.save();
@@ -268,7 +267,14 @@ export const updateUser = async (req, res, next) => {
     res.status(200).json({ success: true, data: sanitized });
   } catch (error) {
     if (error && (error.code === 11000 || error.code === '11000')) {
-      return next(new BadRequestError('Email already in use'));
+      const field = Object.keys(error.keyPattern || { email: 1 })[0];
+      return next(new BadRequestError(`${field === 'username' ? 'Name' : 'Email'} already in use`));
+    }
+    if (error?.name === 'ValidationError') {
+      return next(new BadRequestError(Object.values(error.errors)[0].message));
+    }
+    if (error?.name === 'CastError') {
+      return next(new BadRequestError(`Invalid ${error.path}`));
     }
     next(error);
   }
