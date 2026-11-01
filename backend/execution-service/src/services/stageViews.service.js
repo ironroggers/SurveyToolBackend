@@ -40,7 +40,7 @@ const loadContext = async (section, profile) => {
   const [subDocs, records, block] = await Promise.all([
     SubSection.find({ section: section._id, typeOfWork: { $exists: true } }).select("name typeOfWork executionStatus roadName fromLatLong toLatLong subSectionLength seq initialCondition.ofcSide").sort({ seq: 1 }).lean(),
     StageRecord.find({ section: section._id }).sort({ seq: 1, code: 1 }),
-    profile || BlockProfile.findById(section.blockProfile).select("stateCode districtCode blockCode").lean(),
+    profile || BlockProfile.findById(section.blockProfile).select("stateCode districtCode blockCode frozen").lean(),
   ]);
   const stats = await entryStats(subDocs.map((s) => s._id));
   const chainage = chainageModel(section);
@@ -312,7 +312,7 @@ const buildView = (r, ctx) => {
 export const recordView = async (record) => {
   const section = await Section.findById(record.section);
   const ctx = await loadContext(section);
-  return { ...buildView(ctx.byId.get(String(record._id)) || record, ctx), sectionInfo: { _id: section._id, name: section.name, stage: sectionStage(section), fromName: section.fromNode?.name, toName: section.toNode?.name } };
+  return { ...buildView(ctx.byId.get(String(record._id)) || record, ctx), sectionInfo: { _id: section._id, name: section.name, stage: sectionStage(section), blockFrozen: Boolean(ctx.block?.frozen?.at), fromName: section.fromNode?.name, toName: section.toNode?.name } };
 };
 
 // The stage screen: its summary, its records, and what the pickers on the form need

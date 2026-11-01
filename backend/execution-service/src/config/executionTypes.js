@@ -258,7 +258,7 @@ export const MEDIA_RULES = {
   infra: { minPhotos: 1, maxPhotos: 4, video: "none", descriptions: "optional" },
   entry: { minPhotos: 0, maxPhotos: 1, video: "none" },
   // TODO(confirm): the documents set only the size limit; 1 photo is the prototype's default
-  stageRecord: { minPhotos: 1, maxPhotos: 4, video: "none" },
+  stageRecord: { minPhotos: 1, maxPhotos: 4, video: "none", targetBytes: 400000 },
 };
 
 const envNumber = (name, fallback) => {
