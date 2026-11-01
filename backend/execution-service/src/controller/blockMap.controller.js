@@ -5,6 +5,7 @@ import Trenching from "../models/trenching.model.js";
 import InfraCapture from "../models/infraCapture.model.js";
 import InfraEquipment from "../models/infraEquipment.model.js";
 import Restoration from "../models/restoration.model.js";
+import StageRecord from "../models/stageRecord.model.js";
 import { notFound, sendError } from "../utils/httpError.js";
 import { calculatedLengthOf, parseLatLong, pointOf } from "../utils/geo.js";
 import { sectionExecutionSummaries } from "../services/progress.service.js";
@@ -61,7 +62,7 @@ const pitView = (point) => {
 export const buildBlockMap = async (profile) => {
   const sections = await Section.find({ blockProfile: profile._id }).select("name fromNode toNode fromLatLong toLatLong sectionLength mainPathLength sharingPathLength existingIncrementalPathLength routeType").lean();
   const sectionIds = sections.map((s) => s._id);
-  const [subs, captures, equipmentDocs, restorations, summaries] = await Promise.all([
+  const [subs, captures, equipmentDocs, restorations, summaries, stageRecords] = await Promise.all([
     SubSection.find({ section: { $in: sectionIds } })
       .select("name section typeOfWork executionStatus roadName fromLatLong toLatLong subSectionLength seq initialCondition start end")
       .sort({ seq: 1, createdAt: 1 })
@@ -70,6 +71,7 @@ export const buildBlockMap = async (profile) => {
     InfraEquipment.find({ blockProfile: profile._id }).select("-capturedBy -updatedBy -__v").lean(),
     Restoration.find({ section: { $in: sectionIds } }).select("section items status").lean(),
     sectionExecutionSummaries(sectionIds),
+    StageRecord.find({ section: { $in: sectionIds } }).select("name section stage status latitude longitude links data.type").sort({ seq: 1 }).lean(),
   ]);
   const entries = await Trenching.find({ subSection: { $in: subs.map((s) => s._id) } })
     .select("subSection latitude longitude trenchLatLong mediaFiles capturedAt createdAt trenchLength trenchDepth offset side protectionType landmark remarks")
@@ -222,7 +224,19 @@ export const buildBlockMap = async (profile) => {
     }
   }
 
-  return { infra, equipment, sections: sectionViews, subsections: subViews, media, mediaWithoutLocation: withoutLocation };
+  // ---- stage records: a point where they have one; duct and blowing runs draw from their links
+  const stageRecordViews = stageRecords.map((r) => ({
+    _id: String(r._id),
+    name: r.name,
+    sectionId: String(r.section),
+    stage: r.stage,
+    status: r.status,
+    type: r.data?.type,
+    ...(pointOf(r) || {}),
+    links: r.links || {},
+  }));
+
+  return { infra, equipment, sections: sectionViews, subsections: subViews, stageRecords: stageRecordViews, media, mediaWithoutLocation: withoutLocation };
 };
 
 // GET /api/block-profiles/:id/map   (viewExecution)

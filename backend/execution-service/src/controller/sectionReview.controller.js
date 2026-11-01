@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import Section from "../models/section.model.js";
 import SubSection from "../models/subSection.model.js";
+import StageRecord from "../models/stageRecord.model.js";
 import { badRequest, conflict, sendError } from "../utils/httpError.js";
 import { actorOf, historyEntry, roleLabel } from "../services/execution.service.js";
 import { actorRole, forbidden, sectionStage } from "../services/access.service.js";
@@ -14,7 +15,7 @@ const LEVELS = {
 };
 
 const STAGE_TEXT = {
-  FIELD: "Its subsections are still being executed or reviewed",
+  FIELD: "Its stages are still being worked on or reviewed",
   ZONAL: "It's with the Zonal Manager",
   ADMIN: "It's with Admin",
   FROZEN: "It's frozen",
@@ -34,6 +35,7 @@ export const reviewView = async (section, profile) => {
     .select("name typeOfWork executionStatus seq review approval roadName subSectionLength")
     .sort({ seq: 1 })
     .lean();
+  const records = await StageRecord.find({ section: section._id }).select("name stage status review approval").sort({ stage: 1, seq: 1 }).lean();
   const summary = (await sectionExecutionSummaries([section._id])).get(String(section._id));
   return {
     section: { _id: section._id, name: section.name, blockProfile: section.blockProfile, fromNode: section.fromNode, toNode: section.toNode },
@@ -53,6 +55,14 @@ export const reviewView = async (section, profile) => {
       subSectionLength: s.subSectionLength,
       review: s.review || {},
       remark: s.executionStatus === "REJECTED" ? s.approval?.remark : undefined,
+    })),
+    stageRecords: records.map((r) => ({
+      _id: r._id,
+      name: r.name,
+      stage: r.stage,
+      status: r.status,
+      review: r.review || {},
+      remark: r.status === "REJECTED" ? r.approval?.remark : undefined,
     })),
   };
 };
@@ -90,49 +100,56 @@ export const approveSection = async (req, res) => {
   }
 };
 
-// POST /api/sections/:id/review/reject   { remark, subSections: [ids] }   (reviewSection)
-// The picked subsections reopen for the Field Executive (and Zonal Manager) and go
-// through Cluster Head + GIS Head again; the section goes back to FIELD.
+// POST /api/sections/:id/review/reject   { remark, subSections: [ids], stageRecords: [ids] }   (reviewSection)
+// The picked items reopen for the Field Executive (and Zonal Manager) and go through Cluster
+// Head + GIS Head again; each stage holding one stops being complete; the section goes back to FIELD.
 export const rejectSection = async (req, res) => {
   try {
     const { section } = req.access;
     const level = levelFor(req, section);
     const remark = String(req.body?.remark || "").trim();
-    const picked = [...new Set((Array.isArray(req.body?.subSections) ? req.body.subSections : []).map(String))];
+    const idsOf = (list) => [...new Set((Array.isArray(list) ? list : []).map(String))];
+    const picked = idsOf(req.body?.subSections);
+    const pickedRecords = idsOf(req.body?.stageRecords);
     const errors = {};
     if (!remark) errors.remark = "Write a reason before rejecting.";
-    if (!picked.length) errors.subSections = "Pick the subsections that need fixing.";
+    if (!picked.length && !pickedRecords.length) errors.subSections = "Pick what needs fixing.";
     if (Object.keys(errors).length) throw badRequest(Object.values(errors).join(" "), errors);
-    if (picked.some((id) => !mongoose.isValidObjectId(id))) throw badRequest("Pick subsections of this section", { subSections: "Unknown subsection" });
+    if ([...picked, ...pickedRecords].some((id) => !mongoose.isValidObjectId(id))) throw badRequest("Pick items of this section", { subSections: "Unknown item" });
 
-    const subs = await SubSection.find({ _id: { $in: picked }, section: section._id, typeOfWork: { $exists: true } });
-    if (subs.length !== picked.length) throw badRequest("Pick subsections of this section", { subSections: "Unknown subsection" });
+    const [subs, records] = await Promise.all([
+      SubSection.find({ _id: { $in: picked }, section: section._id, typeOfWork: { $exists: true } }),
+      StageRecord.find({ _id: { $in: pickedRecords }, section: section._id }),
+    ]);
+    if (subs.length !== picked.length || records.length !== pickedRecords.length) throw badRequest("Pick items of this section", { subSections: "Unknown item" });
 
     const by = actorOf(req);
     const who = roleLabel(by.role);
     const decision = { status: "REJECTED", by, at: new Date(), remark, client: req.client };
+    const count = subs.length + records.length;
+    const reopened = [...new Set([...(subs.length ? ["EXCAVATION"] : []), ...records.map((r) => r.stage)])];
     const updated = await Section.findOneAndUpdate(
       { _id: section._id, "review.stage": level.stage },
       {
         $set: { "review.stage": "FIELD", [`review.${level.key}`]: decision },
+        $unset: Object.fromEntries(reopened.map((stage) => [`stageCompletion.${stage}`, 1])),
         $push: {
-          "review.history": historyEntry(req, "rejected", `Sent back by ${who} · ${subs.length} subsection${subs.length === 1 ? "" : "s"} to fix: ${remark}`, remark),
+          "review.history": historyEntry(req, "rejected", `Sent back by ${who} · ${count} item${count === 1 ? "" : "s"} to fix: ${remark}`, remark),
         },
       },
       { new: true }
     );
     if (!updated) throw conflict("This section was reviewed by someone else. Refresh and try again", "STALE");
 
-    // Both reviewers look at the fix again. One write, bumping the version so open job cards refresh.
-    await SubSection.updateMany(
-      { _id: { $in: subs.map((s) => s._id) } },
-      {
-        $set: { executionStatus: "REJECTED", approval: decision, updatedBy: by },
-        $unset: { review: 1 },
-        $push: { history: historyEntry(req, "rejected", `Needs fix (${who}, section review): ${remark}`, remark) },
-        $inc: { __v: 1 },
-      }
-    );
+    // Both reviewers look at the fix again. One write each, bumping the version so open screens refresh.
+    const reopen = { approval: decision, updatedBy: by };
+    const back = {
+      $unset: { review: 1 },
+      $push: { history: historyEntry(req, "rejected", `Needs fix (${who}, section review): ${remark}`, remark) },
+      $inc: { __v: 1 },
+    };
+    await SubSection.updateMany({ _id: { $in: subs.map((s) => s._id) } }, { $set: { executionStatus: "REJECTED", ...reopen }, ...back });
+    await StageRecord.updateMany({ _id: { $in: records.map((r) => r._id) } }, { $set: { status: "REJECTED", ...reopen }, ...back });
     res.json(await reviewView(updated, req.access.profile));
   } catch (error) {
     sendError(res, error);

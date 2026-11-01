@@ -68,6 +68,7 @@ export const createExecutionSubsection = async (req, res) => {
     if (sectionStage(section) !== "FIELD") {
       throw conflict("This section has been sent for Zonal Manager / Admin review, so no subsections can be added", "WRONG_STATE");
     }
+    if (section.stageCompletion?.EXCAVATION?.at) throw conflict("Marked complete. Reopen the stage to add more.", "WRONG_STATE");
     const built = buildNewSubsection(req.body);
     const summary = (await sectionExecutionSummaries([section._id])).get(String(section._id));
     if (["PENDING_APPROVAL", "APPROVED"].includes(summary?.restoration.status)) {
@@ -189,6 +190,7 @@ export const updateEntry = async (req, res) => {
     entry.set(changes);
     await entry.save();
     queueStampsFor(entry);
+    await SubSection.updateOne({ _id: sub._id }, { $push: { history: historyEntry(req, "entry_edited", "Entry edited") } });
     await respond(res, await touch(req, sub));
   } catch (error) {
     sendError(res, error);

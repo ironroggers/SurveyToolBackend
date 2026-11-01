@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import SubSection from "../models/subSection.model.js";
+import StageRecord from "../models/stageRecord.model.js";
 import { createExecutionSubsection } from "./subsectionExecution.controller.js";
 import { entryStats, jobCard } from "../services/views.service.js";
 import Section from "../models/section.model.js";
@@ -102,6 +103,8 @@ export const updateSubSection = async (req, res) => {
 
 export const deleteSubSection = async (req, res) => {
   try {
+    const run = await StageRecord.findOne({ "links.subSection": req.params.id }).select("name").lean();
+    if (run) return res.status(409).json({ message: `${run.name} is linked to this subsection. Change that first.`, code: "LINKED" });
     const deleted = await SubSection.findByIdAndDelete(req.params.id);
     if (!deleted) return res.status(404).json({ message: "SubSection not found" });
     // The rest of the section may now all be approved
