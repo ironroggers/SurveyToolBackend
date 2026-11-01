@@ -2,10 +2,11 @@ import mongoose from "mongoose";
 import BlockProfile from "../models/blockProfile.model.js";
 import StageRecord from "../models/stageRecord.model.js";
 import SubSection from "../models/subSection.model.js";
-import { CHAMBER_TYPES, MEDIA_RULES, OPTIONS, RECORD_STAGES, STAGE_DRAFT_MESSAGES, STAGE_FIELDS, stageCode } from "../config/executionTypes.js";
+import { MEDIA_RULES, OPTIONS, RECORD_STAGES, STAGE_DRAFT_MESSAGES, STAGE_FIELDS, stageCode } from "../config/executionTypes.js";
 import { badRequest, failIfErrors, notFound } from "../utils/httpError.js";
 import { round } from "../utils/geo.js";
 import { cleanFix, cleanMediaSet } from "./execution.service.js";
+import { findCouplingPoints, isPitKey, loadSectionPits } from "./stagePits.service.js";
 
 // The rules for one stage record's fields. Field error keys are the config's field keys, plus
 // `photos`, so clients can put each message under its field.
@@ -55,6 +56,11 @@ const cleanValue = (f, raw, errors) => {
     errors[f.key] = f.requiredMessage;
     return undefined;
   }
+  if (f.kind === "pit") {
+    if (isPitKey(raw)) return String(raw);
+    errors[f.key] = f.requiredMessage || "Pick from the list";
+    return undefined;
+  }
   if (f.kind === "link") {
     if (mongoose.isValidObjectId(raw)) return String(raw);
     errors[f.key] = f.requiredMessage || "Pick from the list";
@@ -72,9 +78,10 @@ const checkLinks = async (stage, links, data, section, recordId, errors) => {
   );
   for (const f of fields) {
     if (f.target === "SUBSECTION") {
-      const sub = await SubSection.findOne({ _id: links[f.key], section: section._id, typeOfWork: { $exists: true } }).select("executionStatus").lean();
+      const sub = await SubSection.findOne({ _id: links[f.key], section: section._id, typeOfWork: { $exists: true } }).select("executionStatus end.pit.latitude").lean();
       if (!sub) errors[f.key] = "Pick a subsection of this section";
       else if (sub.executionStatus === "NOT_STARTED") errors[f.key] = "This subsection hasn't started";
+      else if (sub.end?.pit?.latitude == null) errors[f.key] = "This subsection has no end pit yet";
       else {
         const used = await StageRecord.findOne({ stage: "DUCTING", "links.subSection": links[f.key], _id: { $ne: recordId } }).select("name").lean();
         if (used) errors[f.key] = `Has ${used.name}`;
@@ -83,11 +90,32 @@ const checkLinks = async (stage, links, data, section, recordId, errors) => {
     }
     const target = targets.get(String(links[f.key]));
     if (target?.stage !== f.target) errors[f.key] = "Pick from the list";
-    else if (f.nonJointOnly && CHAMBER_TYPES[target.data?.type]?.joint) errors[f.key] = "Pick a chamber that isn't a joint";
     else if (String(links[f.key]) === String(recordId)) errors[f.key] = "Pick a different record";
   }
-  if (stage === "COUPLING" && links.joinedTo && String(links.joinedTo) === String(links.ductRun)) errors.joinedTo = "Pick a different duct run";
-  if (stage === "BLOWING" && links.fromChamber && String(links.fromChamber) === String(links.toChamber)) errors.toChamber = "Pick a different chamber";
+};
+
+const pitFieldsIn = (stage, data) => STAGE_FIELDS[stage].filter((f) => f.kind === "pit" && data[f.key]);
+
+// Pits must be pits of this section. Returns what a coupling takes from its pit.
+const checkPits = async (stage, data, section, recordId, errors) => {
+  const fields = pitFieldsIn(stage, data);
+  if (!fields.length) return {};
+  const pits = await loadSectionPits(section);
+  for (const f of fields) if (!pits.byKey.has(data[f.key])) errors[f.key] = "This pit is no longer in the section";
+  if (stage === "BLOWING" && data.fromPit && pits.byKey.get(data.fromPit) === pits.byKey.get(data.toPit)) errors.toPit = "Pick a different pit";
+  const needsPoint = stage === "COUPLING" || (stage === "CHAMBER" && data.atCoupling);
+  if (!needsPoint) return {};
+  const key = stage === "COUPLING" ? "pit" : "atCoupling";
+  const pit = pits.byKey.get(data[key]);
+  if (!pit) return {};
+  const records = await StageRecord.find({ section: section._id, stage: { $in: ["DUCTING", "COUPLING"] } }).select("stage links data name").lean();
+  const point = findCouplingPoints(pits, records.filter((r) => r.stage === "DUCTING"), records.filter((r) => r.stage === "COUPLING" && String(r._id) !== String(recordId)))
+    .find((p) => p.pit === pit);
+  if (!point) errors[key] = "Two duct runs don't meet at this pit";
+  else if (stage === "COUPLING" && point.record) errors[key] = `Recorded as ${point.record.name}`;
+  if (stage !== "COUPLING") return {};
+  data.pit = pit.key;
+  return { latitude: pit.latitude, longitude: pit.longitude, accuracy: pit.accuracy };
 };
 
 /**
@@ -127,6 +155,8 @@ export const buildRecordValues = async (req, stage, section, { recordId, full = 
   const rule = MEDIA_RULES.stageRecord;
   const { photos } = cleanMediaSet(body, full ? rule : { ...rule, minPhotos: 0 }, "", errors);
   await checkLinks(stage, links, data, section, recordId, errors);
+  const pitFix = await checkPits(stage, data, section, recordId, errors);
+  if (pitFix.latitude !== undefined) location = pitFix;
 
   const identityMissing = fields.some((f) => f.draft && errors[f.key]);
   failIfErrors(errors, !full && identityMissing ? STAGE_DRAFT_MESSAGES[stage] : undefined);
@@ -139,7 +169,6 @@ export const buildRecordValues = async (req, stage, section, { recordId, full = 
     longitude: location?.longitude,
     accuracy: location?.accuracy,
     accuracyAboveLimit: location?.accuracyAboveLimit,
-    pitFrom: mongoose.isValidObjectId(body.location?.pitFrom) ? body.location.pitFrom : undefined,
     remarks: isBlank(body.remarks) ? undefined : String(body.remarks).trim(),
   };
 };
@@ -167,6 +196,5 @@ export const codeFor = (stage, data) => {
 
 // Other records that point at this one, by name
 export const recordLinkedBy = (id) => {
-  const fields = ["startChamber", "endChamber", "parent", "ductRun", "joinedTo", "beside", "fromChamber", "toChamber"];
-  return StageRecord.findOne({ $or: fields.map((f) => ({ [`links.${f}`]: id })) }).select("name").lean();
+  return StageRecord.findOne({ "links.beside": id }).select("name").lean();
 };

@@ -1,16 +1,14 @@
 import Section from "../models/section.model.js";
-import SubSection from "../models/subSection.model.js";
 import StageRecord from "../models/stageRecord.model.js";
-import { isValidPoint } from "../utils/geo.js";
-import { EXECUTION_TYPES, STAGES, STAGE_ORDER, stageRecordName } from "../config/executionTypes.js";
+import { JOINT_CODE, STAGES, STAGE_ORDER, stageRecordName } from "../config/executionTypes.js";
 import { badRequest, conflict, notFound, sendError } from "../utils/httpError.js";
-import { actorOf, checkVersion, historyEntry, nearestPit, roleLabel } from "../services/execution.service.js";
+import { actorOf, checkVersion, historyEntry, roleLabel } from "../services/execution.service.js";
 import { actorRole, can, forbidden, sectionStage } from "../services/access.service.js";
 import { REVIEW_SLOTS, SLOT_LABELS, bothApproved, syncSectionStage } from "../services/review.service.js";
 import { assertRecordComplete, assertRecordStage, buildRecordValues, codeFor, nextSeq, recordLinkedBy } from "../services/stage.service.js";
 import { queueStageStamps, recordsView, recordView, stagesView } from "../services/stageViews.service.js";
 
-// Chamber, Ducting, Coupling, Route Marker and Blowing records. Rules are in
+// Ducting, Coupling, Blowing, Chamber and Route Marker records. Rules are in
 // services/stage.service.js; the review works as it does for subsections.
 
 const assertRecordStatus = (record, allowed, message) => {
@@ -24,11 +22,13 @@ const assertFieldStage = (section, message) => {
 const notInField = "This section has been sent for Zonal Manager / Admin review, so nothing can be changed here";
 
 const DUPLICATE_RUN = "This subsection already has a duct run";
+const DUPLICATE_COUPLING = "This coupling point is already recorded";
 const saveRecord = async (record) => {
   try {
     await record.save();
   } catch (error) {
     if (error.code === 11000 && error.keyPattern?.["links.subSection"]) throw badRequest(DUPLICATE_RUN, { subSection: DUPLICATE_RUN });
+    if (error.code === 11000 && error.keyPattern?.["data.pit"]) throw badRequest(DUPLICATE_COUPLING, { pit: DUPLICATE_COUPLING });
     throw error;
   }
 };
@@ -121,6 +121,7 @@ export const createRecord = async (req, res) => {
     const values = await buildRecordValues(req, stage, section);
     const code = codeFor(stage, values.data);
     const seq = await nextSeq(section.blockProfile, code);
+    const jointSeq = values.data.hasJoint === "Yes" ? await nextSeq(section.blockProfile, JOINT_CODE) : undefined;
     const by = actorOf(req);
     const record = new StageRecord({
       ...values,
@@ -129,6 +130,7 @@ export const createRecord = async (req, res) => {
       stage,
       code,
       seq,
+      jointSeq,
       name: stageRecordName(stage, values.data, seq),
       history: [historyEntry(req, "created", "Created")],
       createdBy: by,
@@ -171,6 +173,7 @@ export const updateRecord = async (req, res) => {
       record.code = code;
       record.seq = await nextSeq(record.blockProfile, code);
     }
+    if (values.data.hasJoint === "Yes" && !record.jointSeq) record.jointSeq = await nextSeq(record.blockProfile, JOINT_CODE);
     record.name = stageRecordName(record.stage, values.data, record.seq);
     record.set({ ...values, links: values.links });
     record.history.push(historyEntry(req, "edited", "Edited"));
@@ -291,34 +294,3 @@ const decide = (status) => async (req, res) => {
 // POST /api/stage-records/:id/approve, /reject   (reviewSubsection)
 export const approveRecord = decide("APPROVED");
 export const rejectRecord = decide("REJECTED");
-
-// GET /api/sections/:id/stages/CHAMBER/pit-suggestion?lat=&lng=   (viewExecution)
-// An existing pit within the suggestion limit that a chamber here can sit on
-export const getChamberPitSuggestion = async (req, res) => {
-  try {
-    const here = { lat: parseFloat(req.query.lat), lng: parseFloat(req.query.lng) };
-    if (!isValidPoint(here.lat, here.lng)) return res.json({ suggestion: null });
-    const sections = await Section.find({ blockProfile: req.access.section.blockProfile }).distinct("_id");
-    const subs = await SubSection.find({
-      section: { $in: sections },
-      $or: [{ "start.pit.latitude": { $exists: true } }, { "end.pit.latitude": { $exists: true } }],
-    }).select("name typeOfWork start.pit end.pit");
-    const nearest = nearestPit(subs, here);
-    if (!nearest) return res.json({ suggestion: null });
-    const { other, side, distance } = nearest;
-    const pit = other[side].pit;
-    res.json({
-      suggestion: {
-        subSection: other._id,
-        name: other.name,
-        pitLabel: EXECUTION_TYPES[other.typeOfWork]?.[side === "start" ? "pitA" : "pitB"],
-        distanceM: Math.round(distance * 10) / 10,
-        latitude: pit.latitude,
-        longitude: pit.longitude,
-        accuracy: pit.accuracy,
-      },
-    });
-  } catch (error) {
-    sendError(res, error);
-  }
-};

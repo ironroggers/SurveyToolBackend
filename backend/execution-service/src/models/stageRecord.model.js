@@ -5,8 +5,9 @@ import { mediaFileSchema } from "./mediaFile.schema.js";
 
 const objectId = (ref) => ({ type: mongoose.Schema.Types.ObjectId, ref });
 
-// One piece of work in a section's Chamber, Ducting, Coupling, Route Marker or Blowing stage.
+// One piece of work in a section's Ducting, Coupling, Blowing, Chamber or Route Marker stage.
 // `data` holds the fields from STAGE_FIELDS; `links` holds ids, so names can change safely.
+// Pits sit in `data` as `<subsection id>:<start|end>`.
 // A record is IN_PROGRESS (a draft) until submitted, then goes through Cluster Head + GIS
 // Head like a subsection. Blowing's lengths in `data` are always the server's.
 const stageRecordSchema = new mongoose.Schema(
@@ -17,6 +18,8 @@ const stageRecordSchema = new mongoose.Schema(
                 // MH, HH, LC, JC, RI, CPL, DCT, BLW: seq runs per block and per code
                 code: { type: String, required: true },
                 seq: { type: Number, required: true },
+                // A chamber's joint closure has its own number under JC
+                jointSeq: Number,
                 name: { type: String, trim: true, required: true },
                 status: {
                         type: String,
@@ -34,21 +37,12 @@ const stageRecordSchema = new mongoose.Schema(
                 longitude: Number,
                 accuracy: Number,
                 accuracyAboveLimit: Boolean,
-                // The subsection whose pit this chamber's location was taken from
-                pitFrom: objectId("SubSection"),
                 photos: [mediaFileSchema],
                 remarks: { type: String, trim: true },
                 data: { type: mongoose.Schema.Types.Mixed, default: {} },
                 links: {
                         subSection: objectId("SubSection"),
-                        startChamber: objectId("StageRecord"),
-                        endChamber: objectId("StageRecord"),
-                        parent: objectId("StageRecord"),
-                        ductRun: objectId("StageRecord"),
-                        joinedTo: objectId("StageRecord"),
-                        beside: objectId("StageRecord"),
-                        fromChamber: objectId("StageRecord"),
-                        toChamber: objectId("StageRecord")
+                        beside: objectId("StageRecord")
                 },
                 submittedAt: Date,
                 submittedBy: actorSchema,
@@ -71,5 +65,7 @@ stageRecordSchema.index({ "photos.url": 1 });
 stageRecordSchema.index({ blockProfile: 1, code: 1, seq: 1 }, { unique: true });
 // A subsection can have only one duct run
 stageRecordSchema.index({ "links.subSection": 1 }, { unique: true, partialFilterExpression: { stage: "DUCTING", "links.subSection": { $exists: true } } });
+// One coupling per pit
+stageRecordSchema.index({ section: 1, "data.pit": 1 }, { unique: true, partialFilterExpression: { stage: "COUPLING", "data.pit": { $exists: true } } });
 
 export default mongoose.model("StageRecord", stageRecordSchema, "StageRecord");

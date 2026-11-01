@@ -14,7 +14,7 @@ import {
   rejectRestoration,
 } from "../controller/restoration.controller.js";
 import { approveSection, getSectionReview, rejectSection } from "../controller/sectionReview.controller.js";
-import { completeStage, createRecord, getChamberPitSuggestion, getStages, listRecords, reopenStage } from "../controller/stageRecord.controller.js";
+import { completeStage, createRecord, getStages, listRecords, reopenStage } from "../controller/stageRecord.controller.js";
 import { guardSection } from "../services/access.service.js";
 import { guardNewSection } from "../controller/section.controller.js";
 
@@ -47,7 +47,6 @@ router.post("/:id/restoration/reject", write("approveRestoration"), rejectRestor
 router.get("/:id/stages", view, getStages);
 router.post("/:id/stages/:stage/complete", write("executeSubsection"), completeStage);
 router.post("/:id/stages/:stage/reopen", write("executeSubsection"), reopenStage);
-router.get("/:id/stages/CHAMBER/pit-suggestion", view, getChamberPitSuggestion);
 router.get("/:id/stages/:stage/records", view, listRecords);
 router.post("/:id/stages/:stage/records", write("executeSubsection"), createRecord);
 
