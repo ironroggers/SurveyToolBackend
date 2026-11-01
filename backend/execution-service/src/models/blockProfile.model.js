@@ -200,6 +200,10 @@ const blockProfileSchema = new mongoose.Schema(
                                 }
                         }
                 },
+                // Last number given per stage record code (MH, HH, LC, JC, RI, CPL, DCT, BLW), incremented atomically
+                stageSeq: {
+                        type: mongoose.Schema.Types.Mixed
+                },
                 // The block's rings; each GP names the one it's on (gps.ringCode)
                 rings: {
                         type: [ringSchema],

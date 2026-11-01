@@ -1,10 +1,10 @@
 import mongoose from "mongoose";
 import { NODE_TYPES } from "../utils/blockNodes.js";
-import { approvalSchema, historySchema } from "./execution.schemas.js";
+import { actorSchema, approvalSchema, historySchema } from "./execution.schemas.js";
 
 // Where a block section is in the approval flow:
-//   FIELD:  subsections being executed and reviewed by Cluster Head + GIS Head
-//   ZONAL:  every subsection approved by both; with the Zonal Manager
+//   FIELD:  subsections and stage records being done and reviewed by Cluster Head + GIS Head
+//   ZONAL:  all 6 stages complete, every subsection and stage record approved by both; with the Zonal Manager
 //   ADMIN:  approved by the Zonal Manager; with Admin
 //   FROZEN: approved by Admin; read-only for everyone else
 export const SECTION_STAGES = ["FIELD", "ZONAL", "ADMIN", "FROZEN"];
@@ -26,6 +26,9 @@ const sectionReviewSchema = new mongoose.Schema(
         },
         { _id: false }
 );
+
+// The Field Executive marked a stage complete; missing means it isn't
+const stageDoneSchema = new mongoose.Schema({ at: Date, by: actorSchema }, { _id: false });
 
 // One end of a block section: the block router (code: the block's LGD code) or one of its GPs (code: the GP's LGD code)
 const sectionEndSchema = new mongoose.Schema(
@@ -148,6 +151,15 @@ const sectionSchema = new mongoose.Schema({
         },
         // Block sections only; missing on older sections, which read as FIELD
         review: sectionReviewSchema,
+        // One per stage key in STAGE_ORDER
+        stageCompletion: {
+                EXCAVATION: stageDoneSchema,
+                CHAMBER: stageDoneSchema,
+                DUCTING: stageDoneSchema,
+                COUPLING: stageDoneSchema,
+                ROUTE_MARKER: stageDoneSchema,
+                BLOWING: stageDoneSchema
+        },
         others : {
                 type: mongoose.Schema.Types.Mixed,
         }

@@ -36,6 +36,21 @@ export const OPTIONS = {
   clampOn: ["Bridge", "Culvert", "Nallah", "IBD"],
   clampMethod: ["Side Clamp", "Utility Corridor", "Service Duct", "On the bridge", "Wall clamp"],
   referencePoint: ["Electric pole", "Telecom pole", "Culvert", "Km stone", "Tree", "Building corner"],
+  // Section stages. TODO(confirm): duct size, count and colour are the prototype's proposal, no sheet lists them
+  chamberType: ["MH", "HH", "LC", "BJC", "SJC"],
+  position: ["LHS", "RHS"],
+  ductSize: ["32 mm", "40 mm", "50 mm"],
+  ductCount: ["1", "2", "3"],
+  ductColour: ["Orange", "Black", "Blue", "Green"],
+  yesNo: ["Yes", "No"],
+  rowType: ["General", "Specific"],
+  fibreCount: ["12", "24", "48", "96", "144"],
+  cableKind: ["New", "Incremental"],
+};
+
+// Words for option values that differ from the value itself
+export const OPTION_LABELS = {
+  chamberType: { MH: "Manhole", HH: "Handhole", LC: "Loop chamber", BJC: "Joint (BJC)", SJC: "Joint (SJC)" },
 };
 
 // Entry fields as data. kind: number | text | choice. `positive` means > 0; `nonNegative` means 0 or more
@@ -82,6 +97,122 @@ export const ENTRY_CARRY_OVER = ["offset", "side", "protection", "clampOn", "cla
 // HDD autofill reads these from a photo of the locator screen
 export const AI_AUTOFILL_FIELDS = ["depth", "temperature", "angle"];
 
+// ---- section stages
+
+// A section opens to these, in this order. Excavation is the subsection list and job card;
+// each of the others has its own StageRecords for the section.
+export const STAGES = {
+  EXCAVATION: { label: "Excavation", one: "subsection", many: "subsections" },
+  CHAMBER: { label: "Chamber", one: "chamber", many: "chambers", add: "Add chamber", empty: "Add the first one from the site.", nearest: "the nearest chamber" },
+  DUCTING: { label: "Ducting", one: "duct run", many: "duct runs", add: "Add run", empty: "Add the first one from the site.", nearest: "the nearest duct end" },
+  COUPLING: { label: "Coupling", one: "coupling", many: "couplings", add: "Add coupling", empty: "Add the first one from the site.", nearest: "the nearest coupling" },
+  ROUTE_MARKER: { label: "Route marker", one: "route marker", many: "route markers", add: "Add marker", empty: "Add the first one from the site.", nearest: "the nearest marker" },
+  BLOWING: { label: "Blowing", one: "blowing run", many: "blowing runs", add: "Add run", empty: "Pick two chambers to record a run of cable.", nearest: "the nearest blown cable" },
+};
+export const STAGE_ORDER = ["EXCAVATION", "CHAMBER", "DUCTING", "COUPLING", "ROUTE_MARKER", "BLOWING"];
+export const RECORD_STAGES = STAGE_ORDER.slice(1);
+
+// The sequence behind each name and asset code is per block and per code, because the
+// workbook's asset code is block-wide. BJC and SJC share JC.
+// TODO(confirm): what BJC and SJC stand for
+export const CHAMBER_TYPES = {
+  MH: { code: "MH" },
+  HH: { code: "HH" },
+  // TODO(confirm): the workbook has no Loop Chamber code
+  LC: { code: "LC" },
+  BJC: { code: "JC", joint: true },
+  SJC: { code: "JC", joint: true },
+};
+export const STAGE_CODES = { DUCTING: "DCT", COUPLING: "CPL", ROUTE_MARKER: "RI", BLOWING: "BLW" };
+const padded = (seq) => String(seq).padStart(3, "0");
+export const stageCode = (stage, data = {}) => (stage === "CHAMBER" ? CHAMBER_TYPES[data.type]?.code : STAGE_CODES[stage]);
+export const stageRecordName = (stage, data, seq) =>
+  ({
+    CHAMBER: () => `${data.type} ${seq}`,
+    DUCTING: () => `DCT-${padded(seq)}`,
+    COUPLING: () => `CPL ${seq}`,
+    ROUTE_MARKER: () => `RI ${seq}`,
+    BLOWING: () => `BLW-${padded(seq)}`,
+  })[stage]();
+
+// Stage fields as data, like ENTRY_FIELDS, in the order the form shows them.
+// Extra kinds: location (the GPS field), date, note (text on the form, no value), and link (a
+// picker over `target`: SUBSECTION or a stage; stored as an id so names can change safely).
+// `draft`: needed to save a draft. `showIf`: every condition must hold; a hidden field is
+// cleared and not required. `group`: a heading above this field and the ones after it.
+const LOCATION = { key: "location", label: "Location", kind: "location", required: true, requiredMessage: "Capture the location" };
+const POSITION = field("position", "Position", "choice", { options: "position", required: true, requiredMessage: "Pick the position", routeHint: true });
+const MAKE = field("make", "Make", "text", { placeholder: "e.g. Dura-Line" });
+const link = (key, label, target, extra = {}) => field(key, label, "link", { target, ...extra });
+const reading = (key, label, end) =>
+  field(key, label, "number", { end, required: true, nonNegative: true, requiredMessage: "Enter both meter readings", placeholder: end === "from" ? "1772" : "2084" });
+const ifRow = { key: "rowRequired", in: ["Yes"] };
+
+export const STAGE_FIELDS = {
+  CHAMBER: [
+    field("type", "Type", "choice", { options: "chamberType", required: true, draft: true, requiredMessage: "Pick the type" }),
+    LOCATION,
+    POSITION,
+    field("roadOffset", "Offset from road centre (m)", "number", { unit: "m", nonNegative: true, placeholder: "e.g. 3.6" }),
+    link("parent", "Parent structure", "CHAMBER", { nonJointOnly: true, placeholder: "Pick the structure this joint sits in", showIf: [{ key: "type", in: ["BJC", "SJC"] }] }),
+    field("landmark", "Nearby landmark", "text", { placeholder: "e.g. Electric pole" }),
+    {
+      key: "jointNote",
+      kind: "note",
+      text: "Drum ID and cable readings for both cables come from Blowing, once cable reaches this joint.",
+      showIf: [{ key: "type", in: ["BJC", "SJC"] }],
+    },
+  ],
+  DUCTING: [
+    link("subSection", "Excavation subsection", "SUBSECTION", { required: true, draft: true, requiredMessage: "Pick the subsection", placeholder: "Pick the subsection this duct runs through" }),
+    field("lengthM", "Duct length laid (m)", "number", { unit: "m", required: true, positive: true, requiredMessage: "Enter the length in metres", showIf: [{ key: "subSection", set: true }] }),
+    link("startChamber", "Start chamber", "CHAMBER", { placeholder: "Pick a chamber" }),
+    link("endChamber", "End chamber", "CHAMBER", { placeholder: "Pick a chamber" }),
+    field("ductSize", "Duct size", "choice", { options: "ductSize", group: "Duct details", required: true, requiredMessage: "Pick the duct size", hint: "HDPE duct", copy: true }),
+    field("ductsLaid", "Ducts laid", "choice", { options: "ductCount", required: true, requiredMessage: "Pick how many ducts", copy: true }),
+    { ...MAKE, copy: true },
+    field("colour", "Colour", "choice", { options: "ductColour", copy: true }),
+    field("rowRequired", "Permission required", "choice", { options: "yesNo", group: "Right of way", required: true, requiredMessage: "Pick Yes or No", copy: true }),
+    field("rowType", "Type", "choice", { options: "rowType", required: true, requiredMessage: "Pick the type", showIf: [ifRow], copy: true }),
+    field("rowAuthority", "Authority", "text", { required: true, requiredMessage: "Enter the authority", placeholder: "e.g. PWD", showIf: [ifRow], copy: true }),
+    field("rowReceived", "Permission received", "choice", { options: "yesNo", required: true, requiredMessage: "Pick Yes or No", showIf: [ifRow], copy: true }),
+    field("rowValidTill", "Valid till", "date", { required: true, requiredMessage: "Pick the date", showIf: [ifRow, { key: "rowReceived", in: ["Yes"] }], copy: true }),
+  ],
+  COUPLING: [
+    link("ductRun", "Duct run", "DUCTING", { required: true, draft: true, requiredMessage: "Pick the duct run", placeholder: "Pick the duct run" }),
+    link("joinedTo", "Joined to", "DUCTING", { placeholder: "Pick the next duct run" }),
+    LOCATION,
+    POSITION,
+    { ...MAKE, label: "Coupler make" },
+  ],
+  ROUTE_MARKER: [
+    link("beside", "Beside a chamber?", "CHAMBER", { hint: "optional, copies its location", chips: true }),
+    LOCATION,
+    POSITION,
+    field("offset", "Offset from road centre (m)", "number", { unit: "m", required: true, nonNegative: true, requiredMessage: "Enter the offset in metres", placeholder: "e.g. 3.6" }),
+  ],
+  BLOWING: [
+    link("fromChamber", "From chamber", "CHAMBER", { required: true, draft: true, requiredMessage: "Pick the From chamber", placeholder: "Pick a chamber" }),
+    link("toChamber", "To chamber", "CHAMBER", { required: true, draft: true, requiredMessage: "Pick the To chamber", placeholder: "Pick a chamber" }),
+    field("drumId", "Drum ID", "text", { group: "Cable", required: true, requiredMessage: "Enter the drum ID", placeholder: "e.g. 4075" }),
+    field("fibreCount", "Fibre count", "choice", { options: "fibreCount", required: true, requiredMessage: "Pick the fibre count" }),
+    field("cable", "Cable", "choice", { options: "cableKind", required: true, requiredMessage: "Pick New or Incremental" }),
+    field("usedFibres", "Used fibres", "number", { nonNegative: true, placeholder: "e.g. 2" }),
+    reading("fromIn", "Cable In (m)", "from"),
+    reading("fromOut", "Cable Out (m)", "from"),
+    reading("toIn", "Cable In (m)", "to"),
+    reading("toOut", "Cable Out (m)", "to"),
+  ],
+};
+
+// Words a draft needs when its identity field is missing
+export const STAGE_DRAFT_MESSAGES = {
+  CHAMBER: "Pick the type to save a draft",
+  DUCTING: "Pick the subsection to save a draft",
+  COUPLING: "Pick the duct run to save a draft",
+  BLOWING: "Pick both chambers to save a draft",
+};
+
 // Status words and tones are the same on both clients. Tone: neutral | info | warning | success | error.
 export const EXECUTION_STATUSES = {
   NOT_STARTED: { label: "Not started", tone: "neutral" },
@@ -126,6 +257,8 @@ export const MEDIA_RULES = {
   // TODO(confirm): whether all 4 infra photos are mandatory; 1 is enough for now
   infra: { minPhotos: 1, maxPhotos: 4, video: "none", descriptions: "optional" },
   entry: { minPhotos: 0, maxPhotos: 1, video: "none" },
+  // TODO(confirm): the documents set only the size limit; 1 photo is the prototype's default
+  stageRecord: { minPhotos: 1, maxPhotos: 4, video: "none" },
 };
 
 const envNumber = (name, fallback) => {
@@ -144,6 +277,8 @@ export const executionLimits = () => ({
   refPointCount: 3,
   pitSuggestionRadiusM: 3,
   pitMergeMaxGapM: 3,
+  // Geo photo limit from the details document, for stage records
+  stagePhotoMaxBytes: 500000,
   planDeviationPct: 10,
   // Warn when |tape − GPS| > max(minM, pct × GPS distance)
   tapeMismatch: { minM: 3, pct: 0.5 },
@@ -155,6 +290,11 @@ export const executionConfig = () => ({
   createTypeOrder: CREATE_TYPE_ORDER,
   typeGroups: TYPE_GROUPS,
   options: OPTIONS,
+  optionLabels: OPTION_LABELS,
+  stages: STAGES,
+  stageOrder: STAGE_ORDER,
+  stageFields: STAGE_FIELDS,
+  stageDraftMessages: STAGE_DRAFT_MESSAGES,
   entryFields: ENTRY_FIELDS,
   entryCarryOver: ENTRY_CARRY_OVER,
   aiAutofillFields: AI_AUTOFILL_FIELDS,
