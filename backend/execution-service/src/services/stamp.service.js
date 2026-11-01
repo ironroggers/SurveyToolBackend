@@ -1,6 +1,6 @@
 import { execFile } from "node:child_process";
 import { createRequire } from "node:module";
-import { mkdtemp, rm, writeFile } from "node:fs/promises";
+import { mkdtemp, rm, stat, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import ffmpegPath from "ffmpeg-static";
@@ -299,4 +299,28 @@ export const withTempDir = async (fn) => {
   } finally {
     await rm(dir, { recursive: true, force: true });
   }
+};
+
+/**
+ * A stamped photo under maxBytes: steps quality down, then size, so the stamp stays readable
+ * for as long as possible. Returns the path of the file to keep.
+ */
+export const shrinkImage = async (input, maxBytes, dir) => {
+  if ((await stat(input)).size <= maxBytes) return input;
+  const steps = [
+    [1280, 75],
+    [1280, 65],
+    [1280, 55],
+    [1024, 60],
+    [1024, 50],
+    [800, 50],
+    [640, 45],
+  ];
+  const source = await sharp(input).toBuffer();
+  const output = path.join(dir, "under-limit.jpg");
+  for (const [width, quality] of steps) {
+    const { size } = await sharp(source).resize({ width, withoutEnlargement: true }).jpeg({ quality }).withMetadata().toFile(output);
+    if (size <= maxBytes) break;
+  }
+  return output;
 };

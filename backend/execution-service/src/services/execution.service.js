@@ -346,6 +346,24 @@ export const entryView = (doc) => {
 
 const plainPit = (pit) => (pit?.toObject ? pit.toObject() : pit);
 
+// The nearest start or end pit of these subsections within pitSuggestionRadiusM of `here`
+export const nearestPit = (subs, here) => {
+  const { pitSuggestionRadiusM } = executionLimits();
+  return (
+    subs
+      .flatMap((other) =>
+        ["start", "end"]
+          .filter((side) => other[side]?.pit?.latitude != null)
+          .map((side) => {
+            const { latitude, longitude } = other[side].pit;
+            return { other, side, distance: distanceM({ lat: latitude, lng: longitude }, here) };
+          })
+      )
+      .filter(({ distance }) => distance <= pitSuggestionRadiusM)
+      .sort((a, b) => a.distance - b.distance)[0] || null
+  );
+};
+
 /**
  * A pit this subsection's start or end can reuse: the nearest start or end pit already
  * recorded on another subsection, within pitSuggestionRadiusM of `at` (where the user is
@@ -356,19 +374,7 @@ const plainPit = (pit) => (pit?.toObject ? pit.toObject() : pit);
 export const pitSuggestion = (sub, others, which = "start", at = null) => {
   const here = at || parseLatLong(which === "start" ? sub.fromLatLong : sub.toLatLong);
   if (!here || !isDucting(sub.typeOfWork)) return null;
-  const { pitSuggestionRadiusM } = executionLimits();
-  const nearest = others
-    .filter((other) => String(other._id) !== String(sub._id))
-    .flatMap((other) =>
-      ["start", "end"]
-        .filter((side) => other[side]?.pit?.latitude != null)
-        .map((side) => {
-          const { latitude, longitude } = other[side].pit;
-          return { other, side, distance: distanceM({ lat: latitude, lng: longitude }, here) };
-        })
-    )
-    .filter(({ distance }) => distance <= pitSuggestionRadiusM)
-    .sort((a, b) => a.distance - b.distance)[0];
+  const nearest = nearestPit(others.filter((other) => String(other._id) !== String(sub._id)), here);
   if (!nearest) return null;
   const { other, side, distance } = nearest;
   const { copiedFrom: _copiedFrom, merge: _merge, ...pit } = plainPit(other[side].pit);

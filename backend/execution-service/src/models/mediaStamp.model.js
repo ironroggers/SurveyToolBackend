@@ -25,6 +25,8 @@ const mediaStampSchema = new mongoose.Schema(
                         source: String,
                         locationSource: String
                 },
+                // A photo with a size limit is brought under it after stamping
+                maxBytes: Number,
                 status: {
                         type: String,
                         enum: ["PENDING", "PROCESSING", "DONE", "FAILED"],

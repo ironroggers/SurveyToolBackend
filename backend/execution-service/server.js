@@ -19,6 +19,7 @@ import "./src/models/lgdBlock.model.js";
 // Routes
 import sectionRoutes from "./src/routes/section.routes.js";
 import subSectionRoutes from "./src/routes/subsection.routes.js";
+import stageRecordRoutes from "./src/routes/stageRecord.routes.js";
 import trenchingRoutes from "./src/routes/trenching.routes.js";
 import uploadRoutes from "./src/routes/upload.routes.js";
 import aiRoutes from "./src/routes/ai.routes.js";
@@ -61,6 +62,7 @@ app.use(DEMO_MEDIA_ROUTE, express.static(DEMO_MEDIA_DIR, { setHeaders: (res) => 
 app.use("/api", requireAuth);
 app.use("/api/sections", sectionRoutes);
 app.use("/api/subsections", subSectionRoutes);
+app.use("/api/stage-records", stageRecordRoutes);
 app.use("/api/trenchings", trenchingRoutes);
 app.use("/api/uploads", uploadRoutes);
 app.use("/api/ai", aiRoutes);

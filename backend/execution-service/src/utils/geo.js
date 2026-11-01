@@ -33,6 +33,17 @@ export const formatLatLong = ({ lat, lng }) => `${lat.toFixed(6)}, ${lng.toFixed
 
 export const round = (value, digits = 1) => Math.round(value * 10 ** digits) / 10 ** digits;
 
+// How far along the straight line from `a` to `b` the point sits, 0 to 1
+export const fractionAlong = (a, b, point) => {
+  const k = Math.cos(((a.lat + b.lat) / 2) * (Math.PI / 180));
+  const dx = (b.lng - a.lng) * k;
+  const dy = b.lat - a.lat;
+  const lengthSq = dx * dx + dy * dy;
+  if (!lengthSq) return 0;
+  const t = (((point.lng - a.lng) * k) * dx + (point.lat - a.lat) * dy) / lengthSq;
+  return Math.max(0, Math.min(1, t));
+};
+
 // A subsection's calculated length: the straight distance between its planned From and To
 // ("lat, long" strings), whole metres; null without both points
 export const calculatedLengthOf = ({ fromLatLong, toLatLong }) => {

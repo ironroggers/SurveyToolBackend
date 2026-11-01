@@ -1,7 +1,7 @@
 import path from "node:path";
 import MediaStamp from "../models/mediaStamp.model.js";
 import { downloadToFile, getS3Bucket, keyFromUrl, uploadFromFile } from "../utils/s3.js";
-import { stampFile, withTempDir } from "./stamp.service.js";
+import { shrinkImage, stampFile, withTempDir } from "./stamp.service.js";
 
 // Every photo and video saved through the execution flow gets the location stamp burned
 // in on the server, after upload: one job per file, worked one at a time in the
@@ -46,14 +46,14 @@ const metaOf = (m) => ({
 });
 
 /** Queue a stamp for each new media file; files already queued or stamped are left alone */
-export const queueStamps = async (media) => {
+export const queueStamps = async (media, { maxBytes } = {}) => {
   if (!getS3Bucket()) return;
   const ops = media
     .filter((m) => m.s3Key && keyFromUrl(m.url) === m.s3Key)
     .map((m) => ({
       updateOne: {
         filter: { s3Key: m.s3Key },
-        update: { $setOnInsert: { s3Key: m.s3Key, url: m.url, fileType: m.fileType, meta: metaOf(m), status: "PENDING" } },
+        update: { $setOnInsert: { s3Key: m.s3Key, url: m.url, fileType: m.fileType, meta: metaOf(m), status: "PENDING", ...(maxBytes ? { maxBytes } : {}) } },
         upsert: true,
       },
     }));
@@ -78,7 +78,8 @@ const stampJob = async (job) => {
     const ext = path.extname(job.s3Key) || (job.fileType === "VIDEO" ? ".mp4" : ".jpg");
     const input = path.join(dir, `original${ext}`);
     await downloadToFile(job.s3Key, input);
-    const { output, contentType } = await stampFile({ input, fileType: job.fileType, meta: job.meta, dir });
+    const { output: stamped, contentType } = await stampFile({ input, fileType: job.fileType, meta: job.meta, dir });
+    const output = job.fileType === "IMAGE" && job.maxBytes ? await shrinkImage(stamped, job.maxBytes, dir) : stamped;
     const sizeBytes = await uploadFromFile(job.s3Key, output, contentType);
     await MediaStamp.updateOne({ _id: job._id }, { $set: { status: "DONE", doneAt: new Date(), sizeBytes, error: null } });
   });

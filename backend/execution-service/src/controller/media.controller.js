@@ -7,6 +7,7 @@ import Trenching from "../models/trenching.model.js";
 import InfraCapture from "../models/infraCapture.model.js";
 import InfraEquipment from "../models/infraEquipment.model.js";
 import Restoration from "../models/restoration.model.js";
+import StageRecord from "../models/stageRecord.model.js";
 import mongoose from "mongoose";
 import { badRequest, conflict, notFound, sendError } from "../utils/httpError.js";
 import { getObjectStream, keyFromUrl } from "../utils/s3.js";
@@ -44,6 +45,7 @@ const findMediaByUrl = async (url) => {
       $or: ["geoPhoto", "geoPhotos", "items.geoPhoto", "items.geoPhotos"].map((p) => ({ [`${p}.url`]: url })),
     }).lean(),
     Restoration.findOne({ $or: [{ "items.photos.url": url }, { "items.video.url": url }] }).lean(),
+    StageRecord.findOne({ "photos.url": url }).lean(),
   ]);
   for (const doc of docs) {
     const media = doc && collectMedia(doc).find((m) => m.url === url);

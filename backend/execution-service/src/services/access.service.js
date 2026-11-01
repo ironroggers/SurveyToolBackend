@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import BlockProfile from "../models/blockProfile.model.js";
 import Section from "../models/section.model.js";
 import SubSection from "../models/subSection.model.js";
+import StageRecord from "../models/stageRecord.model.js";
 import { normalizeRole, scopeFor } from "../config/permissions.js";
 import { HttpError, notFound, sendError } from "../utils/httpError.js";
 
@@ -96,6 +97,12 @@ const loadSubsection = async (id) => {
   return sub;
 };
 
+const loadStageRecord = async (id) => {
+  const record = mongoose.isValidObjectId(id) ? await StageRecord.findById(id) : null;
+  if (!record) throw notFound("Record not found");
+  return record;
+};
+
 // Checks access to a section's block. Sections without a block profile (the older
 // location sections) need only a signed-in user.
 export const checkSection = async (req, action, section, { write = false } = {}) => {
@@ -150,4 +157,13 @@ export const guardSubsection = (action, { write = false, param = "id" } = {}) =>
     if (!section) return { sub };
     const profile = await checkSection(req, action, section, { write });
     return { profile, section, sub };
+  });
+
+// A stage record route (/:id)
+export const guardStageRecord = (action, { write = false, param = "id" } = {}) =>
+  wrap(async (req) => {
+    const record = await loadStageRecord(req.params[param]);
+    const section = await loadSection(record.section);
+    const profile = await checkSection(req, action, section, { write });
+    return { profile, section, record };
   });
