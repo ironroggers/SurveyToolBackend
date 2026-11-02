@@ -108,10 +108,17 @@ export const STAGES = {
   DUCTING: { label: "Ducting", one: "duct run", many: "duct runs", add: "Add run", empty: "Add the first one from the site.", nearest: "the nearest duct end", mediaRule: "ductRun" },
   // Coupling points are worked out from the ducts, so there is nothing to add by hand
   COUPLING: { label: "Coupling", one: "coupling", many: "couplings", empty: "A coupling point appears here when two duct runs meet at a pit.", nearest: "the nearest coupling point" },
-  CHAMBER: { label: "Chamber", one: "chamber", many: "chambers", add: "Add chamber", empty: "Add the first one from the site.", nearest: "the nearest chamber" },
+  // editUntilReviewed: the Field Executive can still edit a submitted record until a reviewer looks at it
+  CHAMBER: { label: "Chamber", one: "chamber", many: "chambers", add: "Add chamber", empty: "Add the first one from the site.", nearest: "the nearest chamber", editUntilReviewed: true },
   BLOWING: { label: "Blowing", one: "blowing run", many: "blowing runs", add: "Add run", empty: "Pick two chambers to record a run of cable.", nearest: "the nearest blown cable" },
   ROUTE_MARKER: { label: "Route marker", one: "route marker", many: "route markers", add: "Add marker", empty: "Add the first one from the site.", nearest: "the nearest marker" },
 };
+// Whether the Field Executive can edit a record: a draft, or a submitted record of an
+// editUntilReviewed stage that neither the Cluster Head nor the GIS Head has reviewed yet
+export const openForFieldEdit = (record) =>
+  record.status === "IN_PROGRESS" ||
+  (Boolean(STAGES[record.stage]?.editUntilReviewed) && record.status === "PENDING_APPROVAL" && !record.review?.clusterHead?.status && !record.review?.gisHead?.status);
+
 export const STAGE_ORDER = ["EXCAVATION", "DUCTING", "COUPLING", "CHAMBER", "BLOWING", "ROUTE_MARKER"];
 export const RECORD_STAGES = STAGE_ORDER.slice(1);
 
@@ -139,8 +146,9 @@ export const stageRecordName = (stage, data, seq) =>
 
 // Stage fields as data, like ENTRY_FIELDS, in the order the form shows them.
 // Extra kinds: location (the GPS field), date, note (text on the form, no value), link (a
-// picker over `target`: SUBSECTION or a stage; stored as an id so names can change safely) and
-// pit (a pit from excavation, stored as `<subsection id>:<start|end>`; see stagePits.service.js).
+// picker over `target`: SUBSECTION or a stage; stored as an id so names can change safely),
+// pit (a pit from excavation, stored as `<subsection id>:<start|end>`; see stagePits.service.js) and
+// node (one of the section's two ends, a GP or the block router, stored as `<type>:<code>`).
 // `draft`: needed to save a draft. `showIf`: every condition must hold; a hidden field is
 // cleared and not required. `group`: a heading above this field and the ones after it.
 const LOCATION = { key: "location", label: "Location", kind: "location", required: true, requiredMessage: "Capture the location" };
@@ -148,6 +156,7 @@ const POSITION = field("position", "Position", "choice", { options: "position", 
 const MAKE = field("make", "Make", "text", { placeholder: "e.g. Dura-Line" });
 const link = (key, label, target, extra = {}) => field(key, label, "link", { target, ...extra });
 const pit = (key, label, extra = {}) => field(key, label, "pit", extra);
+const node = (key, label, extra = {}) => field(key, label, "node", extra);
 const reading = (key, label, end) =>
   field(key, label, "number", { end, required: true, nonNegative: true, requiredMessage: "Enter both meter readings", placeholder: end === "from" ? "1772" : "2084" });
 const ifRow = { key: "rowRequired", in: ["Yes"] };
@@ -189,7 +198,11 @@ export const STAGE_FIELDS = {
     pit("atCoupling", "At a coupling point?", {
       chips: true,
       hint: "optional, copies its location",
-      help: "Chambers go wherever suits the site, about every 1 km. Most are not at a coupling point.",
+    }),
+    node("atNode", "At the GP or block router?", {
+      chips: true,
+      hint: "optional, copies its location",
+      help: "Chambers go wherever suits the site, about every 1 km: at a coupling point, at the section's GP or block router, or in between.",
     }),
     LOCATION,
     POSITION,

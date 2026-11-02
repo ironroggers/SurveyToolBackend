@@ -7,6 +7,7 @@ import { badRequest, failIfErrors, notFound } from "../utils/httpError.js";
 import { round } from "../utils/geo.js";
 import { cleanFix, cleanMediaSet } from "./execution.service.js";
 import { findCouplingPoints, isPitKey, loadSectionPits } from "./stagePits.service.js";
+import { sectionEnds } from "../utils/blockNodes.js";
 
 // The rules for one stage record's fields. Field error keys are the config's field keys, plus
 // `photos`, so clients can put each message under its field.
@@ -59,6 +60,11 @@ const cleanValue = (f, raw, errors) => {
   if (f.kind === "pit") {
     if (isPitKey(raw)) return String(raw);
     errors[f.key] = f.requiredMessage || "Pick from the list";
+    return undefined;
+  }
+  if (f.kind === "node") {
+    if (/^(GP|ROUTER):\S+/.test(String(raw))) return String(raw);
+    errors[f.key] = "Pick from the list";
     return undefined;
   }
   if (f.kind === "link") {
@@ -119,6 +125,15 @@ const checkPits = async (stage, data, section, recordId, errors) => {
   return { latitude: pit.latitude, longitude: pit.longitude, accuracy: pit.accuracy };
 };
 
+// A node must be one of the section's ends; a chamber sits at a coupling point or at a node, not both
+const checkNodes = (stage, data, section, errors) => {
+  const ends = sectionEnds(section).map((n) => n.key);
+  for (const f of STAGE_FIELDS[stage].filter((x) => x.kind === "node" && data[x.key])) {
+    if (!ends.includes(data[f.key])) errors[f.key] = "This is no longer an end of the section";
+  }
+  if (stage === "CHAMBER" && data.atCoupling && data.atNode) errors.atNode = "Pick a coupling point or the GP / block router, not both";
+};
+
 const mediaRuleFor = (stage) => MEDIA_RULES[STAGES[stage].mediaRule || "stageRecord"];
 
 /**
@@ -158,6 +173,7 @@ export const buildRecordValues = async (req, stage, section, { recordId, full = 
   const rule = mediaRuleFor(stage);
   const { photos } = cleanMediaSet(body, full ? rule : { ...rule, minPhotos: 0 }, "", errors);
   await checkLinks(stage, links, data, section, recordId, errors);
+  checkNodes(stage, data, section, errors);
   const pitFix = await checkPits(stage, data, section, recordId, errors);
   if (pitFix.latitude !== undefined) location = pitFix;
 

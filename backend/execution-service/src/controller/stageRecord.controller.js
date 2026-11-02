@@ -1,6 +1,6 @@
 import Section from "../models/section.model.js";
 import StageRecord from "../models/stageRecord.model.js";
-import { JOINT_CODE, STAGES, STAGE_ORDER, stageRecordName } from "../config/executionTypes.js";
+import { JOINT_CODE, STAGES, STAGE_ORDER, openForFieldEdit, stageRecordName } from "../config/executionTypes.js";
 import { badRequest, conflict, notFound, sendError } from "../utils/httpError.js";
 import { actorOf, checkVersion, historyEntry, roleLabel } from "../services/execution.service.js";
 import { actorRole, can, forbidden, sectionStage } from "../services/access.service.js";
@@ -162,7 +162,14 @@ export const updateRecord = async (req, res) => {
     const manager = can(req, "deleteSubsection");
     if (!manager) {
       assertFieldStage(section, notInField);
-      assertRecordStatus(record, ["IN_PROGRESS"], "Submitted, so it can't be edited. It opens again only if a reviewer sends it back.");
+      if (!openForFieldEdit(record)) {
+        throw conflict(
+          STAGES[record.stage]?.editUntilReviewed && record.status === "PENDING_APPROVAL"
+            ? "A reviewer has already looked at it, so it can't be edited. It opens again only if a reviewer sends it back."
+            : "Submitted, so it can't be edited. It opens again only if a reviewer sends it back.",
+          "WRONG_STATE"
+        );
+      }
     }
     checkVersion(record, req.body?.version);
     const values = await buildRecordValues(req, record.stage, section, { recordId: record._id, full: record.status !== "IN_PROGRESS" });
@@ -176,7 +183,7 @@ export const updateRecord = async (req, res) => {
     if (values.data.hasJoint === "Yes" && !record.jointSeq) record.jointSeq = await nextSeq(record.blockProfile, JOINT_CODE);
     record.name = stageRecordName(record.stage, values.data, record.seq);
     record.set({ ...values, links: values.links });
-    record.history.push(historyEntry(req, "edited", "Edited"));
+    record.history.push(historyEntry(req, "edited", record.status === "PENDING_APPROVAL" && !manager ? "Edited before review" : "Edited"));
     record.updatedBy = actorOf(req);
     await saveRecord(record);
     queueStageStamps(record);

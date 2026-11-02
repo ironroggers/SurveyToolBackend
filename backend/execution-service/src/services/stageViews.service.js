@@ -9,6 +9,7 @@ import { entryStats } from "./views.service.js";
 import { sectionStage } from "./access.service.js";
 import { collectMedia, queueStamps } from "./stampQueue.service.js";
 import { PIT_SELECT, chainageModel, findCouplingPoints, pitKey, sectionPits } from "./stagePits.service.js";
+import { sectionEnds } from "../utils/blockNodes.js";
 
 // Read models for the stage screens. All the wording comes from here, so both clients match.
 
@@ -31,7 +32,7 @@ const loadContext = async (section, profile) => {
   const [subDocs, records, block] = await Promise.all([
     SubSection.find({ section: section._id, typeOfWork: { $exists: true } }).select(`name typeOfWork executionStatus roadName fromLatLong toLatLong subSectionLength seq initialCondition.ofcSide ${PIT_SELECT}`).sort({ seq: 1 }).lean(),
     StageRecord.find({ section: section._id }).sort({ seq: 1, code: 1 }),
-    profile || BlockProfile.findById(section.blockProfile).select("stateCode districtCode blockCode frozen").lean(),
+    profile || BlockProfile.findById(section.blockProfile).select("stateCode districtCode blockCode frozen gps blockRouter").lean(),
   ]);
   const stats = await entryStats(subDocs.map((s) => s._id));
   const chainage = chainageModel(section);
@@ -42,6 +43,7 @@ const loadContext = async (section, profile) => {
   const views = new Map();
   const ctx = { section, block, subs, chainage, records, subById: new Map(subs.map((s) => [String(s._id), s])), byId: new Map(records.map((r) => [String(r._id), r])) };
   ctx.pits = sectionPits(subs, chainage);
+  ctx.ends = sectionEnds(section, block);
   ctx.pitOf = (key) => ctx.pits.byKey.get(key);
   ctx.ductPits = (d) => ({ start: ctx.pitOf(pitKey(d.links?.subSection, "start")), end: ctx.pitOf(pitKey(d.links?.subSection, "end")) });
   ctx.points = findCouplingPoints(ctx.pits, records.filter((r) => r.stage === "DUCTING"), records.filter((r) => r.stage === "COUPLING"));
@@ -316,7 +318,10 @@ const pitViews = (r, ctx) => {
     const through = chainageM != null && chainageEndM != null ? ductsAlong(ctx, Math.min(chainageM, chainageEndM), Math.max(chainageM, chainageEndM)).runs : [];
     return { ductNames: through.map((d) => d.name) };
   }
-  if (r.stage === "CHAMBER") return { pits: { atCoupling: named(ctx.pitOf(r.data?.atCoupling)) } };
+  if (r.stage === "CHAMBER") {
+    const end = ctx.ends.find((n) => n.key === r.data?.atNode);
+    return { pits: { atCoupling: named(ctx.pitOf(r.data?.atCoupling)) }, nodes: { atNode: end ? { key: end.key, name: end.name } : undefined } };
+  }
   return {};
 };
 
@@ -365,6 +370,7 @@ export const recordsView = async (section, profile, stage, status) => {
       chambers: ofStage(ctx, "CHAMBER").map((c) => ({ _id: c._id, name: c.name, type: c.data?.type, typeLabel: OPTION_LABELS.chamberType[c.data?.type], chainageM: ctx.place(c).chainageM, status: c.status, latitude: c.latitude, longitude: c.longitude, accuracy: c.accuracy, roadOffset: c.data?.roadOffset, position: c.data?.position, landmark: c.data?.landmark })),
       ductRuns: ofStage(ctx, "DUCTING").map((d) => ({ _id: d._id, name: d.name, subsectionName: ctx.subById.get(String(d.links?.subSection))?.name, lengthM: d.data?.lengthM, ...ctx.place(d) })),
       pits: ctx.pits.list.map((p) => ({ key: p.key, keys: p.keys, name: p.name, chainageM: p.chainageM, latitude: p.latitude, longitude: p.longitude, accuracy: p.accuracy, landmarks: p.landmarks, couplingPoint: ctx.points.some((c) => c.pit === p) })),
+      sectionEnds: ctx.ends,
       couplingPoints: ctx.points.map((p) => ({ key: p.pit.key, name: p.pit.name, chainageM: p.pit.chainageM, latitude: p.pit.latitude, longitude: p.pit.longitude, accuracy: p.pit.accuracy, landmarks: p.pit.landmarks, ductNames: p.runs.map((d) => d.name), recordId: p.record?._id })),
       subsections: ctx.subs.map((s) => {
         const used = usedSubs.get(String(s._id));

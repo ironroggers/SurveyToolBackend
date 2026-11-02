@@ -33,3 +33,29 @@ export const findBlockNode = (profile, ref) => {
 // The "lat, long" text sections have always stored; empty when the node has no coordinates
 export const formatLatLong = (node) =>
   node.latitude != null && node.longitude != null ? `${node.latitude}, ${node.longitude}` : "";
+
+// A section end as a stage record stores it (a chamber at the GP or block router)
+export const nodeKey = (node) => `${node.type}:${node.code}`;
+
+/**
+ * A block section's two ends: { key, type, name, latitude, longitude }, From first. The location is
+ * the block profile's, else the section's own From / To; `profile` is optional.
+ */
+export const sectionEnds = (section, profile) =>
+  [
+    [section.fromNode, section.fromLatLong],
+    [section.toNode, section.toLatLong],
+  ]
+    .filter(([node]) => node?.type && node?.code)
+    .map(([node, latLong]) => {
+      const found = profile ? findBlockNode(profile, node) : null;
+      const [lat, lng] = String(latLong || "").split(",").map((v) => parseFloat(v));
+      const has = found?.latitude != null && found?.longitude != null;
+      return {
+        key: nodeKey(node),
+        type: node.type,
+        name: found?.name || node.name || node.code,
+        latitude: has ? found.latitude : Number.isFinite(lat) ? lat : undefined,
+        longitude: has ? found.longitude : Number.isFinite(lng) ? lng : undefined,
+      };
+    });
