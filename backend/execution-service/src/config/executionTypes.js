@@ -147,8 +147,9 @@ export const stageRecordName = (stage, data, seq) =>
 // Stage fields as data, like ENTRY_FIELDS, in the order the form shows them.
 // Extra kinds: location (the GPS field), date, note (text on the form, no value), link (a
 // picker over `target`: SUBSECTION or a stage; stored as an id so names can change safely),
-// pit (a pit from excavation, stored as `<subsection id>:<start|end>`; see stagePits.service.js) and
-// node (one of the section's two ends, a GP or the block router, stored as `<type>:<code>`).
+// pit (a pit from excavation, stored as `<subsection id>:<start|end>`; see stagePits.service.js),
+// node (one of the section's two ends, a GP or the block router, stored as `<type>:<code>`) and
+// refs (`count` reference points near the record, stored on the record's own `refs`, like a pit's).
 // `draft`: needed to save a draft. `showIf`: every condition must hold; a hidden field is
 // cleared and not required. `group`: a heading above this field and the ones after it.
 const LOCATION = { key: "location", label: "Location", kind: "location", required: true, requiredMessage: "Capture the location" };
@@ -205,6 +206,14 @@ export const STAGE_FIELDS = {
       help: "Chambers go wherever suits the site, about every 1 km: at a coupling point, at the section's GP or block router, or in between.",
     }),
     LOCATION,
+    // TODO(confirm): photos per point; the client asked for 1 each, up to 2 like a pit's
+    field("refs", "Reference points", "refs", {
+      count: 3,
+      mediaRule: "chamberRef",
+      required: true,
+      requiredMessage: "Add all 3 reference points",
+      hint: "3 fixed objects near the chamber, with the tape distance and a photo of each",
+    }),
     POSITION,
     field("roadOffset", "Offset from road centre (m)", "number", { unit: "m", nonNegative: true, placeholder: "e.g. 3.6" }),
     field("landmark", "Nearby landmark", "text", { placeholder: "e.g. Electric pole" }),
@@ -265,6 +274,8 @@ export const MEDIA_RULES = {
   // The pit itself and each of its reference points, optional
   pit: { minPhotos: 0, maxPhotos: 4, video: "optional" },
   refPoint: { minPhotos: 0, maxPhotos: 2, video: "optional" },
+  // A chamber's reference points each need a photo
+  chamberRef: { minPhotos: 1, maxPhotos: 2, video: "none" },
   // Start and end have no photos step any more: the pit and its reference points carry the media
   start: { minPhotos: 0, maxPhotos: 4, video: "optional" },
   end: { minPhotos: 0, maxPhotos: 4, video: "optional" },

@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import { RECORD_STAGES } from "../config/executionTypes.js";
-import { actorSchema, approvalSchema, historySchema, withVersion } from "./execution.schemas.js";
+import { actorSchema, approvalSchema, historySchema, referencePointSchema, withVersion } from "./execution.schemas.js";
 import { mediaFileSchema } from "./mediaFile.schema.js";
 
 const objectId = (ref) => ({ type: mongoose.Schema.Types.ObjectId, ref });
@@ -38,6 +38,8 @@ const stageRecordSchema = new mongoose.Schema(
                 accuracy: Number,
                 accuracyAboveLimit: Boolean,
                 photos: [mediaFileSchema],
+                // Chamber: fixed objects nearby with the tape distance to each (a `refs` field in STAGE_FIELDS)
+                refs: { type: [referencePointSchema], default: undefined },
                 remarks: { type: String, trim: true },
                 data: { type: mongoose.Schema.Types.Mixed, default: {} },
                 links: {

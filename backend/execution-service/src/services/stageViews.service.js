@@ -356,6 +356,26 @@ export const recordView = async (record) => {
   return { ...buildView(ctx.byId.get(String(record._id)) || record, ctx), sectionInfo: { _id: section._id, name: section.name, stage: sectionStage(section), blockFrozen: Boolean(ctx.block?.frozen?.at), fromName: section.fromNode?.name, toName: section.toNode?.name } };
 };
 
+// Each pit's reference points with their GPS fixes and photos, by pit key: from the first of its
+// subsection pits that has any (a copied or merged pit repeats them)
+const fullPitRefs = async (pits) => {
+  const refs = new Map();
+  const keys = pits.flatMap((p) => p.keys);
+  if (!keys.length) return refs;
+  const subs = await SubSection.find({ _id: { $in: [...new Set(keys.map((k) => k.split(":")[0]))] } }).select("start.pit.refs end.pit.refs").lean();
+  const byId = new Map(subs.map((s) => [String(s._id), s]));
+  for (const pit of pits) {
+    const found = pit.keys
+      .map((key) => {
+        const [id, side] = key.split(":");
+        return byId.get(id)?.[side]?.pit?.refs;
+      })
+      .find((list) => list?.length);
+    if (found) refs.set(pit.key, found.map(({ description, latitude, longitude, accuracy, tapeDistanceM, photos }) => ({ description, latitude, longitude, accuracy, tapeDistanceM, photos: photos || [] })));
+  }
+  return refs;
+};
+
 /**
  * What a list row needs to describe each record (its pits, chambers, end, ducts and chainage),
  * by record id. One context per section, so a long approvals list stays a few reads.
@@ -380,6 +400,8 @@ export const recordLineViews = async (records) => {
 // The stage screen: its summary, its records, and what the pickers on the form need
 export const recordsView = async (section, profile, stage, status) => {
   const ctx = await loadContext(section, profile);
+  // A chamber at a coupling point copies the pit's reference points, so the form gets them whole
+  const pitRefs = stage === "CHAMBER" ? await fullPitRefs(ctx.points.map((p) => p.pit)) : new Map();
   const all = ofStage(ctx, stage);
   const usedSubs = new Map(ofStage(ctx, "DUCTING").map((d) => [String(d.links?.subSection), { recordId: d._id, name: d.name }]));
   return {
@@ -392,7 +414,7 @@ export const recordsView = async (section, profile, stage, status) => {
       ductRuns: ofStage(ctx, "DUCTING").map((d) => ({ _id: d._id, name: d.name, subsectionName: ctx.subById.get(String(d.links?.subSection))?.name, lengthM: d.data?.lengthM, ...ctx.place(d) })),
       pits: ctx.pits.list.map((p) => ({ key: p.key, keys: p.keys, name: p.name, chainageM: p.chainageM, latitude: p.latitude, longitude: p.longitude, accuracy: p.accuracy, landmarks: p.landmarks, couplingPoint: ctx.points.some((c) => c.pit === p) })),
       sectionEnds: ctx.ends,
-      couplingPoints: ctx.points.map((p) => ({ key: p.pit.key, name: p.pit.name, chainageM: p.pit.chainageM, latitude: p.pit.latitude, longitude: p.pit.longitude, accuracy: p.pit.accuracy, landmarks: p.pit.landmarks, ductNames: p.runs.map((d) => d.name), recordId: p.record?._id })),
+      couplingPoints: ctx.points.map((p) => ({ refs: pitRefs.get(p.pit.key), key: p.pit.key, name: p.pit.name, chainageM: p.pit.chainageM, latitude: p.pit.latitude, longitude: p.pit.longitude, accuracy: p.pit.accuracy, landmarks: p.pit.landmarks, ductNames: p.runs.map((d) => d.name), recordId: p.record?._id })),
       subsections: ctx.subs.map((s) => {
         const used = usedSubs.get(String(s._id));
         const start = ctx.pitOf(pitKey(s._id, "start"));

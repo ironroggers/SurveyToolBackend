@@ -4,7 +4,7 @@ import StageRecord from "../models/stageRecord.model.js";
 import SubSection from "../models/subSection.model.js";
 import { MEDIA_RULES, OPTIONS, RECORD_STAGES, STAGE_DRAFT_MESSAGES, STAGE_FIELDS, STAGES, stageCode } from "../config/executionTypes.js";
 import { badRequest, failIfErrors, notFound } from "../utils/httpError.js";
-import { round } from "../utils/geo.js";
+import { distanceM, round } from "../utils/geo.js";
 import { cleanFix, cleanMediaSet } from "./execution.service.js";
 import { findCouplingPoints, isPitKey, loadSectionPits } from "./stagePits.service.js";
 import { sectionEnds } from "../utils/blockNodes.js";
@@ -134,6 +134,32 @@ const checkNodes = (stage, data, section, errors) => {
   if (stage === "CHAMBER" && data.atCoupling && data.atNode) errors.atNode = "Pick a coupling point or the GP / block router, not both";
 };
 
+/**
+ * Reference points as a pit has them: a description, a GPS fix, the tape distance to the record
+ * and photos. A draft keeps whatever is given (each value still checked); `full` needs all of them.
+ * `at` is the record's location, for the GPS distance the reviewer compares with the tape.
+ */
+const cleanRefs = (f, input, at, full, errors) => {
+  if (!Array.isArray(input)) {
+    if (full) errors[f.key] = f.requiredMessage;
+    return undefined;
+  }
+  const rule = MEDIA_RULES[f.mediaRule];
+  if (full && input.length < f.count) errors[f.key] = f.requiredMessage;
+  return input.slice(0, f.count).map((ref = {}, i) => {
+    const base = `${f.key}.${i}`;
+    const description = isBlank(ref.description) ? undefined : String(ref.description).trim();
+    if (full && !description) errors[`${base}.description`] = "Say what the reference point is";
+    const hasFix = !isBlank(ref.latitude) && !isBlank(ref.longitude);
+    const fix = hasFix || full ? cleanFix(ref, `${base}.location`, errors, "Capture GPS at the reference point") : null;
+    const tape = isBlank(ref.tapeDistanceM) ? undefined : Number(ref.tapeDistanceM);
+    if ((full || tape !== undefined) && !(tape > 0)) errors[`${base}.tapeDistanceM`] = "Enter the tape distance in metres";
+    const gpsDistanceM = fix && at ? round(distanceM({ lat: at.latitude, lng: at.longitude }, { lat: fix.latitude, lng: fix.longitude }), 1) : undefined;
+    const { photos } = cleanMediaSet(ref, full ? rule : { ...rule, minPhotos: 0 }, `${base}.`, errors, { photos: "Take a photo of the reference point" });
+    return { description, ...(fix || {}), tapeDistanceM: tape > 0 ? tape : undefined, gpsDistanceM, photos };
+  });
+};
+
 const mediaRuleFor = (stage) => MEDIA_RULES[STAGES[stage].mediaRule || "stageRecord"];
 
 /**
@@ -148,9 +174,14 @@ export const buildRecordValues = async (req, stage, section, { recordId, full = 
   const data = {};
   const links = {};
   let location;
+  let refs;
 
   for (const f of fields) {
     if (f.kind === "note") continue;
+    if (f.kind === "refs") {
+      refs = cleanRefs(f, body[f.key], location, full, errors);
+      continue;
+    }
     if (f.kind === "location") {
       const given = body.location && body.location.latitude != null && body.location.latitude !== "";
       if (given) location = cleanFix(body.location, "location", errors, f.requiredMessage);
@@ -184,6 +215,7 @@ export const buildRecordValues = async (req, stage, section, { recordId, full = 
     data,
     links,
     photos,
+    refs,
     latitude: location?.latitude,
     longitude: location?.longitude,
     accuracy: location?.accuracy,
@@ -199,6 +231,10 @@ export const assertRecordComplete = (record) => {
   for (const f of STAGE_FIELDS[record.stage]) {
     if (f.kind === "location") {
       if (record.latitude == null) errors.location = f.requiredMessage;
+    } else if (f.kind === "refs") {
+      const minPhotos = MEDIA_RULES[f.mediaRule].minPhotos;
+      const done = (record.refs || []).filter((r) => r.description && r.latitude != null && r.tapeDistanceM > 0 && (r.photos || []).length >= minPhotos);
+      if (done.length < f.count) errors[f.key] = f.requiredMessage;
     } else if (f.required && fieldShown(f, values) && isBlank(values[f.key])) {
       errors[f.key] = f.requiredMessage;
     }
