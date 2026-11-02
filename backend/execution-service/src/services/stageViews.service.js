@@ -340,8 +340,8 @@ export const recordsView = async (section, profile, stage, status) => {
     options: {
       chambers: ofStage(ctx, "CHAMBER").map((c) => ({ _id: c._id, name: c.name, type: c.data?.type, typeLabel: OPTION_LABELS.chamberType[c.data?.type], chainageM: ctx.place(c).chainageM, status: c.status, latitude: c.latitude, longitude: c.longitude, accuracy: c.accuracy, roadOffset: c.data?.roadOffset, position: c.data?.position })),
       ductRuns: ofStage(ctx, "DUCTING").map((d) => ({ _id: d._id, name: d.name, subsectionName: ctx.subById.get(String(d.links?.subSection))?.name, lengthM: d.data?.lengthM, ...ctx.place(d) })),
-      pits: ctx.pits.list.map((p) => ({ key: p.key, keys: p.keys, name: p.name, chainageM: p.chainageM, latitude: p.latitude, longitude: p.longitude, accuracy: p.accuracy, couplingPoint: ctx.points.some((c) => c.pit === p) })),
-      couplingPoints: ctx.points.map((p) => ({ key: p.pit.key, name: p.pit.name, chainageM: p.pit.chainageM, latitude: p.pit.latitude, longitude: p.pit.longitude, accuracy: p.pit.accuracy, ductNames: p.runs.map((d) => d.name), recordId: p.record?._id })),
+      pits: ctx.pits.list.map((p) => ({ key: p.key, keys: p.keys, name: p.name, chainageM: p.chainageM, latitude: p.latitude, longitude: p.longitude, accuracy: p.accuracy, landmarks: p.landmarks, couplingPoint: ctx.points.some((c) => c.pit === p) })),
+      couplingPoints: ctx.points.map((p) => ({ key: p.pit.key, name: p.pit.name, chainageM: p.pit.chainageM, latitude: p.pit.latitude, longitude: p.pit.longitude, accuracy: p.pit.accuracy, landmarks: p.pit.landmarks, ductNames: p.runs.map((d) => d.name), recordId: p.record?._id })),
       subsections: ctx.subs.map((s) => {
         const used = usedSubs.get(String(s._id));
         const start = ctx.pitOf(pitKey(s._id, "start"));

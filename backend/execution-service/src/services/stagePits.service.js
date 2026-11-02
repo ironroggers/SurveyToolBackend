@@ -7,7 +7,7 @@ import { distanceM, fractionAlong, parseLatLong, pointOf } from "../utils/geo.js
 // pit is. A pit is stored on a record as `<subsection id>:<start|end>`, which stays valid when
 // pits are merged or renumbered; its "Pit 3" name is worked out on every read.
 
-export const PIT_SELECT = "start.pit.latitude start.pit.longitude start.pit.accuracy start.pit.merge.id end.pit.latitude end.pit.longitude end.pit.accuracy end.pit.merge.id";
+export const PIT_SELECT = "start.pit.latitude start.pit.longitude start.pit.accuracy start.pit.merge.id start.pit.refs.description start.pit.refs.tapeDistanceM end.pit.latitude end.pit.longitude end.pit.accuracy end.pit.merge.id end.pit.refs.description end.pit.refs.tapeDistanceM";
 
 const SIDES = ["start", "end"];
 export const pitKey = (subId, side) => `${subId}:${side}`;
@@ -32,6 +32,7 @@ const looseOf = (subs) =>
       point: pointOf(sub[side].pit),
       accuracy: sub[side].pit.accuracy,
       mergeId: sub[side].pit.merge?.id ? String(sub[side].pit.merge.id) : null,
+      refs: sub[side].pit.refs || [],
     }))
   );
 
@@ -39,6 +40,15 @@ const looseOf = (subs) =>
 const samePit = (a, b, limit) => {
   if (a.mergeId && a.mergeId === b.mergeId) return true;
   return a.subId !== b.subId && distanceM(a.point, b.point) <= limit;
+};
+
+// A pit's reference points, to tell it apart on site. Copied and merged pits repeat them
+const landmarksOf = (members) => {
+  const seen = new Map();
+  for (const { description, tapeDistanceM } of members.flatMap((m) => m.refs)) {
+    if (description) seen.set(`${description.toLowerCase()}|${tapeDistanceM}`, { description, tapeDistanceM });
+  }
+  return [...seen.values()];
 };
 
 /** The section's pits, along the route: { list, byKey }. Each has every subsection pit it stands for in `keys`. */
@@ -62,6 +72,7 @@ export const sectionPits = (subs, chainage) => {
         latitude: first.point.lat,
         longitude: first.point.lng,
         accuracy: first.accuracy,
+        landmarks: landmarksOf(members),
       };
     })
     .sort((a, b) => (a.chainageM ?? Infinity) - (b.chainageM ?? Infinity) || a.order - b.order)
