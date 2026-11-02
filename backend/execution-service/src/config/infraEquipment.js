@@ -12,7 +12,7 @@ export const PHASES = ["1", "2", "ABP"];
 export const PROJECT_STATUSES = ["DESIGNED", "EXECUTED"];
 export const BACKHAUL = ["F", "S", "R"]; // OFC / Satellite / Radio
 // Asset code XX for each misc equipment type
-export const MISC_TYPE_TAGS = { RACK: "RA", FDMS: "FD", FTB: "FT", CCU: "CC", SPV: "SP" };
+export const MISC_TYPE_TAGS = { RACK: "RA", FDMS: "FD", FTB: "FT", CCU: "CC", SPV: "SP", EARTHING: "ER", ELECTRIC_METER: "EM" };
 export const GP_SITE_TYPES = ["SCHOOL", "COLLEGE", "AANGANWADI", "GRAM_PANCHAYAT_BHAVAN"];
 // Where misc equipment is: the GP site types, or a BSNL exchange
 export const MISC_LOCATION_TYPES = [...GP_SITE_TYPES, "BSNL_EXCHANGE"];
@@ -125,7 +125,7 @@ export const MISC_ITEM_FIELDS = {
   serialNo: { column: "ms_eqp_sn", type: "text" },
 };
 
-// SSDDDBBBB + type tag (RA, FD, FT, CC, SP) + the site's LGD code as it is: the GP's
+// SSDDDBBBB + type tag (RA, FD, FT, CC, SP, ER, EM) + the site's LGD code as it is: the GP's
 // (6 digits), or the block's (4 digits) at block level
 export const miscAssetCode = (profile, lgdCode, type) => {
   const prefix = assetPrefix(profile);

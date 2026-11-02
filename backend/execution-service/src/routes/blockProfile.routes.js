@@ -62,7 +62,7 @@ router.put("/:id/gps/:lgdCode/infra", write("captureInfra"), saveGpInfra);
 // Block and GP equipment sheets (web), with their geo photos (mobile app)
 router.put("/:id/equipment/:form/geo-photo", write("captureInfra"), saveBlockEquipmentPhoto); // form: block | misc
 router.put("/:id/gps/:lgdCode/equipment/:form/geo-photo", write("captureInfra"), saveGpEquipmentPhoto); // form: gp | misc
-// One photo per type of misc equipment (RACK, FDMS, FTB, CCU, SPV)
+// One photo per type of misc equipment (RACK, FDMS, FTB, CCU, SPV, EARTHING, ELECTRIC_METER)
 router.put("/:id/equipment/misc/items/:type/geo-photo", write("captureInfra"), saveBlockMiscItemPhoto);
 router.put("/:id/gps/:lgdCode/equipment/misc/items/:type/geo-photo", write("captureInfra"), saveGpMiscItemPhoto);
 router.get("/:id/equipment/:form?", viewExecution, getBlockEquipment); // form: block (default) | misc
