@@ -66,6 +66,8 @@ export const PERMISSIONS = {
   // Close a gap between nearby pits, or undo that
   mergePits: { ...MANAGERS, "GIS HEAD": "assigned" },
   approveRestoration: { ADMIN: "all" },
+  // Generate, list, download and delete Excel reports (web portal)
+  manageReports: { ADMIN: "all" },
 };
 
 // Same normalisation the mobile app applies ("field_executive" -> "FIELD EXECUTIVE").

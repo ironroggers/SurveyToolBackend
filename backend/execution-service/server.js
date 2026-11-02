@@ -15,6 +15,7 @@ import "./src/models/infraCapture.model.js";
 import "./src/models/infraEquipment.model.js";
 import "./src/models/mediaStamp.model.js";
 import "./src/models/lgdBlock.model.js";
+import "./src/models/report.model.js";
 
 // Routes
 import sectionRoutes from "./src/routes/section.routes.js";
@@ -29,6 +30,7 @@ import mediaRoutes from "./src/routes/media.routes.js";
 import masterMapRoutes from "./src/routes/masterMap.routes.js";
 import executionDashboardRoutes from "./src/routes/executionDashboard.routes.js";
 import masterRoutes from "./src/routes/master.routes.js";
+import reportRoutes from "./src/routes/report.routes.js";
 import { startStampWorker } from "./src/services/stampQueue.service.js";
 import { requireAuth } from "./src/midddleware/actor.middleware.js";
 
@@ -65,6 +67,7 @@ app.use("/api/media", mediaRoutes);
 app.use("/api/master-map", masterMapRoutes);
 app.use("/api/execution-dashboard", executionDashboardRoutes);
 app.use("/api/master", masterRoutes);
+app.use("/api/reports", reportRoutes);
 app.use("/api", workRoutes);
 
 // Global 404

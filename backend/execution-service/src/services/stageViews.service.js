@@ -428,3 +428,15 @@ export const recordsView = async (section, profile, stage, status) => {
   };
 };
 
+
+// Everything a report needs about one section, from one context: the stage summaries, every
+// record as the detail page shows it, and the pits along the route
+export const sectionReportView = async (section, profile) => {
+  const ctx = await loadContext(section, profile);
+  return {
+    stages: STAGE_ORDER.map((stage) => stageSummary(ctx, stage)),
+    records: ctx.records.map((r) => buildView(r, ctx)),
+    pits: ctx.pits,
+    ends: ctx.ends,
+  };
+};

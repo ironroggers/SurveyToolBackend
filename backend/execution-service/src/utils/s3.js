@@ -69,3 +69,8 @@ export const uploadFromFile = async (key, file, contentType) => {
 };
 
 export const getObjectStream = async (key) => getS3Client().send(new GetObjectCommand({ Bucket: getS3Bucket(), Key: key }));
+
+export const uploadBuffer = async (key, body, contentType) => {
+  await getS3Client().send(new PutObjectCommand({ Bucket: getS3Bucket(), Key: key, Body: body, ContentLength: body.length, ContentType: contentType }));
+  return body.length;
+};
