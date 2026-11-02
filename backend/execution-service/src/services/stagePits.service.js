@@ -3,7 +3,7 @@ import { executionLimits } from "../config/executionTypes.js";
 import { distanceM, fractionAlong, parseLatLong, pointOf } from "../utils/geo.js";
 
 // Pits come from excavation: every subsection has a start pit, and an end pit once End is tapped.
-// Ducting, Coupling and Blowing all work from them, so this is the one place that says what a
+// Ducting and Coupling work from them, so this is the one place that says what a
 // pit is. A pit is stored on a record as `<subsection id>:<start|end>`, which stays valid when
 // pits are merged or renumbered; its "Pit 3" name is worked out on every read.
 

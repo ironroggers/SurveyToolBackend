@@ -74,7 +74,7 @@ const checkLinks = async (stage, links, data, section, recordId, errors) => {
   const fields = STAGE_FIELDS[stage].filter((f) => f.kind === "link" && links[f.key]);
   const ids = fields.filter((f) => f.target !== "SUBSECTION").map((f) => links[f.key]);
   const targets = new Map(
-    (await StageRecord.find({ _id: { $in: ids }, section: section._id }).select("stage data").lean()).map((r) => [String(r._id), r])
+    (await StageRecord.find({ _id: { $in: ids }, section: section._id }).select("stage data latitude").lean()).map((r) => [String(r._id), r])
   );
   for (const f of fields) {
     if (f.target === "SUBSECTION") {
@@ -91,7 +91,9 @@ const checkLinks = async (stage, links, data, section, recordId, errors) => {
     const target = targets.get(String(links[f.key]));
     if (target?.stage !== f.target) errors[f.key] = "Pick from the list";
     else if (String(links[f.key]) === String(recordId)) errors[f.key] = "Pick a different record";
+    else if (stage === "BLOWING" && target.latitude == null) errors[f.key] = "This chamber has no location yet";
   }
+  if (stage === "BLOWING" && links.fromChamber && links.fromChamber === links.toChamber) errors.toChamber = "Pick a different chamber";
 };
 
 const pitFieldsIn = (stage, data) => STAGE_FIELDS[stage].filter((f) => f.kind === "pit" && data[f.key]);
@@ -102,7 +104,6 @@ const checkPits = async (stage, data, section, recordId, errors) => {
   if (!fields.length) return {};
   const pits = await loadSectionPits(section);
   for (const f of fields) if (!pits.byKey.has(data[f.key])) errors[f.key] = "This pit is no longer in the section";
-  if (stage === "BLOWING" && data.fromPit && pits.byKey.get(data.fromPit) === pits.byKey.get(data.toPit)) errors.toPit = "Pick a different pit";
   const needsPoint = stage === "COUPLING" || (stage === "CHAMBER" && data.atCoupling);
   if (!needsPoint) return {};
   const key = stage === "COUPLING" ? "pit" : "atCoupling";
@@ -198,5 +199,5 @@ export const codeFor = (stage, data) => {
 
 // Other records that point at this one, by name
 export const recordLinkedBy = (id) => {
-  return StageRecord.findOne({ "links.beside": id }).select("name").lean();
+  return StageRecord.findOne({ $or: [{ "links.beside": id }, { "links.fromChamber": id }, { "links.toChamber": id }] }).select("name").lean();
 };

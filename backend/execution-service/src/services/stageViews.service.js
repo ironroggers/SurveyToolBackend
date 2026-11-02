@@ -60,7 +60,13 @@ const placeOf = (r, ctx) => {
     if (start?.chainageM == null || end?.chainageM == null) return {};
     return { chainageM: Math.min(start.chainageM, end.chainageM), chainageEndM: Math.max(start.chainageM, end.chainageM) };
   }
-  if (r.stage === "BLOWING") return { chainageM: ctx.pitOf(r.data?.fromPit)?.chainageM ?? null, chainageEndM: ctx.pitOf(r.data?.toPit)?.chainageM ?? null };
+  if (r.stage === "BLOWING") {
+    const at = (key) => {
+      const chamber = ctx.byId.get(String(r.links?.[key]));
+      return chamber ? ctx.place(chamber).chainageM : null;
+    };
+    return { chainageM: at("fromChamber"), chainageEndM: at("toChamber") };
+  }
   return { chainageM: ctx.chainage.at(pointOf(r)) };
 };
 
@@ -78,11 +84,28 @@ const ductsAlong = (ctx, lo, hi) => {
   return { runs, uncoveredM: Math.max(0, hi - lo - covered) };
 };
 
+// Neighbouring chambers along the route with no blowing run across them
+const unblownGaps = (ctx) => {
+  const chambers = ofStage(ctx, "CHAMBER")
+    .filter((c) => ctx.place(c).chainageM != null)
+    .sort((a, b) => ctx.place(a).chainageM - ctx.place(b).chainageM);
+  const runs = ofStage(ctx, "BLOWING")
+    .map((b) => [ctx.place(b).chainageM, ctx.place(b).chainageEndM])
+    .filter(([from, to]) => from != null && to != null)
+    .map(([from, to]) => [Math.min(from, to), Math.max(from, to)]);
+  return chambers.slice(1).flatMap((b, i) => {
+    const a = chambers[i];
+    const lo = ctx.place(a).chainageM;
+    const hi = ctx.place(b).chainageM;
+    return runs.some(([from, to]) => from <= lo && to >= hi) ? [] : [[a, b]];
+  });
+};
+
 // Soft warnings: they never block, only tell
 const stageWarnings = (ctx, stage) => {
   const w = [];
   const before = STAGE_ORDER[STAGE_ORDER.indexOf(stage) - 1];
-  if (before && before !== "EXCAVATION" && !ofStage(ctx, before).length && !ofStage(ctx, stage).length) {
+  if (before && before !== "EXCAVATION" && stage !== "BLOWING" && !ofStage(ctx, before).length && !ofStage(ctx, stage).length) {
     w.push(`This usually follows ${STAGES[before].label}, which has nothing recorded yet. You can still go ahead.`);
   }
   if (stage === "DUCTING") {
@@ -100,6 +123,7 @@ const stageWarnings = (ctx, stage) => {
     if (bare) w.push(`${plural(bare, "chamber has", "chambers have")} no route marker beside it.`);
   }
   if (stage === "BLOWING") {
+    if (ofStage(ctx, "CHAMBER").filter((c) => c.latitude != null).length < 2) w.push("Record at least 2 chambers first: a blowing run goes from one chamber to another.");
     const ducted = sumOf(ofStage(ctx, "DUCTING"), "lengthM");
     const blown = sumOf(ofStage(ctx, "BLOWING"), "blownLengthM");
     if (ducted > 0 && blown < ducted) w.push(`${fmtM(ducted - blown)} of laid duct has no cable blown yet.`);
@@ -107,8 +131,9 @@ const stageWarnings = (ctx, stage) => {
       const { chainageM, chainageEndM } = ctx.place(b);
       if (chainageM == null || chainageEndM == null) continue;
       const { uncoveredM } = ductsAlong(ctx, Math.min(chainageM, chainageEndM), Math.max(chainageM, chainageEndM));
-      if (uncoveredM > 0) w.push(`${b.name}: ${fmtM(uncoveredM)} between its pits has no duct recorded.`);
+      if (uncoveredM > 0) w.push(`${b.name}: ${fmtM(uncoveredM)} between its chambers has no duct recorded.`);
     }
+    for (const [a, b] of unblownGaps(ctx)) w.push(`${a.name} to ${b.name} has no cable blown yet.`);
   }
   return w;
 };
@@ -241,8 +266,8 @@ const gisView = (r, ctx) => {
     };
   }
   if (r.stage === "BLOWING") {
-    const from = ctx.pitOf(data.fromPit)?.name;
-    const to = ctx.pitOf(data.toPit)?.name;
+    const from = ctx.byId.get(String(r.links?.fromChamber))?.name;
+    const to = ctx.byId.get(String(r.links?.toChamber))?.name;
     return {
       layer: "ofc_cs",
       rows: [
@@ -261,14 +286,13 @@ const gisView = (r, ctx) => {
   return null;
 };
 
-// Blowing runs that reach this chamber. Readings show only where a run ends at the chamber's pit;
+// Blowing runs that reach this chamber. Readings show only where a run ends at the chamber;
 // anywhere else along the run the cable just passes through.
 const cableReadings = (chamber, ctx) => {
   const ch = ctx.place(chamber).chainageM;
-  const pit = ctx.pitOf(chamber.data?.atCoupling);
   return ofStage(ctx, "BLOWING").flatMap((b) => {
     const { chainageM, chainageEndM } = ctx.place(b);
-    const end = pit && pit === ctx.pitOf(b.data?.fromPit) ? "from" : pit && pit === ctx.pitOf(b.data?.toPit) ? "to" : null;
+    const end = hasLink(b, "fromChamber", chamber._id) ? "from" : hasLink(b, "toChamber", chamber._id) ? "to" : null;
     const between = ch != null && chainageM != null && chainageEndM != null && ch >= Math.min(chainageM, chainageEndM) && ch <= Math.max(chainageM, chainageEndM);
     if (!end && !between) return [];
     const base = { record: b._id, run: b.name, drum: b.data?.drumId };
@@ -290,7 +314,7 @@ const pitViews = (r, ctx) => {
   if (r.stage === "BLOWING") {
     const { chainageM, chainageEndM } = ctx.place(r);
     const through = chainageM != null && chainageEndM != null ? ductsAlong(ctx, Math.min(chainageM, chainageEndM), Math.max(chainageM, chainageEndM)).runs : [];
-    return { pits: { fromPit: named(ctx.pitOf(r.data?.fromPit)), toPit: named(ctx.pitOf(r.data?.toPit)) }, ductNames: through.map((d) => d.name) };
+    return { ductNames: through.map((d) => d.name) };
   }
   if (r.stage === "CHAMBER") return { pits: { atCoupling: named(ctx.pitOf(r.data?.atCoupling)) } };
   return {};
@@ -338,7 +362,7 @@ export const recordsView = async (section, profile, stage, status) => {
     blockFrozen: Boolean(profile?.frozen?.at),
     records: all.filter((r) => !status || r.status === status).map((r) => buildView(r, ctx)),
     options: {
-      chambers: ofStage(ctx, "CHAMBER").map((c) => ({ _id: c._id, name: c.name, type: c.data?.type, typeLabel: OPTION_LABELS.chamberType[c.data?.type], chainageM: ctx.place(c).chainageM, status: c.status, latitude: c.latitude, longitude: c.longitude, accuracy: c.accuracy, roadOffset: c.data?.roadOffset, position: c.data?.position })),
+      chambers: ofStage(ctx, "CHAMBER").map((c) => ({ _id: c._id, name: c.name, type: c.data?.type, typeLabel: OPTION_LABELS.chamberType[c.data?.type], chainageM: ctx.place(c).chainageM, status: c.status, latitude: c.latitude, longitude: c.longitude, accuracy: c.accuracy, roadOffset: c.data?.roadOffset, position: c.data?.position, landmark: c.data?.landmark })),
       ductRuns: ofStage(ctx, "DUCTING").map((d) => ({ _id: d._id, name: d.name, subsectionName: ctx.subById.get(String(d.links?.subSection))?.name, lengthM: d.data?.lengthM, ...ctx.place(d) })),
       pits: ctx.pits.list.map((p) => ({ key: p.key, keys: p.keys, name: p.name, chainageM: p.chainageM, latitude: p.latitude, longitude: p.longitude, accuracy: p.accuracy, landmarks: p.landmarks, couplingPoint: ctx.points.some((c) => c.pit === p) })),
       couplingPoints: ctx.points.map((p) => ({ key: p.pit.key, name: p.pit.name, chainageM: p.pit.chainageM, latitude: p.pit.latitude, longitude: p.pit.longitude, accuracy: p.pit.accuracy, landmarks: p.pit.landmarks, ductNames: p.runs.map((d) => d.name), recordId: p.record?._id })),

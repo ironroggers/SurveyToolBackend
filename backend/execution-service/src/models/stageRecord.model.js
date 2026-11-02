@@ -5,7 +5,7 @@ import { mediaFileSchema } from "./mediaFile.schema.js";
 
 const objectId = (ref) => ({ type: mongoose.Schema.Types.ObjectId, ref });
 
-// One piece of work in a section's Ducting, Coupling, Blowing, Chamber or Route Marker stage.
+// One piece of work in a section's Ducting, Coupling, Chamber, Blowing or Route Marker stage.
 // `data` holds the fields from STAGE_FIELDS; `links` holds ids, so names can change safely.
 // Pits sit in `data` as `<subsection id>:<start|end>`.
 // A record is IN_PROGRESS (a draft) until submitted, then goes through Cluster Head + GIS
@@ -42,7 +42,9 @@ const stageRecordSchema = new mongoose.Schema(
                 data: { type: mongoose.Schema.Types.Mixed, default: {} },
                 links: {
                         subSection: objectId("SubSection"),
-                        beside: objectId("StageRecord")
+                        beside: objectId("StageRecord"),
+                        fromChamber: objectId("StageRecord"),
+                        toChamber: objectId("StageRecord")
                 },
                 submittedAt: Date,
                 submittedBy: actorSchema,

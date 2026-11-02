@@ -8,7 +8,7 @@ import { REVIEW_SLOTS, SLOT_LABELS, bothApproved, syncSectionStage } from "../se
 import { assertRecordComplete, assertRecordStage, buildRecordValues, codeFor, nextSeq, recordLinkedBy } from "../services/stage.service.js";
 import { queueStageStamps, recordsView, recordView, stagesView } from "../services/stageViews.service.js";
 
-// Ducting, Coupling, Blowing, Chamber and Route Marker records. Rules are in
+// Ducting, Coupling, Chamber, Blowing and Route Marker records. Rules are in
 // services/stage.service.js; the review works as it does for subsections.
 
 const assertRecordStatus = (record, allowed, message) => {

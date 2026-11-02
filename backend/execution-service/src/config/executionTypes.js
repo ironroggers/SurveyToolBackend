@@ -108,11 +108,11 @@ export const STAGES = {
   DUCTING: { label: "Ducting", one: "duct run", many: "duct runs", add: "Add run", empty: "Add the first one from the site.", nearest: "the nearest duct end", mediaRule: "ductRun" },
   // Coupling points are worked out from the ducts, so there is nothing to add by hand
   COUPLING: { label: "Coupling", one: "coupling", many: "couplings", empty: "A coupling point appears here when two duct runs meet at a pit.", nearest: "the nearest coupling point" },
-  BLOWING: { label: "Blowing", one: "blowing run", many: "blowing runs", add: "Add run", empty: "Pick two pits to record a run of cable.", nearest: "the nearest blown cable" },
   CHAMBER: { label: "Chamber", one: "chamber", many: "chambers", add: "Add chamber", empty: "Add the first one from the site.", nearest: "the nearest chamber" },
+  BLOWING: { label: "Blowing", one: "blowing run", many: "blowing runs", add: "Add run", empty: "Pick two chambers to record a run of cable.", nearest: "the nearest blown cable" },
   ROUTE_MARKER: { label: "Route marker", one: "route marker", many: "route markers", add: "Add marker", empty: "Add the first one from the site.", nearest: "the nearest marker" },
 };
-export const STAGE_ORDER = ["EXCAVATION", "DUCTING", "COUPLING", "BLOWING", "CHAMBER", "ROUTE_MARKER"];
+export const STAGE_ORDER = ["EXCAVATION", "DUCTING", "COUPLING", "CHAMBER", "BLOWING", "ROUTE_MARKER"];
 export const RECORD_STAGES = STAGE_ORDER.slice(1);
 
 // The sequence behind each name and asset code is per block and per code, because the
@@ -173,8 +173,8 @@ export const STAGE_FIELDS = {
     { ...MAKE, label: "Coupler make" },
   ],
   BLOWING: [
-    pit("fromPit", "From pit", { required: true, draft: true, requiredMessage: "Pick the From pit", placeholder: "Pick a pit" }),
-    pit("toPit", "To pit", { required: true, draft: true, requiredMessage: "Pick the To pit", placeholder: "Pick a pit" }),
+    link("fromChamber", "From chamber", "CHAMBER", { required: true, draft: true, requiredMessage: "Pick the From chamber", placeholder: "Pick a chamber" }),
+    link("toChamber", "To chamber", "CHAMBER", { required: true, draft: true, requiredMessage: "Pick the To chamber", placeholder: "Pick a chamber" }),
     field("drumId", "Drum ID", "text", { group: "Cable", required: true, requiredMessage: "Enter the drum ID", placeholder: "e.g. 4075" }),
     field("fibreCount", "Fibre count", "choice", { options: "fibreCount", required: true, requiredMessage: "Pick the fibre count" }),
     field("cable", "Cable", "choice", { options: "cableKind", required: true, requiredMessage: "Pick New or Incremental" }),
@@ -211,7 +211,7 @@ export const STAGE_FIELDS = {
 export const STAGE_DRAFT_MESSAGES = {
   DUCTING: "Pick the subsection to save a draft",
   COUPLING: "Pick the coupling point to save a draft",
-  BLOWING: "Pick both pits to save a draft",
+  BLOWING: "Pick both chambers to save a draft",
   CHAMBER: "Pick the type to save a draft",
 };
 

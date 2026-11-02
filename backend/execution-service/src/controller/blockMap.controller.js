@@ -71,7 +71,7 @@ export const buildBlockMap = async (profile) => {
     InfraEquipment.find({ blockProfile: profile._id }).select("-capturedBy -updatedBy -__v").lean(),
     Restoration.find({ section: { $in: sectionIds } }).select("section items status").lean(),
     sectionExecutionSummaries(sectionIds),
-    StageRecord.find({ section: { $in: sectionIds } }).select("name section stage status latitude longitude links data.type data.fromPit data.toPit").sort({ seq: 1 }).lean(),
+    StageRecord.find({ section: { $in: sectionIds } }).select("name section stage status latitude longitude links data.type").sort({ seq: 1 }).lean(),
   ]);
   const entries = await Trenching.find({ subSection: { $in: subs.map((s) => s._id) } })
     .select("subSection latitude longitude trenchLatLong mediaFiles capturedAt createdAt trenchLength trenchDepth offset side protectionType landmark remarks")
@@ -225,11 +225,8 @@ export const buildBlockMap = async (profile) => {
   }
 
   // ---- stage records: a point where they have one; duct runs draw from their subsection and
-  // blowing runs between their two pits
-  const pitPoint = (key) => {
-    const [subId, side] = String(key).split(":");
-    return pointOf(subs.find((s) => String(s._id) === subId)?.[side]?.pit);
-  };
+  // blowing runs between their two chambers
+  const chamberPoint = (id) => pointOf(stageRecords.find((r) => String(r._id) === String(id)));
   const stageRecordViews = stageRecords.map((r) => ({
     _id: String(r._id),
     name: r.name,
@@ -239,7 +236,7 @@ export const buildBlockMap = async (profile) => {
     type: r.data?.type,
     ...(pointOf(r) || {}),
     links: r.links || {},
-    ...(r.stage === "BLOWING" ? { fromPoint: pitPoint(r.data?.fromPit), toPoint: pitPoint(r.data?.toPit) } : {}),
+    ...(r.stage === "BLOWING" ? { fromPoint: chamberPoint(r.links?.fromChamber), toPoint: chamberPoint(r.links?.toChamber) } : {}),
   }));
 
   return { infra, equipment, sections: sectionViews, subsections: subViews, stageRecords: stageRecordViews, media, mediaWithoutLocation: withoutLocation };
