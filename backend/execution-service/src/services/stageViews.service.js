@@ -356,6 +356,27 @@ export const recordView = async (record) => {
   return { ...buildView(ctx.byId.get(String(record._id)) || record, ctx), sectionInfo: { _id: section._id, name: section.name, stage: sectionStage(section), blockFrozen: Boolean(ctx.block?.frozen?.at), fromName: section.fromNode?.name, toName: section.toNode?.name } };
 };
 
+/**
+ * What a list row needs to describe each record (its pits, chambers, end, ducts and chainage),
+ * by record id. One context per section, so a long approvals list stays a few reads.
+ */
+export const recordLineViews = async (records) => {
+  const views = new Map();
+  const bySection = new Map();
+  for (const r of records) bySection.set(String(r.section), [...(bySection.get(String(r.section)) || []), String(r._id)]);
+  const sections = await Section.find({ _id: { $in: [...bySection.keys()] } });
+  for (const section of sections) {
+    const ctx = await loadContext(section);
+    for (const id of bySection.get(String(section._id))) {
+      const r = ctx.byId.get(id);
+      if (!r) continue;
+      const { data, linked, pits, nodes, ductNames, typeLabel, chainageM, chainageEndM, subsection } = buildView(r, ctx);
+      views.set(id, { data, linked, pits, nodes, ductNames, typeLabel, chainageM, chainageEndM, subsection: subsection && { _id: subsection._id, name: subsection.name } });
+    }
+  }
+  return views;
+};
+
 // The stage screen: its summary, its records, and what the pickers on the form need
 export const recordsView = async (section, profile, stage, status) => {
   const ctx = await loadContext(section, profile);

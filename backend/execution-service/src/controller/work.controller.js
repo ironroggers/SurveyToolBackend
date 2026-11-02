@@ -11,6 +11,7 @@ import { sectionExecutionSummaries } from "../services/progress.service.js";
 import { entryStats, sectionContexts, subsectionFlags, subsectionSummary } from "../services/views.service.js";
 import { actorRole, can, visibleSectionIds } from "../services/access.service.js";
 import { REVIEW_SLOTS } from "../services/review.service.js";
+import { recordLineViews } from "../services/stageViews.service.js";
 
 // Most recent first; a long list is cut here and the counts say how many there are
 const GROUP_LIMIT = 200;
@@ -42,8 +43,10 @@ const summarise = async (subs) => {
 // A stage record on My work or in the approvals queue
 const stageRecordCards = async (records) => {
   const contexts = await sectionContexts([...new Set(records.map((r) => String(r.section)))]);
+  const lines = await recordLineViews(records);
   const { accuracyLimitM } = executionLimits();
   return records.map((r) => ({
+    ...lines.get(String(r._id)),
     kind: "stageRecord",
     _id: r._id,
     name: r.name,
