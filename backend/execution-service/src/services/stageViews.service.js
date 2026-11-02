@@ -298,6 +298,8 @@ const cableReadings = (chamber, ctx) => {
     const between = ch != null && chainageM != null && chainageEndM != null && ch >= Math.min(chainageM, chainageEndM) && ch <= Math.max(chainageM, chainageEndM);
     if (!end && !between) return [];
     const base = { record: b._id, run: b.name, drum: b.data?.drumId };
+    // An incremental cable has no meter readings, only its optical length
+    if (end && b.data?.cable === "Incremental") return [{ ...base, incremental: true, lengthM: b.data?.opticalLengthM }];
     return [end ? { ...base, in: b.data?.[`${end}In`], out: b.data?.[`${end}Out`], loop: b.data?.[`${end}LoopM`] } : { ...base, passesThrough: true }];
   });
 };

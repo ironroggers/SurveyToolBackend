@@ -110,7 +110,16 @@ export const STAGES = {
   COUPLING: { label: "Coupling", one: "coupling", many: "couplings", empty: "A coupling point appears here when two duct runs meet at a pit.", nearest: "the nearest coupling point" },
   // editUntilReviewed: the Field Executive can still edit a submitted record until a reviewer looks at it
   CHAMBER: { label: "Chamber", one: "chamber", many: "chambers", add: "Add chamber", empty: "Add the first one from the site.", nearest: "the nearest chamber", editUntilReviewed: true },
-  BLOWING: { label: "Blowing", one: "blowing run", many: "blowing runs", add: "Add run", empty: "Pick two chambers to record a run of cable.", nearest: "the nearest blown cable" },
+  // mediaRuleWhen: another media rule while a field has one of these values (the first match wins)
+  BLOWING: {
+    label: "Blowing",
+    one: "blowing run",
+    many: "blowing runs",
+    add: "Add run",
+    empty: "Pick two chambers to record a run of cable.",
+    nearest: "the nearest blown cable",
+    mediaRuleWhen: [{ key: "cable", in: ["Incremental"], rule: "photosOptional" }],
+  },
   ROUTE_MARKER: { label: "Route marker", one: "route marker", many: "route markers", add: "Add marker", empty: "Add the first one from the site.", nearest: "the nearest marker" },
 };
 // Whether the Field Executive can edit a record: a draft, or a submitted record of an
@@ -118,6 +127,10 @@ export const STAGES = {
 export const openForFieldEdit = (record) =>
   record.status === "IN_PROGRESS" ||
   (Boolean(STAGES[record.stage]?.editUntilReviewed) && record.status === "PENDING_APPROVAL" && !record.review?.clusterHead?.status && !record.review?.gisHead?.status);
+
+// The media rule a stage record follows, given its values (see mediaRuleWhen)
+export const stageMediaRuleName = (stage, values = {}) =>
+  (STAGES[stage]?.mediaRuleWhen || []).find((w) => w.in.includes(values[w.key]))?.rule || STAGES[stage]?.mediaRule || "stageRecord";
 
 export const STAGE_ORDER = ["EXCAVATION", "DUCTING", "COUPLING", "CHAMBER", "BLOWING", "ROUTE_MARKER"];
 export const RECORD_STAGES = STAGE_ORDER.slice(1);
@@ -158,10 +171,13 @@ const MAKE = field("make", "Make", "text", { placeholder: "e.g. Dura-Line" });
 const link = (key, label, target, extra = {}) => field(key, label, "link", { target, ...extra });
 const pit = (key, label, extra = {}) => field(key, label, "pit", extra);
 const node = (key, label, extra = {}) => field(key, label, "node", extra);
-const reading = (key, label, end) =>
-  field(key, label, "number", { end, required: true, nonNegative: true, requiredMessage: "Enter both meter readings", placeholder: end === "from" ? "1772" : "2084" });
+const reading = (key, label, end, extra = {}) =>
+  field(key, label, "number", { end, required: true, nonNegative: true, requiredMessage: "Enter both meter readings", placeholder: end === "from" ? "1772" : "2084", ...extra });
 const ifRow = { key: "rowRequired", in: ["Yes"] };
 const ifJoint = { key: "hasJoint", in: ["Yes"] };
+// Blowing: a new cable records its drum and meter readings; an incremental one only its optical length
+const ifNewCable = { key: "cable", in: ["New"] };
+const ifIncremental = { key: "cable", in: ["Incremental"] };
 
 export const STAGE_FIELDS = {
   DUCTING: [
@@ -185,14 +201,15 @@ export const STAGE_FIELDS = {
   BLOWING: [
     link("fromChamber", "From chamber", "CHAMBER", { required: true, draft: true, requiredMessage: "Pick the From chamber", placeholder: "Pick a chamber" }),
     link("toChamber", "To chamber", "CHAMBER", { required: true, draft: true, requiredMessage: "Pick the To chamber", placeholder: "Pick a chamber" }),
-    field("drumId", "Drum ID", "text", { group: "Cable", required: true, requiredMessage: "Enter the drum ID", placeholder: "e.g. 4075" }),
-    field("fibreCount", "Fibre count", "choice", { options: "fibreCount", required: true, requiredMessage: "Pick the fibre count" }),
-    field("cable", "Cable", "choice", { options: "cableKind", required: true, requiredMessage: "Pick New or Incremental" }),
-    field("usedFibres", "Used fibres", "number", { nonNegative: true, placeholder: "e.g. 2" }),
-    reading("fromIn", "Cable In (m)", "from"),
-    reading("fromOut", "Cable Out (m)", "from"),
-    reading("toIn", "Cable In (m)", "to"),
-    reading("toOut", "Cable Out (m)", "to"),
+    field("cable", "Cable", "choice", { options: "cableKind", group: "Cable", required: true, requiredMessage: "Pick New or Incremental" }),
+    field("opticalLengthM", "Optical length (m)", "number", { unit: "m", required: true, positive: true, requiredMessage: "Enter the optical length in metres", placeholder: "e.g. 68", showIf: [ifIncremental] }),
+    field("drumId", "Drum ID", "text", { required: true, requiredMessage: "Enter the drum ID", placeholder: "e.g. 4075", showIf: [ifNewCable] }),
+    field("fibreCount", "Fibre count", "choice", { options: "fibreCount", required: true, requiredMessage: "Pick the fibre count", showIf: [ifNewCable] }),
+    field("usedFibres", "Used fibres", "number", { nonNegative: true, placeholder: "e.g. 2", showIf: [ifNewCable] }),
+    reading("fromIn", "Cable In (m)", "from", { showIf: [ifNewCable] }),
+    reading("fromOut", "Cable Out (m)", "from", { showIf: [ifNewCable] }),
+    reading("toIn", "Cable In (m)", "to", { showIf: [ifNewCable] }),
+    reading("toOut", "Cable Out (m)", "to", { showIf: [ifNewCable] }),
   ],
   CHAMBER: [
     field("type", "Type", "choice", { options: "chamberType", required: true, draft: true, requiredMessage: "Pick the type" }),
@@ -274,6 +291,8 @@ export const MEDIA_RULES = {
   // The pit itself and each of its reference points, optional
   pit: { minPhotos: 0, maxPhotos: 4, video: "optional" },
   refPoint: { minPhotos: 0, maxPhotos: 2, video: "optional" },
+  // Records that may be submitted without a photo (an incremental blowing run)
+  photosOptional: { minPhotos: 0, maxPhotos: 4, video: "none", targetBytes: 400000 },
   // A chamber's reference points each need a photo
   chamberRef: { minPhotos: 1, maxPhotos: 2, video: "none" },
   // Start and end have no photos step any more: the pit and its reference points carry the media

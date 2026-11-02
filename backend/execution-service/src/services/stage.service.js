@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import BlockProfile from "../models/blockProfile.model.js";
 import StageRecord from "../models/stageRecord.model.js";
 import SubSection from "../models/subSection.model.js";
-import { MEDIA_RULES, OPTIONS, RECORD_STAGES, STAGE_DRAFT_MESSAGES, STAGE_FIELDS, STAGES, stageCode } from "../config/executionTypes.js";
+import { MEDIA_RULES, OPTIONS, RECORD_STAGES, STAGE_DRAFT_MESSAGES, STAGE_FIELDS, stageCode, stageMediaRuleName } from "../config/executionTypes.js";
 import { badRequest, failIfErrors, notFound } from "../utils/httpError.js";
 import { distanceM, round } from "../utils/geo.js";
 import { cleanFix, cleanMediaSet } from "./execution.service.js";
@@ -27,8 +27,10 @@ export const nextSeq = async (blockProfile, code) => {
   return block.stageSeq[code];
 };
 
-// Blowing: blown length is |To.In − From.Out|, loop is |Out − In| at each end
+// Blowing: blown length is |To.In − From.Out|, loop is |Out − In| at each end. An incremental
+// cable has no readings; its optical length is the blown length.
 const blowingLengths = (data) => {
+  if (data.cable === "Incremental") return { blownLengthM: data.opticalLengthM };
   const gap = (a, b) => (a != null && b != null ? round(Math.abs(a - b), 2) : undefined);
   return {
     blownLengthM: gap(data.toIn, data.fromOut),
@@ -160,7 +162,7 @@ const cleanRefs = (f, input, at, full, errors) => {
   });
 };
 
-const mediaRuleFor = (stage) => MEDIA_RULES[STAGES[stage].mediaRule || "stageRecord"];
+const mediaRuleFor = (stage, values) => MEDIA_RULES[stageMediaRuleName(stage, values)];
 
 /**
  * What a create or update stores. A draft needs only the identity field (`draft` in the config);
@@ -201,7 +203,7 @@ export const buildRecordValues = async (req, stage, section, { recordId, full = 
   }
   if (stage === "BLOWING") Object.assign(data, blowingLengths(data));
 
-  const rule = mediaRuleFor(stage);
+  const rule = mediaRuleFor(stage, data);
   const { photos } = cleanMediaSet(body, full ? rule : { ...rule, minPhotos: 0 }, "", errors);
   await checkLinks(stage, links, data, section, recordId, errors);
   checkNodes(stage, data, section, errors);
@@ -239,7 +241,7 @@ export const assertRecordComplete = (record) => {
       errors[f.key] = f.requiredMessage;
     }
   }
-  if ((record.photos || []).length < mediaRuleFor(record.stage).minPhotos) errors.photos = "Take at least one photo";
+  if ((record.photos || []).length < mediaRuleFor(record.stage, record.data).minPhotos) errors.photos = "Take at least one photo";
   failIfErrors(errors);
 };
 
