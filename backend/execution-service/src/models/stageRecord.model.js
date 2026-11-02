@@ -40,6 +40,8 @@ const stageRecordSchema = new mongoose.Schema(
                 photos: [mediaFileSchema],
                 // Chamber: fixed objects nearby with the tape distance to each (a `refs` field in STAGE_FIELDS)
                 refs: { type: [referencePointSchema], default: undefined },
+                // Photos by field key, for `photos` fields in STAGE_FIELDS (blowing: fromPhotos, toPhotos)
+                photoSets: { type: Map, of: [mediaFileSchema], default: undefined },
                 remarks: { type: String, trim: true },
                 data: { type: mongoose.Schema.Types.Mixed, default: {} },
                 links: {

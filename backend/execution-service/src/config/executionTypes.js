@@ -118,7 +118,8 @@ export const STAGES = {
     add: "Add run",
     empty: "Pick two chambers to record a run of cable.",
     nearest: "the nearest blown cable",
-    mediaRuleWhen: [{ key: "cable", in: ["Incremental"], rule: "photosOptional" }],
+    // Its photos are taken at each chamber (fromPhotos, toPhotos), not on the run itself
+    mediaRule: "noPhotos",
   },
   ROUTE_MARKER: { label: "Route marker", one: "route marker", many: "route markers", add: "Add marker", empty: "Add the first one from the site.", nearest: "the nearest marker" },
 };
@@ -131,6 +132,13 @@ export const openForFieldEdit = (record) =>
 // The media rule a stage record follows, given its values (see mediaRuleWhen)
 export const stageMediaRuleName = (stage, values = {}) =>
   (STAGES[stage]?.mediaRuleWhen || []).find((w) => w.in.includes(values[w.key]))?.rule || STAGES[stage]?.mediaRule || "stageRecord";
+
+// A photos field's rule, given the record's values: none needed while an optionalWhen condition holds
+export const fieldMediaRule = (f, values = {}) => {
+  const rule = MEDIA_RULES[f.mediaRule];
+  const optional = (f.optionalWhen || []).some((c) => c.in.includes(values[c.key]));
+  return optional ? { ...rule, minPhotos: 0 } : rule;
+};
 
 export const STAGE_ORDER = ["EXCAVATION", "DUCTING", "COUPLING", "CHAMBER", "BLOWING", "ROUTE_MARKER"];
 export const RECORD_STAGES = STAGE_ORDER.slice(1);
@@ -162,7 +170,9 @@ export const stageRecordName = (stage, data, seq) =>
 // picker over `target`: SUBSECTION or a stage; stored as an id so names can change safely),
 // pit (a pit from excavation, stored as `<subsection id>:<start|end>`; see stagePits.service.js),
 // node (one of the section's two ends, a GP or the block router, stored as `<type>:<code>`) and
-// refs (`count` reference points near the record, stored on the record's own `refs`, like a pit's).
+// refs (`count` reference points near the record, stored on the record's own `refs`, like a pit's) and
+// photos (a set of photos under `mediaRule`, stored in the record's `photoSets` under the field's key;
+// `optionalWhen`: conditions under which it needs none).
 // `draft`: needed to save a draft. `showIf`: every condition must hold; a hidden field is
 // cleared and not required. `group`: a heading above this field and the ones after it.
 const LOCATION = { key: "location", label: "Location", kind: "location", required: true, requiredMessage: "Capture the location" };
@@ -210,6 +220,9 @@ export const STAGE_FIELDS = {
     reading("fromOut", "Cable Out (m)", "from", { showIf: [ifNewCable] }),
     reading("toIn", "Cable In (m)", "to", { showIf: [ifNewCable] }),
     reading("toOut", "Cable Out (m)", "to", { showIf: [ifNewCable] }),
+    // In place of the record's own photos: a set at each chamber, needed for a new cable
+    field("fromPhotos", "Photos at the From chamber", "photos", { end: "from", mediaRule: "blowingEnd", required: true, requiredMessage: "Take a photo at the From chamber", optionalWhen: [ifIncremental] }),
+    field("toPhotos", "Photos at the To chamber", "photos", { end: "to", mediaRule: "blowingEnd", required: true, requiredMessage: "Take a photo at the To chamber", optionalWhen: [ifIncremental] }),
   ],
   CHAMBER: [
     field("type", "Type", "choice", { options: "chamberType", required: true, draft: true, requiredMessage: "Pick the type" }),
@@ -291,8 +304,9 @@ export const MEDIA_RULES = {
   // The pit itself and each of its reference points, optional
   pit: { minPhotos: 0, maxPhotos: 4, video: "optional" },
   refPoint: { minPhotos: 0, maxPhotos: 2, video: "optional" },
-  // Records that may be submitted without a photo (an incremental blowing run)
-  photosOptional: { minPhotos: 0, maxPhotos: 4, video: "none", targetBytes: 400000 },
+  // A record whose photos all sit in its photo fields (blowing: at each chamber)
+  noPhotos: { minPhotos: 0, maxPhotos: 0, video: "none" },
+  blowingEnd: { minPhotos: 1, maxPhotos: 4, video: "none", targetBytes: 400000 },
   // A chamber's reference points each need a photo
   chamberRef: { minPhotos: 1, maxPhotos: 2, video: "none" },
   // Start and end have no photos step any more: the pit and its reference points carry the media

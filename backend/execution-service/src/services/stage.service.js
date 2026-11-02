@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import BlockProfile from "../models/blockProfile.model.js";
 import StageRecord from "../models/stageRecord.model.js";
 import SubSection from "../models/subSection.model.js";
-import { MEDIA_RULES, OPTIONS, RECORD_STAGES, STAGE_DRAFT_MESSAGES, STAGE_FIELDS, stageCode, stageMediaRuleName } from "../config/executionTypes.js";
+import { MEDIA_RULES, OPTIONS, RECORD_STAGES, STAGE_DRAFT_MESSAGES, STAGE_FIELDS, fieldMediaRule, stageCode, stageMediaRuleName } from "../config/executionTypes.js";
 import { badRequest, failIfErrors, notFound } from "../utils/httpError.js";
 import { distanceM, round } from "../utils/geo.js";
 import { cleanFix, cleanMediaSet } from "./execution.service.js";
@@ -177,6 +177,8 @@ export const buildRecordValues = async (req, stage, section, { recordId, full = 
   const links = {};
   let location;
   let refs;
+  const photoSets = {};
+  const photoFields = fields.filter((f) => f.kind === "photos");
 
   for (const f of fields) {
     if (f.kind === "note") continue;
@@ -184,6 +186,7 @@ export const buildRecordValues = async (req, stage, section, { recordId, full = 
       refs = cleanRefs(f, body[f.key], location, full, errors);
       continue;
     }
+    if (f.kind === "photos") continue;
     if (f.kind === "location") {
       const given = body.location && body.location.latitude != null && body.location.latitude !== "";
       if (given) location = cleanFix(body.location, "location", errors, f.requiredMessage);
@@ -204,7 +207,17 @@ export const buildRecordValues = async (req, stage, section, { recordId, full = 
   if (stage === "BLOWING") Object.assign(data, blowingLengths(data));
 
   const rule = mediaRuleFor(stage, data);
-  const { photos } = cleanMediaSet(body, full ? rule : { ...rule, minPhotos: 0 }, "", errors);
+  // A stage without photos of its own drops any sent (e.g. from an older app)
+  const { photos } = rule.maxPhotos ? cleanMediaSet(body, full ? rule : { ...rule, minPhotos: 0 }, "", errors) : { photos: [] };
+  for (const f of photoFields) {
+    if (!fieldShown(f, data)) continue;
+    const fieldRule = fieldMediaRule(f, data);
+    const found = {};
+    const set = cleanMediaSet({ photos: body.photoSets?.[f.key] }, full ? fieldRule : { ...fieldRule, minPhotos: 0 }, "", found, { photos: f.requiredMessage });
+    // "photos" / "photos.1" -> "fromPhotos" / "fromPhotos.1"
+    for (const [key, message] of Object.entries(found)) errors[key.replace(/^photos/, f.key)] = message;
+    photoSets[f.key] = set.photos;
+  }
   await checkLinks(stage, links, data, section, recordId, errors);
   checkNodes(stage, data, section, errors);
   const pitFix = await checkPits(stage, data, section, recordId, errors);
@@ -218,6 +231,7 @@ export const buildRecordValues = async (req, stage, section, { recordId, full = 
     links,
     photos,
     refs,
+    photoSets: photoFields.length ? photoSets : undefined,
     latitude: location?.latitude,
     longitude: location?.longitude,
     accuracy: location?.accuracy,
@@ -233,6 +247,9 @@ export const assertRecordComplete = (record) => {
   for (const f of STAGE_FIELDS[record.stage]) {
     if (f.kind === "location") {
       if (record.latitude == null) errors.location = f.requiredMessage;
+    } else if (f.kind === "photos") {
+      const count = record.photoSets?.get?.(f.key)?.length || 0;
+      if (fieldShown(f, values) && count < fieldMediaRule(f, values).minPhotos) errors[f.key] = f.requiredMessage;
     } else if (f.kind === "refs") {
       const minPhotos = MEDIA_RULES[f.mediaRule].minPhotos;
       const done = (record.refs || []).filter((r) => r.description && r.latitude != null && r.tapeDistanceM > 0 && (r.photos || []).length >= minPhotos);
