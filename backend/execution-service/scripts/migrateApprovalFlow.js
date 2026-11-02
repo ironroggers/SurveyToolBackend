@@ -9,7 +9,7 @@
 //   - block sections start at the FIELD stage; existing reviews are cleared
 //   - block profiles get an empty team (assign it on the web: Admin the Zonal Managers,
 //     the Zonal Manager the others)
-// Safe to run again. The demo block is left out (Reset demo block rebuilds it).
+// Safe to run again.
 import dotenv from "dotenv";
 import mongoose from "mongoose";
 
@@ -24,8 +24,7 @@ const run = async () => {
   const sections = db.collection("Section");
   const subs = db.collection("SubSection");
 
-  const demoIds = await profiles.distinct("_id", { isDemo: true });
-  const blockSectionIds = await sections.distinct("_id", { blockProfile: { $exists: true, $ne: null, $nin: demoIds } });
+  const blockSectionIds = await sections.distinct("_id", { blockProfile: { $exists: true, $ne: null } });
 
   const subFilter = {
     section: { $in: blockSectionIds },
@@ -33,7 +32,7 @@ const run = async () => {
     $or: [{ executionStatus: "APPROVED" }, { executionStatus: "PENDING_APPROVAL", review: { $exists: true } }, { executionStatus: "PENDING_APPROVAL", approval: { $exists: true } }],
   };
   const sectionFilter = { _id: { $in: blockSectionIds }, "review.stage": { $ne: "FIELD" } };
-  const teamFilter = { isDemo: { $ne: true }, team: { $exists: false } };
+  const teamFilter = { team: { $exists: false } };
 
   const [subCount, sectionCount, teamCount] = await Promise.all([
     subs.countDocuments(subFilter),

@@ -20,5 +20,3 @@ package-lock.json
 *.bak
 *.tmp
 
-# Generated demo block media
-demo-media/

@@ -6,7 +6,7 @@ import { buildBlockMap } from "./blockMap.controller.js";
 
 // Master map: every block on one read-only map. The list is small (one row per block,
 // for the State → District → Block filter); a block's layers load only once it's picked.
-// Every status is included; the demo block stays ADMIN only, as everywhere else.
+// Every status is included.
 
 // GET /api/master-map/blocks   (viewExecution)
 export const getMasterMapBlocks = async (req, res) => {
@@ -36,7 +36,7 @@ export const getMasterMapBlocks = async (req, res) => {
 export const getMasterMapBlock = async (req, res) => {
   try {
     const profile = await BlockProfile.findById(req.params.id)
-      .select("state district block blockCode gps blockRouter kmlFiles isDemo")
+      .select("state district block blockCode gps blockRouter kmlFiles")
       .lean();
     // Access was checked by the route's guard
     if (!profile) throw notFound("Block profile not found");

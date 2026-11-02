@@ -26,11 +26,9 @@ import aiRoutes from "./src/routes/ai.routes.js";
 import blockProfileRoutes from "./src/routes/blockProfile.routes.js";
 import workRoutes from "./src/routes/work.routes.js";
 import mediaRoutes from "./src/routes/media.routes.js";
-import demoRoutes from "./src/routes/demo.routes.js";
 import masterMapRoutes from "./src/routes/masterMap.routes.js";
 import executionDashboardRoutes from "./src/routes/executionDashboard.routes.js";
 import masterRoutes from "./src/routes/master.routes.js";
-import { DEMO_MEDIA_DIR, DEMO_MEDIA_ROUTE } from "./src/demo/demoMedia.js";
 import { startStampWorker } from "./src/services/stampQueue.service.js";
 import { requireAuth } from "./src/midddleware/actor.middleware.js";
 
@@ -54,10 +52,6 @@ app.get("/health", (req, res) => {
   });
 });
 
-// Generated photos, videos and KML of the demo block; the web portal loads them cross-origin
-// (as <img> / <video>, which can't send the token)
-app.use(DEMO_MEDIA_ROUTE, express.static(DEMO_MEDIA_DIR, { setHeaders: (res) => res.set("Cross-Origin-Resource-Policy", "cross-origin") }));
-
 // Everything below needs the auth-service login token; who is acting comes from it
 app.use("/api", requireAuth);
 app.use("/api/sections", sectionRoutes);
@@ -68,7 +62,6 @@ app.use("/api/uploads", uploadRoutes);
 app.use("/api/ai", aiRoutes);
 app.use("/api/block-profiles", blockProfileRoutes);
 app.use("/api/media", mediaRoutes);
-app.use("/api/demo", demoRoutes);
 app.use("/api/master-map", masterMapRoutes);
 app.use("/api/execution-dashboard", executionDashboardRoutes);
 app.use("/api/master", masterRoutes);

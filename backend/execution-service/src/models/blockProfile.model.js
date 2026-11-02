@@ -250,11 +250,6 @@ const blockProfileSchema = new mongoose.Schema(
                         type: [kmlFileSchema],
                         default: []
                 },
-                // The demonstration block (POST /api/demo/block/reset): shown to ADMIN only
-                isDemo: {
-                        type: Boolean,
-                        default: false
-                },
                 status: {
                         type: String,
                         enum: {

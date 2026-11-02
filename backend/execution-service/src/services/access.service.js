@@ -9,7 +9,6 @@ import { HttpError, notFound, sendError } from "../utils/httpError.js";
 // Who may see and change what, from the signed-in user (req.actor, set by requireAuth)
 // and the matrix in config/permissions.js:
 //   - an action's scope is "all" or "assigned" (only blocks whose team the user is on, in their role)
-//   - the demo block is ADMIN only
 //   - a frozen block or section is read-only for everyone but ADMIN
 
 export const actorRole = (req) => normalizeRole(req.actor?.role);
@@ -34,14 +33,14 @@ export const onTeam = (profile, req) =>
 // Mongo filter for the BlockProfile queries a user may see
 export const blockFilter = (req, action = "viewBlockProfile") => {
   const scope = assertAllowed(req, action);
-  const filter = isAdmin(req) ? {} : { isDemo: { $ne: true } };
+  const filter = {};
   if (scope === "assigned") {
     filter.team = { $elemMatch: { userId: new mongoose.Types.ObjectId(String(req.actor?.id || "000000000000000000000000")), role: actorRole(req) } };
   }
   return filter;
 };
 
-// Ids of the blocks a user may see, or null when they see every block (ADMIN)
+// Ids of the blocks a user may see, or null when they see every block
 export const visibleBlockIds = async (req, action = "viewExecution") => {
   const filter = blockFilter(req, action);
   if (!Object.keys(filter).length) return null;
@@ -64,7 +63,6 @@ export const visibleSectionIds = async (req, action = "viewExecution") => {
 
 export const assertBlockAccess = (req, action, profile) => {
   const scope = assertAllowed(req, action);
-  if (profile.isDemo && !isAdmin(req)) throw notFound("Block profile not found");
   if (scope === "assigned" && !onTeam(profile, req)) throw forbidden("You're not on this block's team");
 };
 

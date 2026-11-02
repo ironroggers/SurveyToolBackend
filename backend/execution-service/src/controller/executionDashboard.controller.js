@@ -52,7 +52,7 @@ export const getExecutionDashboard = async (req, res) => {
 
     // Every visible block, for the filter options; the filters then narrow the figures
     const visible = await BlockProfile.find(blockFilter(req, "viewExecution"))
-      .select("state district block blockCode status isDemo numberOfGps gps.lgdCode rings updatedAt")
+      .select("state district block blockCode status numberOfGps gps.lgdCode rings updatedAt")
       .sort({ state: 1, district: 1, block: 1 })
       .lean();
 
@@ -149,7 +149,6 @@ export const getExecutionDashboard = async (req, res) => {
           district: p.district || "",
           state: p.state || "",
           status: p.status,
-          isDemo: Boolean(p.isDemo),
           gpsDeclared: p.numberOfGps || 0,
           gpsEntered: p.gps?.length || 0,
           gpsInfra: 0,

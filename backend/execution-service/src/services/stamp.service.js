@@ -13,11 +13,11 @@ import sharp from "sharp";
 // which the Dockerfile's Noto fonts cover. The GPS position also goes in the file's metadata.
 
 const require = createRequire(import.meta.url);
-export const FONT = require.resolve("dejavu-fonts-ttf/ttf/DejaVuSans.ttf");
-export const FONT_BOLD = require.resolve("dejavu-fonts-ttf/ttf/DejaVuSans-Bold.ttf");
+const FONT = require.resolve("dejavu-fonts-ttf/ttf/DejaVuSans.ttf");
+const FONT_BOLD = require.resolve("dejavu-fonts-ttf/ttf/DejaVuSans-Bold.ttf");
 const BADGE = "Locus GPS Camera";
 
-export const runFfmpeg = (args, timeoutMs) =>
+const runFfmpeg = (args, timeoutMs) =>
   new Promise((resolve, reject) => {
     execFile(ffmpegPath, args, { timeout: timeoutMs, maxBuffer: 16 * 1024 * 1024 }, (error, stdout, stderr) => {
       if (error) {
@@ -26,9 +26,6 @@ export const runFfmpeg = (args, timeoutMs) =>
       } else resolve(String(stderr || ""));
     });
   });
-
-// Paths inside a filter graph: escape the characters the parser treats specially
-export const filterPath = (p) => p.replace(/\\/g, "/").replace(/([:'\[\],;])/g, "\\$1");
 
 // ---- text
 
@@ -195,56 +192,6 @@ const iso6709 = (meta) => {
     return `${n < 0 ? "-" : "+"}${Math.abs(n).toFixed(6).padStart(width, "0")}`;
   };
   return `${part(meta.latitude, 9)}${part(meta.longitude, 10)}/`;
-};
-
-// ---- geometry: the ffmpeg filter graph for the demo block's generated media
-
-export const buildFilter = async (dir, W, H, meta) => {
-  const fs = Math.max(12, Math.round(Math.min(W, H) * 0.03));
-  const margin = Math.round(Math.min(W, H) * 0.02);
-  const pad = Math.round(fs * 0.7);
-  const boxW = W - margin * 2;
-  // DejaVu Sans averages about 0.55 em per character
-  const maxChars = Math.max(16, Math.floor((boxW - pad * 2) / (fs * 0.56)));
-  const lines = stampLines(meta, maxChars);
-  const heights = lines.map((l) => Math.round(fs * (l.scale || 1) * 1.38));
-  const boxH = pad * 2 + heights.reduce((a, b) => a + b, 0);
-  const boxY = H - margin - boxH;
-
-  const filters = [`drawbox=x=${margin}:y=${boxY}:w=${boxW}:h=${boxH}:color=black@0.55:t=fill`];
-  const text = async (i, value, opts) => {
-    const file = path.join(dir, `line${i}.txt`);
-    await writeFile(file, value, "utf8");
-    return [
-      `drawtext=fontfile=${filterPath(opts.bold ? FONT_BOLD : FONT)}`,
-      `textfile=${filterPath(file)}`,
-      "expansion=none",
-      `fontsize=${opts.size}`,
-      `fontcolor=${opts.color || "white"}`,
-      "shadowcolor=black@0.6:shadowx=1:shadowy=1",
-      `x=${opts.x}`,
-      `y=${opts.y}`,
-    ].join(":");
-  };
-
-  let y = boxY + pad;
-  for (let i = 0; i < lines.length; i += 1) {
-    const l = lines[i];
-    filters.push(await text(i, l.text, { bold: l.bold, size: Math.round(fs * (l.scale || 1)), x: margin + pad, y }));
-    y += heights[i];
-  }
-
-  // App badge at the top right of the band, like a camera app's watermark
-  const badgeSize = Math.round(fs * 0.85);
-  const badgePad = Math.round(badgeSize * 0.45);
-  const badgeH = badgeSize + badgePad * 2;
-  const badgeW = Math.round(BADGE.length * badgeSize * 0.62) + badgePad * 2;
-  const badgeX = W - margin - badgeW;
-  const badgeY = boxY - badgeH - Math.round(margin / 2);
-  filters.push(`drawbox=x=${badgeX}:y=${badgeY}:w=${badgeW}:h=${badgeH}:color=black@0.55:t=fill`);
-  filters.push(await text(lines.length, BADGE, { bold: true, size: badgeSize, x: `${badgeX}+(${badgeW}-text_w)/2`, y: badgeY + badgePad }));
-
-  return filters.join(",");
 };
 
 // Width, height and rotation from ffmpeg's probe output
