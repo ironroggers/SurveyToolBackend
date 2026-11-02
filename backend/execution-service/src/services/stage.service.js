@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import BlockProfile from "../models/blockProfile.model.js";
 import StageRecord from "../models/stageRecord.model.js";
 import SubSection from "../models/subSection.model.js";
-import { MEDIA_RULES, OPTIONS, RECORD_STAGES, STAGE_DRAFT_MESSAGES, STAGE_FIELDS, stageCode } from "../config/executionTypes.js";
+import { MEDIA_RULES, OPTIONS, RECORD_STAGES, STAGE_DRAFT_MESSAGES, STAGE_FIELDS, STAGES, stageCode } from "../config/executionTypes.js";
 import { badRequest, failIfErrors, notFound } from "../utils/httpError.js";
 import { round } from "../utils/geo.js";
 import { cleanFix, cleanMediaSet } from "./execution.service.js";
@@ -118,6 +118,8 @@ const checkPits = async (stage, data, section, recordId, errors) => {
   return { latitude: pit.latitude, longitude: pit.longitude, accuracy: pit.accuracy };
 };
 
+const mediaRuleFor = (stage) => MEDIA_RULES[STAGES[stage].mediaRule || "stageRecord"];
+
 /**
  * What a create or update stores. A draft needs only the identity field (`draft` in the config);
  * with `full`, everything required. Values that are given are always checked.
@@ -152,7 +154,7 @@ export const buildRecordValues = async (req, stage, section, { recordId, full = 
   }
   if (stage === "BLOWING") Object.assign(data, blowingLengths(data));
 
-  const rule = MEDIA_RULES.stageRecord;
+  const rule = mediaRuleFor(stage);
   const { photos } = cleanMediaSet(body, full ? rule : { ...rule, minPhotos: 0 }, "", errors);
   await checkLinks(stage, links, data, section, recordId, errors);
   const pitFix = await checkPits(stage, data, section, recordId, errors);
@@ -184,7 +186,7 @@ export const assertRecordComplete = (record) => {
       errors[f.key] = f.requiredMessage;
     }
   }
-  if ((record.photos || []).length < MEDIA_RULES.stageRecord.minPhotos) errors.photos = "Take at least one photo";
+  if ((record.photos || []).length < mediaRuleFor(record.stage).minPhotos) errors.photos = "Take at least one photo";
   failIfErrors(errors);
 };
 

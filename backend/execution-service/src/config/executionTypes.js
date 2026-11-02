@@ -105,7 +105,7 @@ export const AI_AUTOFILL_FIELDS = ["depth", "temperature", "angle"];
 // each of the others has its own StageRecords for the section.
 export const STAGES = {
   EXCAVATION: { label: "Excavation", one: "subsection", many: "subsections" },
-  DUCTING: { label: "Ducting", one: "duct run", many: "duct runs", add: "Add run", empty: "Add the first one from the site.", nearest: "the nearest duct end" },
+  DUCTING: { label: "Ducting", one: "duct run", many: "duct runs", add: "Add run", empty: "Add the first one from the site.", nearest: "the nearest duct end", mediaRule: "ductRun" },
   // Coupling points are worked out from the ducts, so there is nothing to add by hand
   COUPLING: { label: "Coupling", one: "coupling", many: "couplings", empty: "A coupling point appears here when two duct runs meet at a pit.", nearest: "the nearest coupling point" },
   BLOWING: { label: "Blowing", one: "blowing run", many: "blowing runs", add: "Add run", empty: "Pick two pits to record a run of cable.", nearest: "the nearest blown cable" },
@@ -261,6 +261,8 @@ export const MEDIA_RULES = {
   entry: { minPhotos: 0, maxPhotos: 1, video: "none" },
   // TODO(confirm): the documents set only the size limit; 1 photo is the prototype's default
   stageRecord: { minPhotos: 1, maxPhotos: 4, video: "none", targetBytes: 400000 },
+  // A stage can name its own rule with `mediaRule`. Duct run photos are optional
+  ductRun: { minPhotos: 0, maxPhotos: 4, video: "none", targetBytes: 400000 },
 };
 
 const envNumber = (name, fallback) => {
