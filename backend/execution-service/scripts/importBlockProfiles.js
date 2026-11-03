@@ -1,12 +1,15 @@
 // Creates the block profiles and their sections from the GP infra and section-wise Excel files,
 // with names and codes from the LGD master (scripts/importLgdMaster.js loads it first).
 //
-//   node scripts/importBlockProfiles.js --gps <GP infra.xlsx> --sections <Section wise.xlsx>           dry run
-//   node scripts/importBlockProfiles.js --gps <GP infra.xlsx> --sections <Section wise.xlsx> --apply   writes
+//   node scripts/importBlockProfiles.js --gps <GP infra.xlsx> --sections <Section wise.xlsx> --routers <Block infra.xlsx>           dry run
+//   node scripts/importBlockProfiles.js --gps <GP infra.xlsx> --sections <Section wise.xlsx> --routers <Block infra.xlsx> --apply   writes
 //
 // GP infra (first sheet): District Name, Block Name, GP Name, LGD Code, Lat, Long.
 // Section wise ("Sheet1", header on row 2): Zone Name, District name, Block Name, Segment Name, From,
 // To, and the lengths in km: A usable incremental, B new 24F, C new common 24F, D shared 24F, F total.
+// Block infra (first sheet): District, Block Name, Block Router Location, Lat, Long.
+//   - the location text is the router's name; a point given for more than one block is a
+//     placeholder, so those routers are left without coordinates
 //   - blocks are matched to the master by name, GPs by LGD code (names come from the master)
 //   - a section end is the block router ("… BLOCK ROUTER"), a GP by name ("X GP", "X GP BJC1" and
 //     "X BJC" are GP X), else a BJC of the block, numbered BJC01, BJC02, … in the order met
@@ -29,6 +32,7 @@ const arg = (name) => {
 };
 const GPS_FILE = arg("--gps");
 const SECTIONS_FILE = arg("--sections");
+const ROUTERS_FILE = arg("--routers");
 const MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost:27017/execution-db";
 
 const text = (v) => String(v ?? "").trim();
@@ -65,6 +69,14 @@ const readGps = (file) => {
     .map((r) => ({ block: text(r[c.block]), gp: text(r[c.gp]), lgdCode: text(r[c.code]), latitude: number(r[c.lat]), longitude: number(r[c.lng]) }));
 };
 
+const readRouters = (file) => {
+  const { col, rows } = rowsOf(file, null, 0);
+  const c = { block: col("block name"), name: col("block router location"), lat: col("lat"), lng: col("long") };
+  return rows
+    .filter((r) => text(r[c.block]))
+    .map((r) => ({ block: text(r[c.block]), name: text(r[c.name]).replace(/\s+/g, " "), latitude: number(r[c.lat]), longitude: number(r[c.lng]) }));
+};
+
 const readSections = (file) => {
   const { col, rows } = rowsOf(file, "Sheet1", 1);
   const c = {
@@ -95,8 +107,11 @@ const readSections = (file) => {
 };
 
 const run = async () => {
-  if (!GPS_FILE || !SECTIONS_FILE) throw new Error("Give both files: --gps <GP infra.xlsx> --sections <Section wise.xlsx> [--apply]");
+  if (!GPS_FILE || !SECTIONS_FILE || !ROUTERS_FILE) {
+    throw new Error("Give the three files: --gps <GP infra.xlsx> --sections <Section wise.xlsx> --routers <Block infra.xlsx> [--apply]");
+  }
   const gpRows = readGps(GPS_FILE);
+  const routerRows = readRouters(ROUTERS_FILE);
   const sectionRows = readSections(SECTIONS_FILE);
 
   await mongoose.connect(MONGODB_URI);
@@ -121,6 +136,19 @@ const run = async () => {
     gpPoint.set(r.lgdCode, r);
   }
 
+  // Router by block; a point given for several blocks is dropped
+  const pointKey = (r) => `${r.latitude},${r.longitude}`;
+  const pointUses = new Map();
+  for (const r of routerRows) pointUses.set(pointKey(r), (pointUses.get(pointKey(r)) || 0) + 1);
+  const routerOf = new Map();
+  for (const r of routerRows) {
+    const b = blockOf(r.block, `Router ${r.name}`);
+    if (!b) continue;
+    const shared = pointUses.get(pointKey(r)) > 1;
+    if (shared) notes.push(`${b.block}: router point ${pointKey(r)} is given for ${pointUses.get(pointKey(r))} blocks, left blank`);
+    routerOf.set(b.blockCode, { name: r.name, ...(!shared && { latitude: r.latitude, longitude: r.longitude }) });
+  }
+
   const plans = [];
   for (const b of master.sort((x, y) => x.district.localeCompare(y.district) || x.block.localeCompare(y.block))) {
     const rows = sectionRows.filter((r) => key(r.block) === key(b.block));
@@ -129,10 +157,8 @@ const run = async () => {
     for (const r of gpRows) if (key(r.block) === key(b.block)) gpByName.set(gpKey(r.gp), b.gps.find((g) => g.lgdCode === r.lgdCode));
 
     const bjcs = [];
-    let routerName = "";
     const endOf = (name, section) => {
       if (isRouter(name)) {
-        routerName ||= name.toUpperCase();
         return { type: "ROUTER", code: b.blockCode };
       }
       const gp = gpByName.get(gpKey(name));
@@ -164,6 +190,7 @@ const run = async () => {
       };
     });
     if (!rows.length) problems.push(`${b.block}: no sections in the file`);
+    if (!routerOf.has(b.blockCode)) problems.push(`${b.block}: no row in the router file`);
 
     plans.push({
       skip: existing.has(b.blockCode),
@@ -181,7 +208,7 @@ const run = async () => {
           return { name: g.name, lgdCode: g.lgdCode, latitude: p?.latitude ?? undefined, longitude: p?.longitude ?? undefined };
         }),
         bjcs,
-        blockRouter: { name: routerName },
+        blockRouter: routerOf.get(b.blockCode) || {},
       },
       sections,
     });
@@ -189,9 +216,10 @@ const run = async () => {
 
   const toCreate = plans.filter((p) => !p.skip);
   const count = (list, f) => list.reduce((n, p) => n + f(p), 0);
-  console.log(`Master: ${master.length} blocks. Files: ${gpRows.length} GP rows, ${sectionRows.length} section rows.`);
+  console.log(`Master: ${master.length} blocks. Files: ${gpRows.length} GP rows, ${sectionRows.length} section rows, ${routerRows.length} router rows.`);
   console.log(`To create: ${toCreate.length} block profiles, ${count(toCreate, (p) => p.profile.gps.length)} GPs, ${count(toCreate, (p) => p.profile.bjcs.length)} BJCs, ${count(toCreate, (p) => p.sections.length)} sections`);
   const skipped = plans.filter((p) => p.skip);
+  console.log(`Routers with coordinates: ${toCreate.filter((p) => p.profile.blockRouter.latitude != null).length} of ${toCreate.length}`);
   if (skipped.length) console.log(`Skipped (already have a profile): ${skipped.map((p) => p.profile.block).join(", ")}`);
   console.log(`Total section length: ${Math.round(count(toCreate, (p) => p.sections.reduce((n, s) => n + s.existingIncrementalPathLength + s.mainPathLength + s.sharingPathLength, 0)) / 10) / 100} km`);
   if (notes.length) {
