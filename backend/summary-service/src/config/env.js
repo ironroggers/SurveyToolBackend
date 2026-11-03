@@ -8,9 +8,19 @@ export function loadEnv() {
   }
 }
 
+// Read when used, not when this file is imported: imports run before server.js calls
+// loadEnv(), so values from .env aren't there yet at import time
 export const config = {
-  nodeEnv: process.env.NODE_ENV || "development",
-  port: process.env.PORT || 5000,
-  mongoUri: process.env.MONGODB_URI || "mongodb://localhost:27017/test",
-  logLevel: process.env.LOG_LEVEL || "info",
+  get nodeEnv() {
+    return process.env.NODE_ENV || "development";
+  },
+  get port() {
+    return process.env.PORT || 5000;
+  },
+  get mongoUri() {
+    return process.env.MONGODB_URI || "mongodb://localhost:27017/test";
+  },
+  get logLevel() {
+    return process.env.LOG_LEVEL || "info";
+  },
 };
