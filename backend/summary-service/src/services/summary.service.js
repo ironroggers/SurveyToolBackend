@@ -149,6 +149,9 @@ function mapBlockRouterRow(row = {}) {
   };
 }
 
+// Distinct blocks among the rows that match
+const blocksWhere = (rows, match) => new Set(rows.filter(match).map((row) => row.Block_Code)).size;
+
 export async function getSummary() {
   const [
     gpsOperationalRows,
@@ -214,22 +217,17 @@ export async function getSummary() {
           ),
         ].length,
       },
+      // Physical survey and BOQ are done per block: each block counts once, however many
+      // GP rows it has in Desktop Surveys (as Desktop_Survey above)
       Physical_Survey: {
-        Submitted: desktopSurveys.filter(
-          (survey) => survey.Physical_Survey_Status === "Yes"
-        ).length,
-        Approved: desktopSurveys.filter(
-          (survey) => survey.Physical_Survey_Approved === "Yes"
-        ).length,
+        Total: blocksWhere(desktopSurveys, () => true),
+        Submitted: blocksWhere(desktopSurveys, (survey) => survey.Physical_Survey_Status === "Yes"),
+        Approved: blocksWhere(desktopSurveys, (survey) => survey.Physical_Survey_Approved === "Yes"),
       },
       Row: { Applied: 0, Approved: 0 },
       Boq: {
-        Submitted: desktopSurveys.filter(
-          (survey) => survey.Boq_Submitted === "Yes"
-        ).length,
-        Approved: desktopSurveys.filter(
-          (survey) => survey.Boq_Approved === "Yes"
-        ).length,
+        Submitted: blocksWhere(desktopSurveys, (survey) => survey.Boq_Submitted === "Yes"),
+        Approved: blocksWhere(desktopSurveys, (survey) => survey.Boq_Approved === "Yes"),
       },
       Hdd: { Deployed: hddMachines.length },
       Block_Routers: {
@@ -241,6 +239,8 @@ export async function getSummary() {
         ).length, // Assuming commissioned = installed for now
       },
       Gp_Routers: {
+        // Every GP in Desktop Surveys
+        Scope: desktopSurveys.length,
         Installed: gpsOperationalData.filter(
           (data) => data.GP_Router_Installed === "Yes"
         ).length,
