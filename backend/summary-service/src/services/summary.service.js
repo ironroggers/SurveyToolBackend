@@ -120,6 +120,8 @@ function mapDesktopSurveyRow(row = {}) {
       row["KML Submitted to BSNL through mail (Yes/No)"]
     ),
     Approved: normalizeYesNo(row["BSNL KML Acceptance"]),
+    Submitted_To_IE: normalizeYesNo(row["Submitted to IE"]),
+    Approved_By_IE: normalizeYesNo(row["Approved by IE"]),
     Physical_Survey_Status: normalizeYesNo(row["Physical survey status"]),
     Physical_Survey_Approved: normalizeYesNo(
       row["Physical Survey Approved (Yes/No)"]
@@ -216,6 +218,8 @@ export async function getSummary() {
               .map((survey) => survey.Block_Code)
           ),
         ].length,
+        SubmittedToIE: blocksWhere(desktopSurveys, (survey) => survey.Submitted_To_IE === "Yes"),
+        ApprovedByIE: blocksWhere(desktopSurveys, (survey) => survey.Approved_By_IE === "Yes"),
       },
       // Physical survey and BOQ are done per block: each block counts once, however many
       // GP rows it has in Desktop Surveys (as Desktop_Survey above)
