@@ -20,6 +20,7 @@ const EDITABLE_FIELDS = [
   "blockCode",
   "numberOfGps",
   "gps",
+  "bjcs",
   "numberOfRacks",
   "remarks",
   "blockRouter",
@@ -92,7 +93,7 @@ const withStats = (profile, stats, progress) => {
 };
 
 // Sections copy their end nodes' names and coordinates, so refresh them after the
-// block's router, GPs or code change. A node that was removed from the block keeps its last copy.
+// block's router, GPs, BJCs or code change. A node that was removed from the block keeps its last copy.
 const syncSectionEnds = async (profile) => {
   const sections = await Section.find({ blockProfile: profile._id, fromNode: { $exists: true } }).lean();
   const operations = sections.flatMap((section) => {
@@ -209,7 +210,7 @@ export const updateBlockProfile = async (req, res) => {
       const geography = Object.fromEntries(GEOGRAPHY_FIELDS.map((field) => [field, profile[field] ?? ""]));
       await Section.updateMany({ blockProfile: profile._id }, { $set: geography });
     }
-    if ("blockRouter" in updates || "gps" in updates || "blockCode" in updates) await syncSectionEnds(profile);
+    if ("blockRouter" in updates || "gps" in updates || "bjcs" in updates || "blockCode" in updates) await syncSectionEnds(profile);
     await respondWithProfile(res, profile);
   } catch (error) {
     sendError(res, error);

@@ -65,7 +65,7 @@ const cleanValue = (f, raw, errors) => {
     return undefined;
   }
   if (f.kind === "node") {
-    if (/^(GP|ROUTER):\S+/.test(String(raw))) return String(raw);
+    if (/^(GP|ROUTER|BJC):\S+/.test(String(raw))) return String(raw);
     errors[f.key] = "Pick from the list";
     return undefined;
   }

@@ -66,6 +66,32 @@ const gpSchema = new mongoose.Schema(
         { _id: false }
 );
 
+// A branch joint closure (BJC): a joint on the block's network where sections can start or end,
+// numbered per block (BJC01, BJC02, …)
+export const BJC_CODE = /^BJC\d{2}$/;
+const bjcSchema = new mongoose.Schema(
+        {
+                name: {
+                        type: String,
+                        trim: true,
+                        required: [true, "BJC name is required"]
+                },
+                code: {
+                        type: String,
+                        trim: true,
+                        uppercase: true,
+                        required: [true, "BJC code is required"],
+                        validate: {
+                                validator: (value) => BJC_CODE.test(value),
+                                message: "BJC code must be BJC followed by 2 digits, e.g. BJC01"
+                        }
+                },
+                latitude: coordinate("latitude", "BJC", (bjc) => bjc.longitude),
+                longitude: coordinate("longitude", "BJC", (bjc) => bjc.latitude)
+        },
+        { _id: false }
+);
+
 // Ring numbers follow the number of rings: A01, A02, … (ringCodes(3) -> A01, A02, A03). The
 // stored ring code is SSDDDBBBBAAA: state, district and block LGD codes + the ring number.
 export const MAX_RINGS = 20;
@@ -198,6 +224,15 @@ const blockProfileSchema = new mongoose.Schema(
                                         const duplicates = [...new Set(codes.filter((code, index) => codes.indexOf(code) !== index))];
                                         return `Duplicate GP LGD code: ${duplicates.join(", ")}`;
                                 }
+                        }
+                },
+                // Branch joint closures; sections can run to and from them like GPs
+                bjcs: {
+                        type: [bjcSchema],
+                        default: [],
+                        validate: {
+                                validator: (bjcs) => new Set(bjcs.map((b) => b.code)).size === bjcs.length,
+                                message: "Each BJC code can be used once"
                         }
                 },
                 // Last number given per stage record code (MH, HH, LC, JC, RI, CPL, DCT, BLW), incremented atomically

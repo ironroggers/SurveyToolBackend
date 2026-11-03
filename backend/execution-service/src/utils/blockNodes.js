@@ -1,8 +1,8 @@
-// A block's network nodes are its block router and its GPs. Sections under a block
+// A block's network nodes are its block router, its GPs and its BJCs (branch joint closures). Sections under a block
 // profile run from one node to another, referenced as { type, code }. A block has one
 // router, so its code is the block's LGD code (blockCode).
 
-export const NODE_TYPES = ["ROUTER", "GP"];
+export const NODE_TYPES = ["ROUTER", "GP", "BJC"];
 export const ROUTER_NAME = "Block router";
 
 // The router's own name when the block profile gives one, else "Block router"
@@ -26,6 +26,10 @@ export const findBlockNode = (profile, ref) => {
   if (ref.type === "GP") {
     const gp = (profile.gps || []).find((item) => item.lgdCode === code);
     return gp ? { type: "GP", code, name: gp.name, latitude: gp.latitude, longitude: gp.longitude } : null;
+  }
+  if (ref.type === "BJC") {
+    const bjc = (profile.bjcs || []).find((item) => item.code === code.toUpperCase());
+    return bjc ? { type: "BJC", code: bjc.code, name: bjc.name, latitude: bjc.latitude, longitude: bjc.longitude } : null;
   }
   return null;
 };

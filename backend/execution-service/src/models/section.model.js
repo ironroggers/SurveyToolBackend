@@ -30,7 +30,8 @@ const sectionReviewSchema = new mongoose.Schema(
 // The Field Executive marked a stage complete; missing means it isn't
 const stageDoneSchema = new mongoose.Schema({ at: Date, by: actorSchema }, { _id: false });
 
-// One end of a block section: the block router (code: the block's LGD code) or one of its GPs (code: the GP's LGD code)
+// One end of a block section: the block router (code: the block's LGD code), one of its GPs (code: the GP's LGD code)
+// or one of its BJCs (code: BJC01, …)
 const sectionEndSchema = new mongoose.Schema(
         {
                 type: {

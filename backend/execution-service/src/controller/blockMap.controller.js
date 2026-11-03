@@ -138,7 +138,7 @@ export const buildBlockMap = async (profile) => {
       to,
       fromName: s.fromNode?.name,
       toName: s.toNode?.name,
-      // { type: ROUTER | GP, code, name } of each end, for the topology diagram
+      // { type: ROUTER | GP | BJC, code, name } of each end, for the topology diagram
       fromNode: s.fromNode ? { type: s.fromNode.type, code: s.fromNode.code, name: s.fromNode.name } : null,
       toNode: s.toNode ? { type: s.toNode.type, code: s.toNode.code, name: s.toNode.name } : null,
       sectionLength: s.sectionLength,
